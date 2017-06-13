@@ -11,13 +11,13 @@ const int q = 44488; /* (m / a) */
 const int r = 3399; /* (m % a) */
 
 int rand_pos()
-{
+{ 
+  seed = a * (seed % q) - r * (seed / q);
+  
   if(seed <= 0)
   {
     seed += m;
   }
-  
-  seed = a * (seed % q) - r * (seed / q);
   
   return seed;
 }
@@ -47,4 +47,6 @@ int main(int argc, const char *argv[])
   {
     printf("Position #%d is: %d \n", j + 1, rand_pos());
   }
+  
+  return 0;
 }
