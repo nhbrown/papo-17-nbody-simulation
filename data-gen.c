@@ -22,13 +22,6 @@ int rand_pos()
   return seed;
 }
 
-/*
-void test()
-{
-  printf("The seed is %d and the number of particles is %d.\n", seed, i);
-}
-*/
-
 int main(int argc, const char *argv[])
 {
   switch(argc)
@@ -50,5 +43,8 @@ int main(int argc, const char *argv[])
   
   printf("The seed is %d and the number of particles is %d.\n", seed, i);
   
-  rand_pos();
+  for(int j = 0; j < i; ++j)
+  {
+    printf("Position #%d is: %d \n", j + 1, rand_pos());
+  }
 }
