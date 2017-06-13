@@ -20,4 +20,11 @@ int main(int argc, constant char *argv[])
     default : 
       printf("Invalid input for data-gen.c");
   }
+  
+  test();
+}
+
+void test()
+{
+  printf("The seed is %d and the number of particles is %d", seed, i);
 }
