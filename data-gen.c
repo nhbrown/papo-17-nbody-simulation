@@ -5,10 +5,10 @@
 long seed;
 int i;
 
-const m = 2147483647; /* modulos */
-const a = 48271;  /* multiplier */
-const q = 44488; /* (m / a) */
-const r = 3399; /* (m % a) */
+const int m = 2147483647; /* modulos */
+const int a = 48271;  /* multiplier */
+const int q = 44488; /* (m / a) */
+const int r = 3399; /* (m % a) */
 
 int rand_pos()
 {
@@ -22,10 +22,12 @@ int rand_pos()
   return seed;
 }
 
+/*
 void test()
 {
   printf("The seed is %d and the number of particles is %d.\n", seed, i);
 }
+*/
 
 int main(int argc, const char *argv[])
 {
@@ -46,5 +48,7 @@ int main(int argc, const char *argv[])
       exit(0);
   }
   
-  test();
+  printf("The seed is %d and the number of particles is %d.\n", seed, i);
+  
+  rand_pos();
 }
