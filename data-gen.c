@@ -53,7 +53,7 @@ int main(int argc, const char *argv[])
 
   for(int j = 0; j < i; ++j)
   {
-    fprintf(output, "0.%d 0.%d 0.%d \n\n", rand_pos(), rand_pos(), rand_pos());
+    fprintf(output, "%d %d %d \n\n", rand_pos(), rand_pos(), rand_pos());
   }
 
   fclose(output);
