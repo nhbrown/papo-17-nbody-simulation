@@ -41,12 +41,22 @@ int main(int argc, const char *argv[])
       exit(0);
   }
   
-  printf("The seed is %d and the number of particles is %d.\n", seed, i);
-  
+  FILE *log;
+  log = fopen("log.txt", "w");
+
+  fprintf(log, "Seed used: %d \nNumber of particles: %d \n", seed, i);
+
+  fclose(log);
+
+  FILE *output;
+  output = fopen("output.csv", "w");
+
   for(int j = 0; j < i; ++j)
   {
-    printf("Position #%d is: %d \n", j + 1, rand_pos());
+    fprintf(output, "0.%d 0.%d 0.%d \n\n", rand_pos(), rand_pos(), rand_pos());
   }
+
+  fclose(output);
   
   return 0;
 }
