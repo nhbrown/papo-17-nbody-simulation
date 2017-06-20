@@ -15,8 +15,7 @@ const int r = 3399; /* (m % a) */
 
 /* 
 Minimum LCG as defined by Park & Miller.
-Returns a random number in the range of 1 to 2147483647.
-Only returns positive values.
+Returns a pseudo-random long in the range of +1 to +2147483647.
 */
 int rand_pos()
 { 
@@ -31,12 +30,9 @@ int rand_pos()
 }
 
 /*
-Passing a seed as a parameter is optional,
-if no seed is passed seed is equal to UNIX-clock.
-Specifying the amount of particles to generate
-is always necessary.
-If user wishes to specify the seed, the order of
-arguments needs to be: <executable> seed amount
+Passing a seed as a parameter is optional, if no seed is passed seed is equal to UNIX-clock.
+Specifying the amount of particles to generate is always necessary.
+If user wishes to specify the seed, the order of arguments needs to be: <executable> seed amount
 */
 int main(int argc, const char *argv[])
 {
