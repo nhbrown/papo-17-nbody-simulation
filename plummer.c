@@ -19,10 +19,10 @@ struct body
   double xvel;
   double yvel;
   double zvel;
-}
+};
 
 /* single particle */
-body p;
+struct body p;
 
 /* 
 M defines the total mass of the cluster.
@@ -35,7 +35,7 @@ static const double G = 1.0;
 
 double frand(double low, double high)
 {
-  return low + rand * (high - low);
+  return low + rand() * (high - low);
 }
 
 void plummer()
@@ -61,7 +61,7 @@ void plummer()
     y = frand(0.0, 0.1);
   }
   
-  double velocity = x * sqrt(2.0) * pow((1.0 + radius * radius), -0.25));
+  double velocity = x * sqrt(2.0) * pow((1.0 + radius * radius), -0.25);
   
   p.xvel = velocity * sin(theta) * cos(phi);
   p.yvel = velocity * sin(theta) * sin(phi);
@@ -95,8 +95,7 @@ int main(int argc, const char *argv[])
   FILE *log;
   log = fopen("log.txt", "w"); /* writes to new file log.txt which holds important parameters */
 
-  fprintf(log, "Seed used: %d \nNumber of particles: %d \nTotal mass of cluster: %d \nDimensions of cluster: %d \n
-          Gravitational constant: %d", seed, N, M, R, G);
+  fprintf(log, "Seed used: %d \nNumber of particles: %d \nTotal mass of cluster: %d \nDimensions of cluster: %d \nGravitational constant: %d", seed, N, M, R, G);
 
   fclose(log);
 
