@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include <complex.h>
 
 /* Seed for srand. */
 double seed;
@@ -10,15 +11,15 @@ int N;
 
 struct body
 {
-  double xpos;
-  double ypos;
-  double zpos;
+  double complex xpos;
+  double complex ypos;
+  double complex zpos;
   
-  double mass;  
+  double complex mass;  
   
-  double xvel;
-  double yvel;
-  double zvel;
+  double complex xvel;
+  double complex yvel;
+  double complex zvel;
 };
 
 /* single particle */
@@ -39,18 +40,16 @@ double frand(double low, double high)
 }
 
 void plummer()
-{
-  srand(seed);
-  
+{  
   p.mass = M / N;
   
-  double radius = R / sqrt((pow(rand(), (-2.0/3.0))) - 1.0);
-  double theta = acos(frand(-1.0, 1.0));
+  double complex radius = R / csqrt((cpow(rand(), (-2.0/3.0))) - 1.0);
+  double complex theta = cacos(frand(-1.0, 1.0));
   double phi = frand(0.0, (2 * M_PI));
   
-  p.xpos = radius * sin(theta) * cos(phi);
-  p.ypos = radius * sin(theta) * sin(phi);
-  p.zpos = radius * cos(theta);
+  p.xpos = radius * csin(theta) * ccos(phi);
+  p.ypos = radius * csin(theta) * csin(phi);
+  p.zpos = radius * ccos(theta);
   
   double x = 0.0;
   double y = 0.1;
@@ -61,11 +60,11 @@ void plummer()
     y = frand(0.0, 0.1);
   }
   
-  double velocity = x * sqrt(2.0) * pow((1.0 + radius * radius), -0.25);
+  double complex velocity = x * csqrt(2.0) * cpow((1.0 + radius * radius), -0.25);
   
-  p.xvel = velocity * sin(theta) * cos(phi);
-  p.yvel = velocity * sin(theta) * sin(phi);
-  p.zvel = velocity * cos(theta);
+  p.xvel = velocity * csin(theta) * ccos(phi);
+  p.yvel = velocity * csin(theta) * csin(phi);
+  p.zvel = velocity * ccos(theta);
 }
 
 /*
@@ -83,7 +82,7 @@ int main(int argc, const char *argv[])
       break;
 
     case 3 : /* if two arguments are passed, first one is assumed to be seed */
-      seed = atol(argv[1]);
+      seed = atof(argv[1]);
       N = atoi(argv[2]);
       break;
 
@@ -92,10 +91,13 @@ int main(int argc, const char *argv[])
       exit(0);
   }
   
+  srand(seed);
+  
   FILE *log;
   log = fopen("log.txt", "w"); /* writes to new file log.txt which holds important parameters */
 
-  fprintf(log, "Seed used: %d \nNumber of particles: %d \nTotal mass of cluster: %d \nDimensions of cluster: %d \nGravitational constant: %d", seed, N, M, R, G);
+  fprintf(log, "Seed used: %f \nNumber of particles: %d \nTotal mass of cluster: %f \nDimensions of cluster: %f \nGravitational constant: %f", 
+          seed, N, M, R, G);
 
   fclose(log);
 
@@ -105,7 +107,8 @@ int main(int argc, const char *argv[])
   for(int j = 0; j < N; ++j)
   {
     plummer();
-    fprintf(output, "%d, %d, %d, %d, %d, %d, %d \n\n", p.xpos, p.ypos, p.zpos, p.mass, p.xvel, p.yvel, p.zvel);
+    fprintf(output, "%f, %f, %f, %f, %f, %f, %f\n\n", 
+            creal(p.xpos), creal(p.ypos), creal(p.zpos), creal(p.mass), creal(p.xvel), creal(p.yvel), creal(p.zvel));
   }
 
   fclose(output);
