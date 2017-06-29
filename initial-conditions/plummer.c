@@ -3,6 +3,7 @@
 #include <time.h>
 #include <math.h>
 #include <complex.h>
+#include "mersenne.h"
 
 /* Seed for srand. */
 double seed;
@@ -36,14 +37,14 @@ static const double G = 1.0;
 
 double frand(double low, double high)
 {
-  return low + rand() * (high - low);
+  return low + genrand_int32() * (high - low);
 }
 
 void plummer()
 {  
   p.mass = M / N;
   
-  double complex radius = R / csqrt((cpow(rand(), (-2.0/3.0))) - 1.0);
+  double complex radius = R / csqrt((cpow(genrand_real1(), (-2.0/3.0))) - 1.0);
   double complex theta = cacos(frand(-1.0, 1.0));
   double phi = frand(0.0, (2 * M_PI));
   
