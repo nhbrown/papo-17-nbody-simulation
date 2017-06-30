@@ -1,0 +1,5 @@
+Seed used: 1498856089 
+Number of particles: 150000 
+Total mass of cluster: 1.000000 
+Dimensions of cluster: 1.000000 
+Gravitational constant: 1.000000
