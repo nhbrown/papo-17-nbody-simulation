@@ -8,6 +8,11 @@
 #include <time.h>
 #include <unistd.h>
 
+/* Seed for Mersenne-Twister. */
+long seed;
+/* Total number of particles to be generated. */
+int N;
+
 struct body
 {
   double complex xpos;
@@ -124,11 +129,6 @@ If user wishes to specify the seed, the order of arguments needs to be: <executa
 */
 int main(int argc, const char *argv[])
 {
-  /* Seed for Mersenne-Twister. */
-  long seed;
-  /* Total number of particles to be generated. */
-  int N;
-  
   switch(argc)
   {
     case 2 : /* if one argument is passed, it is assumed to be amount of particles */
