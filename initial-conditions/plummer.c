@@ -1,4 +1,5 @@
 #include <complex.h>
+#include <math.h>
 #include "mersenne.h"
 #include <stdio.h>
 #include <stdlib.h>
