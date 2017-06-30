@@ -9,7 +9,7 @@
 #include <unistd.h>
 
 /* Seed for Mersenne-Twister. */
-long seed;
+usigned long seed;
 /* Total number of particles to be generated. */
 int N;
 
@@ -104,7 +104,7 @@ void generateOutput()
   FILE *log;
   log = fopen(logname, "w"); /* writes to new file log_<currentdate>.txt which holds important parameters */
 
-  fprintf(log, "Seed used: %f \nNumber of particles: %d \nTotal mass of cluster: %f \nDimensions of cluster: %f \nGravitational constant: %f", 
+  fprintf(log, "Seed used: %lu \nNumber of particles: %d \nTotal mass of cluster: %f \nDimensions of cluster: %f \nGravitational constant: %f", 
           seed, N, M, R, G);
 
   fclose(log);
