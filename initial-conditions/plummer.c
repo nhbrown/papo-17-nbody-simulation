@@ -1,9 +1,8 @@
+#include <complex.h>
+#include "mersenne.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <math.h>
-#include <complex.h>
-#include "mersenne.h"
 
 /* Seed for srand. */
 double seed;
@@ -16,7 +15,7 @@ struct body
   double complex ypos;
   double complex zpos;
   
-  double complex mass;  
+  double mass;  
   
   double complex xvel;
   double complex yvel;
@@ -37,18 +36,19 @@ static const double G = 1.0;
 
 double frand(double low, double high)
 {
-  return low + genrand_int32() * (high - low);
+  return low + genrand_real1() * (high - low);
 }
 
 void plummer()
 {  
-  p.mass = M / N;
+  p.mass = M / N; /* mass equilibrium */
   
-  double complex radius = R / csqrt((cpow(genrand_real1(), (-2.0/3.0))) - 1.0);
-  double complex theta = cacos(frand(-1.0, 1.0));
-  double phi = frand(0.0, (2 * M_PI));
+  double complex radius = R / csqrt((cpow(genrand_real1(), (-2.0/3.0))) - 1.0); /* inverted cumulative mass distribution */
+  double complex theta = cacos(frand(-1.0, 1.0)); /* Polar Angle */
+  double complex phi = frand(0.0, (2 * M_PI)); /* Azimuthal Angle */
   
-  p.xpos = radius * csin(theta) * ccos(phi);
+  /* conversion from radial to cartesian coordinates */
+  p.xpos = radius * csin(theta) * ccos(phi); 
   p.ypos = radius * csin(theta) * csin(phi);
   p.zpos = radius * ccos(theta);
   
@@ -109,7 +109,7 @@ int main(int argc, const char *argv[])
   {
     plummer();
     fprintf(output, "%f, %f, %f, %f, %f, %f, %f\n\n", 
-            creal(p.xpos), creal(p.ypos), creal(p.zpos), creal(p.mass), creal(p.xvel), creal(p.yvel), creal(p.zvel));
+            creal(p.xpos), creal(p.ypos), creal(p.zpos), p.mass, creal(p.xvel), creal(p.yvel), creal(p.zvel));
   }
 
   fclose(output);
