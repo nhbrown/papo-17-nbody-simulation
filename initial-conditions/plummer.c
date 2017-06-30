@@ -1,3 +1,4 @@
+/*    
     The following source code is an implementation of the plummer three-dimensional
     density profile for generating the inital conditions of a globular cluster to be
     used within as the starting point for an n-body simulation.
@@ -16,6 +17,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include <complex.h>
 #include <math.h>
