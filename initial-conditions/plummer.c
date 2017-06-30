@@ -3,12 +3,10 @@
 #include "mersenne.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <time.h>
-
-/* Seed for srand. */
-double seed;
-/* Total number of particles to be generated. */
-int N;
+#include <unistd.h>
 
 struct body
 {
@@ -63,10 +61,60 @@ void plummer()
   }
   
   double complex velocity = x * csqrt(2.0) * cpow((1.0 + radius * radius), -0.25);
+  theta = cacos(frand(-1.0, 1.0));
+  phi = frand(0.0, (2 * M_PI));
   
   p.xvel = velocity * csin(theta) * ccos(phi);
   p.yvel = velocity * csin(theta) * csin(phi);
   p.zvel = velocity * ccos(theta);
+}
+
+char foldername[40];
+char logname[80];
+char conditionsname[80];
+
+void createNames()
+{
+  struct tm *sTm;
+
+  time_t now = time(0);
+  sTm = gmtime(&now);
+
+  strftime (foldername, sizeof(foldername), "run_%Y_%m_%d_%H:%M:%S", sTm);
+  strftime (logname, sizeof(logname), "run_%Y_%m_%d_%H:%M:%S/log_%Y_%m_%d_%H:%M:%S.txt", sTm);
+  strftime (conditionsname, sizeof(conditionsname), "run_%Y_%m_%d_%H:%M:%S/initial_conditions.csv", sTm);
+
+  struct stat st = {0};
+
+  if (stat(foldername, &st) == -1)
+  {
+      mkdir(foldername, 0700);
+  }
+}
+
+void generateOutput()
+{ 
+  createNames();
+  
+  FILE *log;
+  log = fopen(logname, "w"); /* writes to new file log_<currentdate>.txt which holds important parameters */
+
+  fprintf(log, "Seed used: %f \nNumber of particles: %d \nTotal mass of cluster: %f \nDimensions of cluster: %f \nGravitational constant: %f", 
+          seed, N, M, R, G);
+
+  fclose(log);
+
+  FILE *conditions;
+  conditions = fopen(conditionsname, "w"); /* writes to new file initial_conditions.csv which holds positions */
+
+  for(int j = 0; j < N; ++j)
+  {
+    plummer();
+    fprintf(conditions, "%f, %f, %f, %f, %f, %f, %f\n\n", 
+            creal(p.xpos), creal(p.ypos), creal(p.zpos), p.mass, creal(p.xvel), creal(p.yvel), creal(p.zvel));
+  }
+
+  fclose(conditions);
 }
 
 /*
@@ -76,15 +124,20 @@ If user wishes to specify the seed, the order of arguments needs to be: <executa
 */
 int main(int argc, const char *argv[])
 {
+  /* Seed for Mersenne-Twister. */
+  long seed;
+  /* Total number of particles to be generated. */
+  int N;
+  
   switch(argc)
   {
     case 2 : /* if one argument is passed, it is assumed to be amount of particles */
-      seed = (double)time(NULL);
+      seed = (unsigned long)time(NULL);
       N = atoi(argv[1]);
       break;
 
     case 3 : /* if two arguments are passed, first one is assumed to be seed */
-      seed = atof(argv[1]);
+      seed = atol(argv[1]);
       N = atoi(argv[2]);
       break;
 
@@ -93,27 +146,9 @@ int main(int argc, const char *argv[])
       exit(0);
   }
   
-  srand(seed);
+  init_genrand(seed);
   
-  FILE *log;
-  log = fopen("log.txt", "w"); /* writes to new file log.txt which holds important parameters */
-
-  fprintf(log, "Seed used: %f \nNumber of particles: %d \nTotal mass of cluster: %f \nDimensions of cluster: %f \nGravitational constant: %f", 
-          seed, N, M, R, G);
-
-  fclose(log);
-
-  FILE *output;
-  output = fopen("output.csv", "w"); /* writes to new file output.csv which holds positions */
-
-  for(int j = 0; j < N; ++j)
-  {
-    plummer();
-    fprintf(output, "%f, %f, %f, %f, %f, %f, %f\n\n", 
-            creal(p.xpos), creal(p.ypos), creal(p.zpos), p.mass, creal(p.xvel), creal(p.yvel), creal(p.zvel));
-  }
-
-  fclose(output);
+  generateOutput();
   
   return 0;
 }
