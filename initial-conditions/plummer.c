@@ -1,3 +1,22 @@
+    The following source code is an implementation of the plummer three-dimensional
+    density profile for generating the inital conditions of a globular cluster to be
+    used within as the starting point for an n-body simulation.
+    This application can be referred to as initial conditions generator or ICG.
+    Copyright (C) 2017  Nicholas Lee Hickson-Brown, Michael Eidus
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 #include <complex.h>
 #include <math.h>
 #include "mersenne.h"
