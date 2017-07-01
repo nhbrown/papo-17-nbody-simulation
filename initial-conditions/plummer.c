@@ -136,7 +136,7 @@ void generateOutput()
   for(int j = 0; j < N; ++j)
   {
     plummer();
-    fprintf(conditions, "%f, %f, %f, %f, %f, %f, %f\n\n", 
+    fprintf(conditions, "%f, %f, %f, %f, %f, %f, %f\n", 
             creal(p.xpos), creal(p.ypos), creal(p.zpos), p.mass, creal(p.xvel), creal(p.yvel), creal(p.zvel));
   }
 
