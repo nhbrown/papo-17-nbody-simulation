@@ -30,7 +30,7 @@
 #include <unistd.h>
 
 /* Seed for Mersenne-Twister. */
-usigned long seed;
+unsigned long seed;
 /* Total number of particles to be generated. */
 int N;
 
