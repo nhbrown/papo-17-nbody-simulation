@@ -8,9 +8,10 @@ out vec3 fColor;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform vec3 ourColor;
 
 void main()
 {
-    fColor = aColor;
+    fColor = ourColor;
     gl_Position = projection * view * vec4(aPos + aOffset, 1.0);
 }
