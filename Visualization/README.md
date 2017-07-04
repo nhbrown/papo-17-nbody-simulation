@@ -1,4 +1,4 @@
-- start OpenGL.exe for visualization of particel data
+- start OpenGL.exe for visualization of particle data
 - need to be in the same folder with vertex_shader.vs, fragment_shader.fs and initial_conditions.csv
 - need initial_conditions.csv with 150000 particles
 - Zoom and rotation with UP/DOWN/LEFT/RIGHT
