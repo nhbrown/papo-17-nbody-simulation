@@ -3,18 +3,10 @@
 #include <complex.h>
 
 int N; /* amount of particles */
-int DIM = 3; /* dimensions */
-
+int DIM; /* dimensions */
 double dt; /* timestep */
-double mass[N]; /* mass for all particles */
 
-double complex pos[N][DIM]; /* positions for all particles */
-double complex vel[N][DIM]; /* velocities for all particles */
-
-double complex acc[N][DIM]; /* acceleration for all particles */
-double complex jerk[N][DIM]; /* jerk for all particles */
-
-void acc_jerk()
+void acc_jerk(double *mass, double complex (*pos)[DIM], double complex (*vel)[DIM], double complex (*acc)[DIM], double complex (*jerk)[DIM])
 { 
   for(int i = 0; i < N; ++i)
   {
@@ -68,7 +60,7 @@ void acc_jerk()
  }
 }
 
-void hermite()
+void hermite(double *mass, double complex (*pos)[DIM], double complex (*vel)[DIM], double complex (*acc)[DIM], double complex (*jerk)[DIM])
 {
   double complex old_pos[N][DIM];
   double complex old_vel[N][DIM];  
@@ -96,7 +88,7 @@ void hermite()
     }
   }
   
-  acc_jerk();
+  acc_jerk(mass, pos, vel, acc, jerk);
   
   /* correction in reversed order of computation */
   for (int i = 0; i < N; ++i)
@@ -111,17 +103,34 @@ void hermite()
 
 int main(int argc, const char *argv[])
 {
+  N = 10;
+  DIM = 3;
   dt = 0.01;
   
-  int N = 10;
   double end_time = 1.0;
   double time = 0.0;
   
-  acc_jerk();
+  double mass[N]; /* mass for all particles */
+
+  double complex pos[N][DIM]; /* positions for all particles */
+  double complex vel[N][DIM]; /* velocities for all particles */
+
+  double complex acc[N][DIM]; /* acceleration for all particles */
+  double complex jerk[N][DIM]; /* jerk for all particles */
+  
+  double *pmass = mass;
+  
+  double complex (*ppos)[DIM] = pos;
+  double complex (*pvel)[DIM] = vel;
+  
+  double complex (*pacc)[DIM] = acc;
+  double complex (*pjerk)[DIM] = jerk;
+  
+  acc_jerk(pmass, ppos, pvel, pacc, pjerk);
   
   while(time < end_time)
   {
-    hermite();
+    hermite(pmass, ppos, pvel, pacc, pjerk);
     time += dt;
   }
 }
