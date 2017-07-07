@@ -103,9 +103,9 @@ void hermite(double *mass, double complex (*pos)[DIM], double complex (*vel)[DIM
 
 int main(int argc, const char *argv[])
 {
-  N = 10;
+  N = 3;
   DIM = 3;
-  dt = 0.01;
+  dt = 0.9;
   
   double end_time = 1.0;
   double time = 0.0;
@@ -117,6 +117,16 @@ int main(int argc, const char *argv[])
 
   double complex acc[N][DIM]; /* acceleration for all particles */
   double complex jerk[N][DIM]; /* jerk for all particles */
+  
+  for(int i = 0; i < N; ++i)
+  {
+    for(int j = 0; j < DIM; ++j)
+    {
+      mass[i] = 0.3;
+      pos[i][j] = 1.0;
+      vel[i][j] = 1.0;
+    }
+  }
   
   double *pmass = mass;
   
@@ -132,5 +142,20 @@ int main(int argc, const char *argv[])
   {
     hermite(pmass, ppos, pvel, pacc, pjerk);
     time += dt;
+    for(int i = 0; i < N; ++i)
+    {
+      for(int k = 0; k < 1; ++k)
+      {
+        double complex a = pos[i][k];
+        double complex b = pos[i][k + 1];
+        double complex c = pos[i][k + 2];
+        
+        double complex d = vel[i][k];
+        double complex e = vel[i][k + 1];
+        double complex f = vel[i][k + 2];
+        
+        printf("Particle %d: %lf %lf %lf %lf %lf %lf %lf \n", i, mass[i], creal(a), creal(b), creal(c), creal(d), creal(e), creal(f));
+      }
+    }
   }
 }
