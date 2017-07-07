@@ -17,7 +17,7 @@ struct body
 };
 
 /* computes acceleration */
-double complex * acc(struct body p)
+double complex *acc(struct body p)
 {
   double complex r2[3] = {(p.xpos * p.xpos), (p.ypos * p.ypos), (p.zpos * p.zpos)};
   double complex r3[3] = {(r2[0] * csqrt(r2[0])), (r2[1] * csqrt(r2[1])), (r2[2] * csqrt(r2[2]))};
@@ -26,7 +26,7 @@ double complex * acc(struct body p)
   return res;
 }
 
-complex double * jerk(struct body p)
+complex double *jerk(struct body p)
 {
   double complex r2[3] = {(p.xpos * p.xpos), (p.ypos * p.ypos), (p.zpos * p.zpos)};
   double complex r3[3] = {(r2[1] * csqrt(r2[1])), (r2[2] * csqrt(r2[2])), (r2[3] * csqrt(r2[3]))};
@@ -73,7 +73,7 @@ int main(int argc, const char *argv[])
 {
   dt = 0.1;
   
-  double N = 10;
+  int N = 10;
   double end_time = 1.0;
   double time = 0.0;
   
