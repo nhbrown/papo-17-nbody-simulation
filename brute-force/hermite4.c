@@ -1,89 +1,127 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <complex.h>
 
-double dt;
+int N; /* amount of particles */
+int DIM = 3; /* dimensions */
 
-struct body
-{
-  double complex xpos;
-  double complex ypos;
-  double complex zpos;
-  
-  double mass;  
-  
-  double complex xvel;
-  double complex yvel;
-  double complex zvel;
-};
+double dt; /* timestep */
+double mass[N]; /* mass for all particles */
 
-/* computes acceleration */
-double complex *acc(struct body p)
-{
-  double complex r2[3] = {(p.xpos * p.xpos), (p.ypos * p.ypos), (p.zpos * p.zpos)};
-  double complex r3[3] = {(r2[0] * csqrt(r2[0])), (r2[1] * csqrt(r2[1])), (r2[2] * csqrt(r2[2]))};
-  double complex res[3] = {(p.xpos * (-p.mass / r3[0])), (p.ypos * (-p.mass / r3[1])), 
-                           (p.zpos * (-p.mass / r3[2]))};
-  return res;
+double complex pos[N][DIM]; /* positions for all particles */
+double complex vel[N][DIM]; /* velocities for all particles */
+
+double complex acc[N][DIM]; /* acceleration for all particles */
+double complex jerk[N][DIM]; /* jerk for all particles */
+
+void acc_jerk()
+{ 
+  for(int i = 0; i < N; ++i)
+  {
+    for(int k = 0; k < 3; ++k)
+    {
+      acc[i][k] = 0;
+      jerk[i][k] = 0;
+    }
+  }
+  
+ for(int i = 0; i < N; ++i)
+ {
+   for(int j = i + 1; j < N; ++j) /* only loops over half of the particles */
+   {
+     double complex rji[DIM]; /* position vector from particle i to j */
+     double complex vji[DIM]; /* velocity vector from particle i to j */
+     
+     double complex r2; /* rij^2 */
+     double complex v2; /* vij^2 */
+     double complex rv; /* rij*vij */
+     
+     for(int k = 0; k < DIM; ++k)
+     {
+        rji[k] = pos[j][k] - pos[i][k];
+        vji[k] = vel[j][k] - vel[i][k];
+       
+        r2 += rji[k] * rji[k];
+        v2 += vji[k] * vji[k];
+        rv += rji[k] * vji[k];
+     }
+     
+     rv /= r2;
+     double complex r = csqrt(r2); /* absolute value of rij */
+     double complex r3 = r * r2;
+     
+     double complex da[DIM];
+     double complex dj[DIM];
+     
+     for (int k = 0; k < DIM ; k++)
+     {
+       da[k] = rji[k] / r3;
+       dj[k] = (vji[k] - 3 * rv * rji[k]) / r3;
+       
+       acc[i][k] += mass[j] * da[k];
+       acc[j][k] -= mass[i] * da[k];
+       
+       jerk[i][k] += mass[j] * dj[k];                
+       jerk[j][k] -= mass[i] * dj[k];  
+     }
+   }
+ }
 }
 
-complex double *jerk(struct body p)
+void hermite()
 {
-  double complex r2[3] = {(p.xpos * p.xpos), (p.ypos * p.ypos), (p.zpos * p.zpos)};
-  double complex r3[3] = {(r2[1] * csqrt(r2[1])), (r2[2] * csqrt(r2[2])), (r2[3] * csqrt(r2[3]))};
-  double complex res[3] = {((p.xvel + p.xpos * (-3 * (p.xpos * p.xvel) / r2[0])) * (-p.mass / r3[0])),
-                          ((p.yvel + p.ypos * (-3 * (p.ypos * p.yvel) / r2[1])) * (-p.mass / r3[1])),
-                          ((p.zvel + p.zpos * (-3 * (p.zpos * p.zvel) / r2[2])) * (-p.mass / r3[2]))};
-  return res;
-}
-
-void hermite(struct body p)
-{
-  /* get current positions and velocities of particle */
-  double complex old_pos[3] = {p.xpos, p.ypos, p.zpos};
-  double complex old_vel[3] = {p.xvel, p.yvel, p.zvel};
+  double complex old_pos[N][DIM];
+  double complex old_vel[N][DIM];  
+  double complex old_acc[N][DIM];
+  double complex old_jerk[N][DIM];
   
-  /* get current acceleration and jerk of particle */
-  double complex *old_acc = acc(p);
-  double complex *old_jerk = jerk(p);
+  for(int i = 0; i < N; ++i)
+  {
+    for(int j = 0; j < DIM; ++j)
+    {
+      old_pos[i][j] = pos[i][j];
+      old_vel[i][j] = vel[i][j];
+      old_acc[i][j] = acc[i][j];
+      old_jerk[i][j] = jerk[i][j];
+    }
+  }
   
-  /* computes prediction of new positions based on acceleration and jerk */
-  p.xpos += (p.xvel * dt) + old_acc[0] * (dt * dt / 2.0) + old_jerk[0] * (dt * dt * dt / 6.0);
-  p.ypos += (p.yvel * dt) + old_acc[1] * (dt * dt / 2.0) + old_jerk[1] * (dt * dt * dt / 6.0);
-  p.zpos += (p.zvel * dt) + old_acc[2] * (dt * dt / 2.0) + old_jerk[2] * (dt * dt * dt / 6.0);
+  /* prediction for all particles */
+  for(int i = 0; i < N; ++i)
+  {
+    for(int j = 0; j < DIM; ++j)
+    {
+      pos[i][j] += vel[i][j] * dt + acc[i][j] * dt * dt/2 + jerk[i][j] * dt * dt * dt/6;
+      vel[i][j] += acc[i][j] * dt + jerk[i][j] * dt * dt/2;
+    }
+  }
   
-  /* computes prediction of new velocities based on acceleration and jerk */
-  p.xvel += old_acc[0] * dt + old_jerk[0] * (dt * dt / 2.0);
-  p.yvel += old_acc[1] * dt + old_jerk[1] * (dt * dt / 2.0);
-  p.zvel += old_acc[2] * dt + old_jerk[2] * (dt * dt / 2.0);
-  
-  double complex *new_acc = acc(p);
-  double complex *new_jerk = jerk(p);
+  acc_jerk();
   
   /* correction in reversed order of computation */
-  p.xvel = old_vel[0] + (old_acc[0] + new_acc[0]) * (dt / 2.0) + (old_jerk[0] - new_jerk[0]) * (dt * dt / 12.0);
-  p.yvel = old_vel[1] + (old_acc[1] + new_acc[1]) * (dt / 2.0) + (old_jerk[1] - new_jerk[1]) * (dt * dt / 12.0);
-  p.zvel = old_vel[2] + (old_acc[2] + new_acc[2]) * (dt / 2.0) + (old_jerk[2] - new_jerk[2]) * (dt * dt / 12.0);
-  
-  p.xpos = old_pos[0] + (old_vel[0] + p.xvel) * (dt / 2.0) + (old_acc[0] + new_acc[0]) * (dt * dt / 12.0);
-  p.ypos = old_pos[1] + (old_vel[1] + p.yvel) * (dt / 2.0) + (old_acc[1] + new_acc[1]) * (dt * dt / 12.0);
-  p.zpos = old_pos[2] + (old_vel[2] + p.zvel) * (dt / 2.0) + (old_acc[2] + new_acc[2]) * (dt * dt / 12.0);    
+  for (int i = 0; i < N; ++i)
+  {
+    for (int j = 0; j < DIM; ++j)
+    {
+      vel[i][j] = old_vel[i][j] + (old_acc[i][j] + acc[i][j]) * dt/2 + (old_jerk[i][j] - jerk[i][j]) * dt * dt/12;
+      pos[i][j] = old_pos[i][j] + (old_vel[i][j] + vel[i][j]) * dt/2 + (old_acc[i][j] - acc[i][j]) * dt * dt/12;
+    }
+  }
 }
 
 int main(int argc, const char *argv[])
 {
-  dt = 0.1;
+  dt = 0.01;
   
   int N = 10;
   double end_time = 1.0;
   double time = 0.0;
   
-  struct body bodies[N];
+  acc_jerk();
   
   while(time < end_time)
   {
-    for(int i = 0; i < N; ++i)
-    {
-      hermite(bodies[i]);
-    }
+    hermite();
+    time += dt;
   }
 }
