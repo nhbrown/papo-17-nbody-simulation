@@ -6,7 +6,8 @@ int N; /* amount of particles */
 int DIM; /* dimensions */
 double dt; /* timestep */
 
-void acc_jerk(double *mass, double complex (*pos)[DIM], double complex (*vel)[DIM], double complex (*acc)[DIM], double complex (*jerk)[DIM])
+void acc_jerk(double *mass, double complex (*pos)[DIM], double complex (*vel)[DIM], 
+              double complex (*acc)[DIM], double complex (*jerk)[DIM])
 { 
   for(int i = 0; i < N; ++i)
   {
@@ -60,7 +61,8 @@ void acc_jerk(double *mass, double complex (*pos)[DIM], double complex (*vel)[DI
  }
 }
 
-void hermite(double *mass, double complex (*pos)[DIM], double complex (*vel)[DIM], double complex (*acc)[DIM], double complex (*jerk)[DIM])
+void hermite(double *mass, double complex (*pos)[DIM], double complex (*vel)[DIM], 
+             double complex (*acc)[DIM], double complex (*jerk)[DIM])
 {
   double complex old_pos[N][DIM];
   double complex old_vel[N][DIM];  
@@ -83,8 +85,8 @@ void hermite(double *mass, double complex (*pos)[DIM], double complex (*vel)[DIM
   {
     for(int j = 0; j < DIM; ++j)
     {
-      pos[i][j] += vel[i][j] * dt + acc[i][j] * dt * dt/2 + jerk[i][j] * dt * dt * dt/6;
-      vel[i][j] += acc[i][j] * dt + jerk[i][j] * dt * dt/2;
+      pos[i][j] += vel[i][j] * dt + acc[i][j] * ((dt * dt)/2) + jerk[i][j] * ((dt * dt * dt)/6);
+      vel[i][j] += acc[i][j] * dt + jerk[i][j] * ((dt * dt)/2);
     }
   }
   
@@ -95,8 +97,8 @@ void hermite(double *mass, double complex (*pos)[DIM], double complex (*vel)[DIM
   {
     for (int j = 0; j < DIM; ++j)
     {
-      vel[i][j] = old_vel[i][j] + (old_acc[i][j] + acc[i][j]) * dt/2 + (old_jerk[i][j] - jerk[i][j]) * dt * dt/12;
-      pos[i][j] = old_pos[i][j] + (old_vel[i][j] + vel[i][j]) * dt/2 + (old_acc[i][j] - acc[i][j]) * dt * dt/12;
+      vel[i][j] = old_vel[i][j] + (old_acc[i][j] + acc[i][j]) * (dt/2) + (old_jerk[i][j] - jerk[i][j]) * ((dt * dt)/12);       
+      pos[i][j] = old_pos[i][j] + (old_vel[i][j] + vel[i][j]) * (dt/2) + (old_acc[i][j] - acc[i][j]) * ((dt * dt)/12);
     }
   }
 }
@@ -105,7 +107,7 @@ int main(int argc, const char *argv[])
 {
   N = 3;
   DIM = 3;
-  dt = 0.9;
+  dt = 0.01;
   
   double end_time = 1.0;
   double time = 0.0;
@@ -118,15 +120,33 @@ int main(int argc, const char *argv[])
   double complex acc[N][DIM]; /* acceleration for all particles */
   double complex jerk[N][DIM]; /* jerk for all particles */
   
-  for(int i = 0; i < N; ++i)
-  {
-    for(int j = 0; j < DIM; ++j)
-    {
-      mass[i] = 0.3;
-      pos[i][j] = 1.0;
-      vel[i][j] = 1.0;
-    }
-  }
+  mass[0] = 0.000007;
+  mass[1] = 0.000007;
+  mass[2] = 0.000007;
+  
+  pos[0][0] = 0.126388;
+  pos[0][1] = 0.074997;
+  pos[0][2] = -0.151221;
+  
+  pos[1][0] = -1.706910;
+  pos[1][1] = 1.302327;
+  pos[1][2] = 1.616718;
+  
+  pos[2][0] = 1.489653;
+  pos[2][1] = -0.034517;
+  pos[2][2] = -1.582992;
+  
+  vel[0][0] = 0.353411;
+  vel[0][1] = 0.237369;
+  vel[0][2] = -0.924605;
+  
+  vel[1][0] = -0.180430;
+  vel[1][1] = 0.497624;
+  vel[1][2] = -0.009716;
+  
+  vel[2][0] = -0.156375;
+  vel[2][1] = -0.581931;
+  vel[2][2] = -0.005356;
   
   double *pmass = mass;
   
@@ -145,16 +165,10 @@ int main(int argc, const char *argv[])
     for(int i = 0; i < N; ++i)
     {
       for(int k = 0; k < 1; ++k)
-      {
-        double complex a = pos[i][k];
-        double complex b = pos[i][k + 1];
-        double complex c = pos[i][k + 2];
-        
-        double complex d = vel[i][k];
-        double complex e = vel[i][k + 1];
-        double complex f = vel[i][k + 2];
-        
-        printf("Particle %d: %lf %lf %lf %lf %lf %lf %lf \n", i, mass[i], creal(a), creal(b), creal(c), creal(d), creal(e), creal(f));
+      {        
+        printf("Particle %d: %f %f %f %f %f %f %f \n", i, 
+               mass[i], creal(pos[i][k]), creal(pos[i][k + 1]), creal(pos[i][k + 2]), 
+               creal(vel[i][k]), creal(vel[i][k + 1]), creal(vel[i][k + 2]));
       }
     }
   }
