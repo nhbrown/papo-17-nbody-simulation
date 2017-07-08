@@ -125,12 +125,22 @@ void hermite(double *mass, double complex (*pos)[DIM], double complex (*vel)[DIM
 
 int main(int argc, const char *argv[])
 {
-  N = 3;
-  DIM = 3;
-  dt = 0.01;
-  
-  double end_time = 1.0;
+  double end_time;
   double time = 0.0;
+  
+  switch(argc)
+  {
+    case 5 :
+      N = atoi(argv[1]);
+      DIM = atoi(argv[2]);
+      dt = atof(argv[3]);
+      end_time = atof(argv[4]);
+      break;
+
+    default : /* if less or more than 5 arguments are passed, the execution exits normally */
+      printf("Invalid input for hermite4.c!\n");
+      exit(0);
+  }
   
   double mass[N]; /* mass for all particles */
 
