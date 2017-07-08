@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <complex.h>
+#include <string.h>
 
 int N; /* amount of particles */
 int DIM; /* dimensions */
@@ -123,6 +124,42 @@ void hermite(double *mass, double complex (*pos)[DIM], double complex (*vel)[DIM
   }
 }
 
+void readConditions(double *mass, double complex (*pos)[DIM], double complex (*vel)[DIM])
+{
+  FILE *inp;  
+  inp = fopen("./run/initial_conditions.csv", "r");
+    
+  for(int i = 0; i < N; ++i)
+  {
+    char buffer[75];
+    double values[7];
+    int index = 0;
+   
+    char *delim = ", ";
+    char *token = NULL;
+    
+    fgets(buffer, 75, inp);
+
+    for (token = strtok(buffer, delim); token != NULL; token = strtok(NULL, delim))
+    {
+      char *ptr;
+      double value = strtod(token, &ptr);
+      values[index] = value;
+      ++index;
+    }
+    
+    pos[i][0] = values[0];
+    pos[i][1] = values[1];
+    pos[i][2] = values[2];
+    
+    mass[i] = values[3];
+    
+    vel[i][0] = values[4];
+    vel[i][1] = values[5];
+    vel[i][2] = values[6];
+  }
+}
+
 void printIteration(double *mass, double complex (*pos)[DIM], double complex (*vel)[DIM], int iteration)
 {
   char buffer[60];
@@ -136,7 +173,7 @@ void printIteration(double *mass, double complex (*pos)[DIM], double complex (*v
     for(int k = 0; k < 1; ++k)
     {        
       fprintf(out, "%f, %f, %f, %f, %f, %f, %f \n", 
-              mass[i], creal(pos[i][k]), creal(pos[i][k + 1]), creal(pos[i][k + 2]), 
+              creal(pos[i][k]), creal(pos[i][k + 1]), creal(pos[i][k + 2]), mass[i],
               creal(vel[i][k]), creal(vel[i][k + 1]), creal(vel[i][k + 2]));
     }
   }
@@ -170,35 +207,7 @@ int main(int argc, const char *argv[])
 
   double complex acc[N][DIM]; /* acceleration for all particles */
   double complex jerk[N][DIM]; /* jerk for all particles */
-  
-  mass[0] = 0.000007;
-  mass[1] = 0.000007;
-  mass[2] = 0.000007;
-  
-  pos[0][0] = 0.126388;
-  pos[0][1] = 0.074997;
-  pos[0][2] = -0.151221;
-  
-  pos[1][0] = -1.706910;
-  pos[1][1] = 1.302327;
-  pos[1][2] = 1.616718;
-  
-  pos[2][0] = 1.489653;
-  pos[2][1] = -0.034517;
-  pos[2][2] = -1.582992;
-  
-  vel[0][0] = 0.353411;
-  vel[0][1] = 0.237369;
-  vel[0][2] = -0.924605;
-  
-  vel[1][0] = -0.180430;
-  vel[1][1] = 0.497624;
-  vel[1][2] = -0.009716;
-  
-  vel[2][0] = -0.156375;
-  vel[2][1] = -0.581931;
-  vel[2][2] = -0.005356;
-  
+
   double *pmass = mass;
   
   double complex (*ppos)[DIM] = pos;
@@ -206,6 +215,8 @@ int main(int argc, const char *argv[])
   
   double complex (*pacc)[DIM] = acc;
   double complex (*pjerk)[DIM] = jerk;
+    
+  readConditions(pmass, ppos, pvel);
   
   acc_jerk(pmass, ppos, pvel, pacc, pjerk);
   
