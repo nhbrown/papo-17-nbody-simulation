@@ -123,6 +123,27 @@ void hermite(double *mass, double complex (*pos)[DIM], double complex (*vel)[DIM
   }
 }
 
+void printIteration(double *mass, double complex (*pos)[DIM], double complex (*vel)[DIM], int iteration)
+{
+  char buffer[60];
+  snprintf(buffer, sizeof(buffer), "./run/iteration_%d.csv", iteration);
+  
+  FILE *out;
+  out = fopen(buffer, "w");
+  
+  for(int i = 0; i < N; ++i)
+  {
+    for(int k = 0; k < 1; ++k)
+    {        
+      fprintf(out, "%f, %f, %f, %f, %f, %f, %f \n", 
+              mass[i], creal(pos[i][k]), creal(pos[i][k + 1]), creal(pos[i][k + 2]), 
+              creal(vel[i][k]), creal(vel[i][k + 1]), creal(vel[i][k + 2]));
+    }
+  }
+  
+  fclose(out);
+}
+
 int main(int argc, const char *argv[])
 {
   double end_time;
@@ -188,18 +209,12 @@ int main(int argc, const char *argv[])
   
   acc_jerk(pmass, ppos, pvel, pacc, pjerk);
   
+  int iterations = 0;
   while(time < end_time)
   {
     hermite(pmass, ppos, pvel, pacc, pjerk);
     time += dt;
-    for(int i = 0; i < N; ++i)
-    {
-      for(int k = 0; k < 1; ++k)
-      {        
-        printf("Particle %d: %f %f %f %f %f %f %f \n", i, 
-               mass[i], creal(pos[i][k]), creal(pos[i][k + 1]), creal(pos[i][k + 2]), 
-               creal(vel[i][k]), creal(vel[i][k + 1]), creal(vel[i][k + 2]));
-      }
-    }
+    ++iterations;
+    printIteration(pmass, ppos, pvel, iterations);
   }
 }
