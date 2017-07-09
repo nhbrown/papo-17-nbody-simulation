@@ -3,4 +3,4 @@ nbody: plummer.c mersenne.c hermite.c
 
 .PHONY : clean
 clean:
-	-rm initial-conditions
+	-rm nbody
