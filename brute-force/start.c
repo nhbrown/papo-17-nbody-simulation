@@ -16,7 +16,7 @@ int main(int argc, const char *argv[])
   switch(argc)
   {
     case 4 :
-      seed = (unsigned long)time(NULL);
+      seed = (unsigned long) time(NULL);
       N = atoi(argv[1]);
       dt = atof(argv[2]);
       end_time = atof(argv[3]);
@@ -34,5 +34,8 @@ int main(int argc, const char *argv[])
       exit(0);
   }
   
+  foldername = startPlummer(seed, N);
+  startHermite(N, dt, end_time, foldername);
   
+  return 0;
 }
