@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "plummer.h"
-#include "hermite4.h"
+#include "hermite.h"
 
 int main(int argc, const char *argv[])
 {
@@ -16,14 +16,14 @@ int main(int argc, const char *argv[])
   switch(argc)
   {
     case 4 :
-      seed = (unsigned long)time(NULL);
+      seed = (unsigned long) time(NULL);
       N = atoi(argv[1]);
       dt = atof(argv[2]);
       end_time = atof(argv[3]);
       break;
       
     case 5 :
-      seed = atol(argv[1])
+      seed = atol(argv[1]);
       N = atoi(argv[2]);
       dt = atof(argv[3]);
       end_time = atof(argv[4]);
@@ -34,5 +34,8 @@ int main(int argc, const char *argv[])
       exit(0);
   }
   
+  foldername = startPlummer(seed, N, dt, end_time);
+  startHermite(N, dt, end_time, foldername);
   
+  return 0;
 }

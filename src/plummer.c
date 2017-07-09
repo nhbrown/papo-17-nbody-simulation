@@ -27,11 +27,16 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
+#include "plummer.h"
 
 /* Seed for Mersenne-Twister. */
 unsigned long seed;
 /* Total number of particles to be generated. */
 int N;
+
+char foldername[40]; /* buffer for foldername */ 
+char logname[80]; /* buffer for logname */
+char conditionsname[80]; /* buffer for conditionsname */
 
 struct body
 {
@@ -94,10 +99,6 @@ void plummer()
   p.zvel = velocity * ccos(theta);
 }
 
-char foldername[40];
-char logname[80];
-char conditionsname[80];
-
 void createNames()
 {
   struct tm *sTm;
@@ -117,15 +118,15 @@ void createNames()
   }
 }
 
-void generateOutput()
+void generateOutput(double timestep, double end_time)
 { 
   createNames();
   
   FILE *log;
   log = fopen(logname, "w"); /* writes to new file log_<currentdate>.txt which holds important parameters */
 
-  fprintf(log, "Seed used: %lu \nNumber of particles: %d \nTotal mass of cluster: %f \nDimensions of cluster: %f \nGravitational constant: %f", 
-          seed, N, M, R, G);
+  fprintf(log, "Seed used: %lu \nNumber of particles: %d \nTotal mass of cluster: %f \nDimensions of cluster: %f \nGravitational constant: %f \nTimestep: %f \nEndtime: %f", 
+          seed, N, M, R, G, timestep, end_time);
 
   fclose(log);
 
@@ -147,28 +148,14 @@ Passing a seed as a parameter is optional, if no seed is passed seed is equal to
 Specifying the amount of particles to generate is always necessary.
 If user wishes to specify the seed, the order of arguments needs to be: <executable> seed amount
 */
-int main(int argc, const char *argv[])
+char * startPlummer(unsigned long s, int amount, double timestep, double end_time)
 {
-  switch(argc)
-  {
-    case 2 : /* if one argument is passed, it is assumed to be amount of particles */
-      seed = (unsigned long)time(NULL);
-      N = atoi(argv[1]);
-      break;
-
-    case 3 : /* if two arguments are passed, first one is assumed to be seed */
-      seed = atol(argv[1]);
-      N = atoi(argv[2]);
-      break;
-
-    default : /* if less than 1 or more than 2 arguments are passed, the executions exits */
-      printf("Invalid input for plummer.c!\n");
-      exit(0);
-  }
+  seed = s;
+  N = amount;
   
   init_genrand(seed);
   
-  generateOutput();
+  generateOutput(timestep, end_time);
   
-  return 0;
+  return foldername;
 }
