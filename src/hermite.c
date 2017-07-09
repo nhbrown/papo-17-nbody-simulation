@@ -189,13 +189,12 @@ void printIteration(double *mass, double complex **pos, double complex **vel, in
 
 void startHermite(int particles, double timestep, double end, char *folder)
 {
-  double end_time;
   double time = 0.0;
   DIM = 3;
   
-  particles = N;
-  timestep = dt;
-  end = end_time;
+  N = particles;
+  dt = timestep;
+  double end_time = end;
   char *foldername = folder;
   
   double *mass;
