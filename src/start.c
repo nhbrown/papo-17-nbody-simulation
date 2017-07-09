@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "plummer.h"
-#include "hermite4.h"
+#include "hermite.h"
 
 int main(int argc, const char *argv[])
 {
