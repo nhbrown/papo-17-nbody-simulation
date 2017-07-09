@@ -240,4 +240,19 @@ void startHermite(int particles, double timestep, double end, char *folder)
     ++iterations;
     printIteration(mass, pos, vel, iterations, foldername);
   }
+  
+  free(mass);
+  
+  for(int i = 0; i < N; ++i)
+  {
+    free(pos[i]);
+    free(vel[i]);
+    free(acc[i]);
+    free(jerk[i]);
+  }
+  
+  free(pos);
+  free(vel);
+  free(acc);
+  free(jerk);
 }
