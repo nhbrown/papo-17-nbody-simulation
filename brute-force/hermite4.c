@@ -124,10 +124,13 @@ void hermite(double *mass, double complex **pos, double complex **vel,
   }
 }
 
-void readConditions(double *mass, double complex **pos, double complex **vel)
+void readConditions(double *mass, double complex **pos, double complex **vel, char *foldername)
 {
+  char buffer[80];
+  snprintf(buffer, sizeof(buffer), "./%s/initial_conditions.csv", foldername);
+  
   FILE *inp;  
-  inp = fopen("./run/initial_conditions.csv", "r");
+  inp = fopen(buffer, "r");
     
   for(int i = 0; i < N; ++i)
   {
@@ -158,12 +161,14 @@ void readConditions(double *mass, double complex **pos, double complex **vel)
     vel[i][1] = values[5];
     vel[i][2] = values[6];
   }
+  
+  fclose(inp);
 }
 
-void printIteration(double *mass, double complex **pos, double complex **vel, int iteration)
+void printIteration(double *mass, double complex **pos, double complex **vel, int iteration, char *foldername)
 {
-  char buffer[60];
-  snprintf(buffer, sizeof(buffer), "./run/iteration_%d.csv", iteration);
+  char buffer[80];
+  snprintf(buffer, sizeof(buffer), "./%s/iteration_%d.csv", foldername, iteration);
   
   FILE *out;
   out = fopen(buffer, "w");
@@ -181,24 +186,16 @@ void printIteration(double *mass, double complex **pos, double complex **vel, in
   fclose(out);
 }
 
-int main(int argc, const char *argv[])
+void startHermite(int N, double dt, double end_time, char *foldername)
 {
   double end_time;
   double time = 0.0;
+  DIM = 3;
   
-  switch(argc)
-  {
-    case 5 :
-      N = atoi(argv[1]);
-      DIM = atoi(argv[2]);
-      dt = atof(argv[3]);
-      end_time = atof(argv[4]);
-      break;
-
-    default : /* if less or more than 5 arguments are passed, the execution exits normally */
-      printf("Invalid input for hermite4.c!\n");
-      exit(0);
-  }
+  N = N;
+  dt = dt;
+  end_time = end_time;
+  char *foldername = foldername;
   
   double *mass;
   mass = malloc(N * sizeof(double));
