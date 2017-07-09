@@ -27,6 +27,7 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
+#include "plummer.h"
 
 /* Seed for Mersenne-Twister. */
 unsigned long seed;
