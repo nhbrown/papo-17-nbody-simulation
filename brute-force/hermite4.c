@@ -27,8 +27,8 @@ int N; /* amount of particles */
 int DIM; /* dimensions */
 double dt; /* timestep */
 
-void acc_jerk(double *mass, double complex (*pos)[DIM], double complex (*vel)[DIM], 
-              double complex (*acc)[DIM], double complex (*jerk)[DIM])
+void acc_jerk(double *mass, double complex **pos, double complex **vel, 
+              double complex **acc, double complex **jerk)
 { 
   for(int i = 0; i < N; ++i)
   {
@@ -82,8 +82,8 @@ void acc_jerk(double *mass, double complex (*pos)[DIM], double complex (*vel)[DI
  }
 }
 
-void hermite(double *mass, double complex (*pos)[DIM], double complex (*vel)[DIM], 
-             double complex (*acc)[DIM], double complex (*jerk)[DIM])
+void hermite(double *mass, double complex **pos, double complex **vel, 
+              double complex **acc, double complex **jerk)
 {
   double complex old_pos[N][DIM];
   double complex old_vel[N][DIM];  
@@ -124,7 +124,7 @@ void hermite(double *mass, double complex (*pos)[DIM], double complex (*vel)[DIM
   }
 }
 
-void readConditions(double *mass, double complex (*pos)[DIM], double complex (*vel)[DIM])
+void readConditions(double *mass, double complex **pos, double complex **vel)
 {
   FILE *inp;  
   inp = fopen("./run/initial_conditions.csv", "r");
@@ -160,7 +160,7 @@ void readConditions(double *mass, double complex (*pos)[DIM], double complex (*v
   }
 }
 
-void printIteration(double *mass, double complex (*pos)[DIM], double complex (*vel)[DIM], int iteration)
+void printIteration(double *mass, double complex **pos, double complex **vel, int iteration)
 {
   char buffer[60];
   snprintf(buffer, sizeof(buffer), "./run/iteration_%d.csv", iteration);
@@ -200,32 +200,47 @@ int main(int argc, const char *argv[])
       exit(0);
   }
   
-  double mass[N]; /* mass for all particles */
-
-  double complex pos[N][DIM]; /* positions for all particles */
-  double complex vel[N][DIM]; /* velocities for all particles */
-
-  double complex acc[N][DIM]; /* acceleration for all particles */
-  double complex jerk[N][DIM]; /* jerk for all particles */
-
-  double *pmass = mass;
+  double *mass;
+  mass = malloc(N * sizeof(double));
+  if(mass == NULL)
+  {
+    fprintf(stderr, "Out of memory!\n");
+    exit(0);
+  }
   
-  double complex (*ppos)[DIM] = pos;
-  double complex (*pvel)[DIM] = vel;
+  double complex **pos;
+  double complex **vel;
+  double complex **acc;
+  double complex **jerk;
   
-  double complex (*pacc)[DIM] = acc;
-  double complex (*pjerk)[DIM] = jerk;
+  pos = malloc(N * sizeof(double complex *));
+  vel = malloc(N * sizeof(double complex *));
+  acc = malloc(N * sizeof(double complex *));
+  jerk = malloc(N * sizeof(double complex *));
+  
+  for(int i = 0; i < N; ++i)
+  {
+    pos[i] = malloc(DIM * sizeof(double complex));
+    vel[i] = malloc(DIM * sizeof(double complex));
+    acc[i] = malloc(DIM * sizeof(double complex));
+    jerk[i] = malloc(DIM * sizeof(double complex));
+    if(pos[i] == NULL || vel[i] == NULL || acc[i] == NULL || jerk[i] == NULL)
+    {
+      fprintf(stderr, "Out of memory!\n");
+      exit(0);
+    }
+  }
     
-  readConditions(pmass, ppos, pvel);
+  readConditions(mass, pos, vel);
   
-  acc_jerk(pmass, ppos, pvel, pacc, pjerk);
+  acc_jerk(mass, pos, vel, acc, jerk);
   
   int iterations = 0;
   while(time < end_time)
   {
-    hermite(pmass, ppos, pvel, pacc, pjerk);
+    hermite(mass, pos, vel, acc, jerk);
     time += dt;
     ++iterations;
-    printIteration(pmass, ppos, pvel, iterations);
+    printIteration(mass, pos, vel, iterations);
   }
 }
