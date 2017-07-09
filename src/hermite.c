@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <complex.h>
 #include <string.h>
+#include "hermite.h"
 
 int N; /* amount of particles */
 int DIM; /* dimensions */
