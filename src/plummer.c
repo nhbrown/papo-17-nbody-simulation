@@ -148,10 +148,10 @@ Passing a seed as a parameter is optional, if no seed is passed seed is equal to
 Specifying the amount of particles to generate is always necessary.
 If user wishes to specify the seed, the order of arguments needs to be: <executable> seed amount
 */
-char * startPlummer(unsigned long seed, int N)
+char * startPlummer(unsigned long s, int amount)
 {
-  seed = seed;
-  N = N;
+  seed = s;
+  N = amount;
   
   init_genrand(seed);
   
