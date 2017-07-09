@@ -34,7 +34,7 @@ int main(int argc, const char *argv[])
       exit(0);
   }
   
-  foldername = startPlummer(seed, N);
+  foldername = startPlummer(seed, N, dt, end_time);
   startHermite(N, dt, end_time, foldername);
   
   return 0;
