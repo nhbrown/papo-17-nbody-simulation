@@ -23,7 +23,7 @@ int main(int argc, const char *argv[])
       break;
       
     case 5 :
-      seed = atol(argv[1])
+      seed = atol(argv[1]);
       N = atoi(argv[2]);
       dt = atof(argv[3]);
       end_time = atof(argv[4]);
