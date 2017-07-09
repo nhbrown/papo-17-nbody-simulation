@@ -187,16 +187,16 @@ void printIteration(double *mass, double complex **pos, double complex **vel, in
   fclose(out);
 }
 
-void startHermite(int N, double dt, double end_time, char *foldername)
+void startHermite(int particles, double timestep, double end, char *folder)
 {
   double end_time;
   double time = 0.0;
   DIM = 3;
   
-  N = N;
-  dt = dt;
-  end_time = end_time;
-  char *foldername = foldername;
+  particles = N;
+  timestep = dt;
+  end = end_time;
+  char *foldername = folder;
   
   double *mass;
   mass = malloc(N * sizeof(double));
@@ -229,7 +229,7 @@ void startHermite(int N, double dt, double end_time, char *foldername)
     }
   }
     
-  readConditions(mass, pos, vel);
+  readConditions(mass, pos, vel, foldername);
   
   acc_jerk(mass, pos, vel, acc, jerk);
   
@@ -239,6 +239,6 @@ void startHermite(int N, double dt, double end_time, char *foldername)
     hermite(mass, pos, vel, acc, jerk);
     time += dt;
     ++iterations;
-    printIteration(mass, pos, vel, iterations);
+    printIteration(mass, pos, vel, iterations, foldername);
   }
 }
