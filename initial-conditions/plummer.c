@@ -1,8 +1,7 @@
 /*    
-    The following source code is an implementation of the plummer three-dimensional
-    density profile for generating the inital conditions of a globular cluster to be
-    used as the starting point for a n-body simulation.
-    This application can be referred to as initial conditions generator or ICG.
+    The following source code is an implementation of the Plummer three-dimensional
+    density profile for generating the inital conditions of a globular cluster,
+    also known as an initial conditions generator for N-body simulations.
     Copyright (C) 2017  Nicholas Lee Hickson-Brown, Michael Eidus
 
     This program is free software: you can redistribute it and/or modify
