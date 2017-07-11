@@ -1,9 +1,8 @@
-- start OpenGL.exe for visualization of particle data
-- need to be in the same folder with vertex_shader.vs, fragment_shader.fs and initial_conditions.csv
-- need initial_conditions.csv with 150000 particles
+- start NBodyVisualization_1.0.exe for visualization of particle data
+- need "shader" folder with vertex_shader.vs and fragment_shader.fs 
+- need "run" folder with initial_conditions.csv and iteration data, if data is stored in another folder start NBodyVisualization_1.0.exe <foldername>
+- Start reading iteration data with W
+- Stop reading iteration data with S
+- Reset to 1 iteration with X
 - Zoom and rotation with UP/DOWN/LEFT/RIGHT
 - Change colors with R/G/B
-
-OpenGL_1000_particles_100_iterations.exe: 
-- need 100 iterations in the folder "run"
-- load next iteration with M
