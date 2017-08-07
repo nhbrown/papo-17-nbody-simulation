@@ -84,7 +84,7 @@ void plummer()
   double x = 0.0;
   double y = 0.1;
   
-  while(y > pow((x * x * (1.0 - x * x)), 3.5))
+  while(y > (x * x * (pow((1.0 - x * x), 3.5))))
   {
     x = frand(0.0, 1.0);
     y = frand(0.0, 0.1);
