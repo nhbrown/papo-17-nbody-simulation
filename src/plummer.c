@@ -64,7 +64,7 @@ static const double R = 1.0;
 static const double G = 1.0;
 
 /* factor for scaling to standard units */
-static const double scale = 16.0 / (3.0 * PI);
+static const double scale = 16.0 / (3.0 * M_PI);
 
 double frand(double low, double high)
 {
