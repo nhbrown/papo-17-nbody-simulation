@@ -83,11 +83,10 @@ int main(int argc, const char *argv[])
   }
   
   startPlummer(seed, N, mass, pos, vel, M, R, G);
+  
   printInitialConditions(seed, N, M, R, G, dt, end_time, mass, pos, vel);
   
-  /*
-  startHermite(N, dt, end_time);
-  */
+  startHermite(N, dt, end_time, *mass, **pos, **vel, **acc, **jerk);
   
   free(mass);
   
