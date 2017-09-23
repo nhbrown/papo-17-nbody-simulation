@@ -55,8 +55,7 @@ void printInitialConditions(unsigned long seed, int N, double M, double R, doubl
   fclose(conditions);
 }
 
-/*
-void printIteration(double *mass, double complex **pos, double complex **vel, int iteration, char *foldername)
+void printIteration(double *mass, double complex **pos, double complex **vel, int iteration);
 {
   char buffer[80];
   snprintf(buffer, sizeof(buffer), "./%s/iteration_%d.csv", foldername, iteration);
@@ -76,4 +75,3 @@ void printIteration(double *mass, double complex **pos, double complex **vel, in
   
   fclose(out);
 }
-*/
