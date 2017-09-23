@@ -23,6 +23,7 @@
 #include <complex.h>
 #include <string.h>
 #include "hermite.h"
+#include "output.h"
 
 int N; /* amount of particles */
 int DIM; /* dimensions */
@@ -125,48 +126,14 @@ void hermite(double *mass, double complex **pos, double complex **vel,
   }
 }
 
-void startHermite(int particles, double timestep, double end, char *folder)
+void startHermite(int particles, double timestep, double end, double *mass, double complex **pos, double complex **vel, 
+                  double complex **acc, double complex **jerk)
 {
   double time = 0.0;
   DIM = 3;
   
   N = particles;
   dt = timestep;
-  double end_time = end;
-  char *foldername = folder;
-  
-  double *mass;
-  mass = malloc(N * sizeof(double));
-  if(mass == NULL)
-  {
-    fprintf(stderr, "Out of memory!\n");
-    exit(0);
-  }
-  
-  double complex **pos;
-  double complex **vel;
-  double complex **acc;
-  double complex **jerk;
-  
-  pos = malloc(N * sizeof(double complex *));
-  vel = malloc(N * sizeof(double complex *));
-  acc = malloc(N * sizeof(double complex *));
-  jerk = malloc(N * sizeof(double complex *));
-  
-  for(int i = 0; i < N; ++i)
-  {
-    pos[i] = malloc(DIM * sizeof(double complex));
-    vel[i] = malloc(DIM * sizeof(double complex));
-    acc[i] = malloc(DIM * sizeof(double complex));
-    jerk[i] = malloc(DIM * sizeof(double complex));
-    if(pos[i] == NULL || vel[i] == NULL || acc[i] == NULL || jerk[i] == NULL)
-    {
-      fprintf(stderr, "Out of memory!\n");
-      exit(0);
-    }
-  }
-    
-  readConditions(mass, pos, vel, foldername);
   
   acc_jerk(mass, pos, vel, acc, jerk);
   
@@ -176,21 +143,6 @@ void startHermite(int particles, double timestep, double end, char *folder)
     hermite(mass, pos, vel, acc, jerk);
     time += dt;
     ++iterations;
-    printIteration(mass, pos, vel, iterations, foldername);
+    printIteration(mass, pos, vel, iterations);
   }
-  
-  free(mass);
-  
-  for(int i = 0; i < N; ++i)
-  {
-    free(pos[i]);
-    free(vel[i]);
-    free(acc[i]);
-    free(jerk[i]);
-  }
-  
-  free(pos);
-  free(vel);
-  free(acc);
-  free(jerk);
 }
