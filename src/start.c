@@ -4,7 +4,7 @@
 #include <complex.h>
 #include "plummer.h"
 #include "output.h"
-/* #include "hermite.h" */
+#include "hermite.h"
 
 int main(int argc, const char *argv[])
 {
