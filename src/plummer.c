@@ -29,36 +29,6 @@
 #include <unistd.h>
 #include "plummer.h"
 
-/* Seed for Mersenne-Twister. */
-unsigned long seed;
-/* Total number of particles to be generated. */
-int N;
-
-struct body
-{
-  double complex xpos;
-  double complex ypos;
-  double complex zpos;
-  
-  double mass;  
-  
-  double complex xvel;
-  double complex yvel;
-  double complex zvel;
-};
-
-/* single particle */
-struct body p;
-
-/* 
-M defines the total mass of the cluster.
-R defines the dimensions of the cluster.
-G defines the gravitational constant.
-*/
-static const double M = 1.0;
-static const double R = 1.0;
-static const double G = 1.0;
-
 /* factor for scaling to standard units */
 static const double scale = 16.0 / (3.0 * M_PI);
 
@@ -67,18 +37,18 @@ double frand(double low, double high)
   return low + genrand_real1() * (high - low);
 }
 
-void plummer()
+void plummer(int N, double *mass, double complex **pos, double complex **vel, int i, double M, double R, double G)
 {  
-  p.mass = M / N; /* mass equilibrium */
+  mass[i] = M / N; /* mass equilibrium */
   
   double complex radius = R / csqrt((cpow(genrand_real1(), (-2.0/3.0))) - 1.0); /* inverted cumulative mass distribution */
   double complex theta = cacos(frand(-1.0, 1.0)); /* Polar Angle */
   double complex phi = frand(0.0, (2 * M_PI)); /* Azimuthal Angle */
   
   /* conversion from radial to cartesian coordinates */
-  p.xpos = (radius * csin(theta) * ccos(phi)) / scale; 
-  p.ypos = (radius * csin(theta) * csin(phi)) / scale;
-  p.zpos = (radius * ccos(theta)) / scale;
+  pos[i][0] = (radius * csin(theta) * ccos(phi)) / scale; 
+  pos[i][1] = (radius * csin(theta) * csin(phi)) / scale;
+  pos[i][2] = (radius * ccos(theta)) / scale;
   
   double x = 0.0;
   double y = 0.1;
@@ -93,24 +63,17 @@ void plummer()
   theta = cacos(frand(-1.0, 1.0));
   phi = frand(0.0, (2 * M_PI));
   
-  p.xvel = (velocity * csin(theta) * ccos(phi)) * csqrt(scale);
-  p.yvel = (velocity * csin(theta) * csin(phi)) * csqrt(scale);
-  p.zvel = (velocity * ccos(theta)) * csqrt(scale);
+  vel[i][0] = (velocity * csin(theta) * ccos(phi)) * csqrt(scale);
+  vel[i][1] = (velocity * csin(theta) * csin(phi)) * csqrt(scale);
+  vel[i][2] = (velocity * ccos(theta)) * csqrt(scale);
 }
 
-/*
-Passing a seed as a parameter is optional, if no seed is passed seed is equal to UNIX-clock.
-Specifying the amount of particles to generate is always necessary.
-If user wishes to specify the seed, the order of arguments needs to be: <executable> seed amount
-*/
-char * startPlummer(unsigned long s, int amount, double timestep, double end_time)
+void startPlummer(unsigned long seed, int N, double *mass, double complex **pos, double complex **vel, double M, double R, double G)
 {
-  seed = s;
-  N = amount;
-  
   init_genrand(seed);
-  
-  generateOutput(timestep, end_time);
-  
-  return foldername;
+
+  for(int i = 0; i < N; ++i)
+  {
+    plummer(N, mass, pos, vel, i, M, R, G);
+  }
 }
