@@ -126,7 +126,7 @@ void hermite(double *mass, double complex **pos, double complex **vel,
   }
 }
 
-void startHermite(int particles, double timestep, double end, double *mass, double complex **pos, double complex **vel, 
+void startHermite(int particles, double timestep, double end_time, double *mass, double complex **pos, double complex **vel, 
                   double complex **acc, double complex **jerk)
 {
   double time = 0.0;
