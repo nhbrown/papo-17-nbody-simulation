@@ -143,6 +143,6 @@ void startHermite(int particles, double timestep, double end_time, double *mass,
     hermite(mass, pos, vel, acc, jerk);
     time += dt;
     ++iterations;
-    printIteration(mass, pos, vel, iterations);
+    printIteration(mass, pos, vel, iterations, particles);
   }
 }
