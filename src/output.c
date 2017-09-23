@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <complex.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include "output.h"
 
 char foldername[40]; /* buffer for foldername */ 
 char logname[80]; /* buffer for logname */
@@ -25,10 +29,8 @@ void createNames()
   }
 }
 
-void printInitialConditions()
+void printInitialConditions(unsigned long seed, int N, double M, double R, double G, double timestep, double end_time, double *mass, double complex **pos, double complex **vel)
 { 
-  createNames();
-  
   FILE *log;
   log = fopen(logname, "w"); /* writes to new file log_<currentdate>.txt which holds important parameters */
 
@@ -40,17 +42,20 @@ void printInitialConditions()
   FILE *conditions;
   conditions = fopen(conditionsname, "w"); /* writes to new file initial_conditions.csv which holds positions */
 
-  /*
-  for(int j = 0; j < N; ++j)
+  for(int i = 0; i < N; ++i)
   {
-    fprintf(conditions, "%f, %f, %f, %f, %f, %f, %f\n", 
-            creal(p.xpos), creal(p.ypos), creal(p.zpos), p.mass, creal(p.xvel), creal(p.yvel), creal(p.zvel));
+    for(int k = 0; k < 1; ++k)
+    {        
+      fprintf(conditions, "%f, %f, %f, %f, %f, %f, %f \n", 
+              creal(pos[i][k]), creal(pos[i][k + 1]), creal(pos[i][k + 2]), mass[i],
+              creal(vel[i][k]), creal(vel[i][k + 1]), creal(vel[i][k + 2]));
+    }
   }
-  */
 
   fclose(conditions);
 }
 
+/*
 void printIteration(double *mass, double complex **pos, double complex **vel, int iteration, char *foldername)
 {
   char buffer[80];
@@ -71,6 +76,7 @@ void printIteration(double *mass, double complex **pos, double complex **vel, in
   
   fclose(out);
 }
+*/
 
 /*
 void readConditions(double *mass, double complex **pos, double complex **vel, char *foldername)
