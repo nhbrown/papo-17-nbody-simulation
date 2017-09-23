@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 char foldername[40]; /* buffer for foldername */ 
 char logname[80]; /* buffer for logname */
@@ -24,7 +25,7 @@ void createNames()
   }
 }
 
-void generateOutput(double timestep, double end_time)
+void printInitialConditions()
 { 
   createNames();
   
@@ -42,7 +43,6 @@ void generateOutput(double timestep, double end_time)
   /*
   for(int j = 0; j < N; ++j)
   {
-    plummer();
     fprintf(conditions, "%f, %f, %f, %f, %f, %f, %f\n", 
             creal(p.xpos), creal(p.ypos), creal(p.zpos), p.mass, creal(p.xvel), creal(p.yvel), creal(p.zvel));
   }
@@ -50,3 +50,67 @@ void generateOutput(double timestep, double end_time)
 
   fclose(conditions);
 }
+
+void printIteration(double *mass, double complex **pos, double complex **vel, int iteration, char *foldername)
+{
+  char buffer[80];
+  snprintf(buffer, sizeof(buffer), "./%s/iteration_%d.csv", foldername, iteration);
+  
+  FILE *out;
+  out = fopen(buffer, "w");
+  
+  for(int i = 0; i < N; ++i)
+  {
+    for(int k = 0; k < 1; ++k)
+    {        
+      fprintf(out, "%f, %f, %f, %f, %f, %f, %f \n", 
+              creal(pos[i][k]), creal(pos[i][k + 1]), creal(pos[i][k + 2]), mass[i],
+              creal(vel[i][k]), creal(vel[i][k + 1]), creal(vel[i][k + 2]));
+    }
+  }
+  
+  fclose(out);
+}
+
+/*
+void readConditions(double *mass, double complex **pos, double complex **vel, char *foldername)
+{
+  char buffer[80];
+  snprintf(buffer, sizeof(buffer), "./%s/initial_conditions.csv", foldername);
+  
+  FILE *inp;  
+  inp = fopen(buffer, "r");
+    
+  for(int i = 0; i < N; ++i)
+  {
+    char buffer[75];
+    double values[7];
+    int index = 0;
+   
+    char *delim = ", ";
+    char *token = NULL;
+    
+    fgets(buffer, 75, inp);
+
+    for (token = strtok(buffer, delim); token != NULL; token = strtok(NULL, delim))
+    {
+      char *ptr;
+      double value = strtod(token, &ptr);
+      values[index] = value;
+      ++index;
+    }
+    
+    pos[i][0] = values[0];
+    pos[i][1] = values[1];
+    pos[i][2] = values[2];
+    
+    mass[i] = values[3];
+    
+    vel[i][0] = values[4];
+    vel[i][1] = values[5];
+    vel[i][2] = values[6];
+  }
+  
+  fclose(inp);
+}
+*/
