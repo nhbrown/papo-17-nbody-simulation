@@ -11,8 +11,6 @@ int main(int argc, const char *argv[])
   double dt; /* timestep */
   double end_time;
   
-  char *foldername;
-  
   switch(argc)
   {
     case 4 :
@@ -34,8 +32,8 @@ int main(int argc, const char *argv[])
       exit(0);
   }
   
-  foldername = startPlummer(seed, N, dt, end_time);
-  startHermite(N, dt, end_time, foldername);
+  startPlummer(seed, N, dt, end_time);
+  startHermite(N, dt, end_time);
   
   return 0;
 }
