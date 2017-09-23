@@ -11,7 +11,7 @@ int main(int argc, const char *argv[])
   unsigned long seed; /* seed for Mersenne-Twister. */
   
   int N; /* amount of particles */
-  int DIM; /* dimensions */
+  int DIM; /* dimensions for space */
 
   double dt; /* timestep */
   double end_time; /* end of simulation */
@@ -50,18 +50,18 @@ int main(int argc, const char *argv[])
   
   double *mass;
   
-  double complex **pos;
-  double complex **vel;
-
-  double complex **acc;
-  double complex **jerk;
-  
   mass = malloc(N * sizeof(double));
   if(mass == NULL)
   {
     fprintf(stderr, "Out of memory!\n");
     exit(0);
   }
+  
+  double complex **pos;
+  double complex **vel;
+
+  double complex **acc;
+  double complex **jerk;
   
   pos = malloc(N * sizeof(double complex *));
   vel = malloc(N * sizeof(double complex *));
@@ -74,6 +74,7 @@ int main(int argc, const char *argv[])
     vel[i] = malloc(DIM * sizeof(double complex));
     acc[i] = malloc(DIM * sizeof(double complex));
     jerk[i] = malloc(DIM * sizeof(double complex));
+    
     if(pos[i] == NULL || vel[i] == NULL || acc[i] == NULL || jerk[i] == NULL)
     {
       fprintf(stderr, "Out of memory!\n");
