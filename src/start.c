@@ -6,57 +6,22 @@
 #include "output.h"
 /* #include "hermite.h" */
 
-unsigned long seed; /* seed for Mersenne-Twister. */
-int N; /* amount of particles */
-int DIM; /* dimensions */
-
-double dt; /* timestep */
-double end_time; /* end of simulation */
-
-void allocateArrays(double *mass, double complex **pos, double complex **vel, double complex **acc, double complex **jerk)
-{
-  mass = malloc(N * sizeof(double));
-  if(mass == NULL)
-  {
-    fprintf(stderr, "Out of memory!\n");
-    exit(0);
-  }
-  
-  pos = malloc(N * sizeof(double complex *));
-  vel = malloc(N * sizeof(double complex *));
-  acc = malloc(N * sizeof(double complex *));
-  jerk = malloc(N * sizeof(double complex *));
-  
-  for(int i = 0; i < N; ++i)
-  {
-    pos[i] = malloc(DIM * sizeof(double complex));
-    vel[i] = malloc(DIM * sizeof(double complex));
-    acc[i] = malloc(DIM * sizeof(double complex));
-    jerk[i] = malloc(DIM * sizeof(double complex));
-    if(pos[i] == NULL || vel[i] == NULL || acc[i] == NULL || jerk[i] == NULL)
-    {
-      fprintf(stderr, "Out of memory!\n");
-      exit(0);
-    }
-  }
-}
-
 int main(int argc, const char *argv[])
-{ 
-  double *mass;
+{
+  unsigned long seed; /* seed for Mersenne-Twister. */
+  
+  int N; /* amount of particles */
+  int DIM; /* dimensions */
 
-  double complex **pos;
-  double complex **vel;
-
-  double complex **acc;
-  double complex **jerk;
+  double dt; /* timestep */
+  double end_time; /* end of simulation */
   
   /* 
   M defines the total mass of the cluster.
   R defines the dimensions of the cluster.
   G defines the gravitational constant.
   */
-  static const double M;
+  static const double M = 1.0;
   static const double R = 1.0;
   static const double G = 1.0;
   
@@ -81,8 +46,40 @@ int main(int argc, const char *argv[])
       exit(0);
   }
   
-  allocateArrays(mass, pos, vel, acc, jerk);
   createNames();
+  
+  double *mass;
+  
+  double complex **pos;
+  double complex **vel;
+
+  double complex **acc;
+  double complex **jerk;
+  
+  mass = malloc(N * sizeof(double));
+  if(mass == NULL)
+  {
+    fprintf(stderr, "Out of memory!\n");
+    exit(0);
+  }
+  
+  pos = malloc(N * sizeof(double complex *));
+  vel = malloc(N * sizeof(double complex *));
+  acc = malloc(N * sizeof(double complex *));
+  jerk = malloc(N * sizeof(double complex *));
+  
+  for(int i = 0; i < N; ++i)
+  {
+    pos[i] = malloc(DIM * sizeof(double complex));
+    vel[i] = malloc(DIM * sizeof(double complex));
+    acc[i] = malloc(DIM * sizeof(double complex));
+    jerk[i] = malloc(DIM * sizeof(double complex));
+    if(pos[i] == NULL || vel[i] == NULL || acc[i] == NULL || jerk[i] == NULL)
+    {
+      fprintf(stderr, "Out of memory!\n");
+      exit(0);
+    }
+  }
   
   startPlummer(seed, N, mass, pos, vel, M, R, G);
   printInitialConditions(seed, N, M, R, G, dt, end_time, mass, pos, vel);
@@ -90,6 +87,22 @@ int main(int argc, const char *argv[])
   /*
   startHermite(N, dt, end_time);
   */
+  
+  free(mass);
+  
+  for(int i = 0; i < N; ++i)
+  {
+    free(pos[i]);
+    free(vel[i]);
+    free(acc[i]);
+    free(jerk[i]);
+  }
+  
+  free(pos);
+  free(vel);
+  free(acc);
+  free(jerk);
+}
   
   return 0;
 }
