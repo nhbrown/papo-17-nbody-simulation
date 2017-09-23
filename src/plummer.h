@@ -1,6 +1,8 @@
 #ifndef PLUMMER_H_
 #define PLUMMER_H_
 
-char * startPlummer(unsigned long s, int amount, double timestep, double end_time);
+void startPlummer(unsigned long s, int N, double *mass, double complex **pos, double complex **vel, 
+                  double M, double R, double G);
 
 #endif // PLUMMER_H_
+
