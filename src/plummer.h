@@ -5,4 +5,3 @@ void startPlummer(unsigned long s, int N, double *mass, double complex **pos, do
                   double M, double R, double G);
 
 #endif // PLUMMER_H_
-
