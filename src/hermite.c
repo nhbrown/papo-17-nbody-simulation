@@ -125,68 +125,6 @@ void hermite(double *mass, double complex **pos, double complex **vel,
   }
 }
 
-void readConditions(double *mass, double complex **pos, double complex **vel, char *foldername)
-{
-  char buffer[80];
-  snprintf(buffer, sizeof(buffer), "./%s/initial_conditions.csv", foldername);
-  
-  FILE *inp;  
-  inp = fopen(buffer, "r");
-    
-  for(int i = 0; i < N; ++i)
-  {
-    char buffer[75];
-    double values[7];
-    int index = 0;
-   
-    char *delim = ", ";
-    char *token = NULL;
-    
-    fgets(buffer, 75, inp);
-
-    for (token = strtok(buffer, delim); token != NULL; token = strtok(NULL, delim))
-    {
-      char *ptr;
-      double value = strtod(token, &ptr);
-      values[index] = value;
-      ++index;
-    }
-    
-    pos[i][0] = values[0];
-    pos[i][1] = values[1];
-    pos[i][2] = values[2];
-    
-    mass[i] = values[3];
-    
-    vel[i][0] = values[4];
-    vel[i][1] = values[5];
-    vel[i][2] = values[6];
-  }
-  
-  fclose(inp);
-}
-
-void printIteration(double *mass, double complex **pos, double complex **vel, int iteration, char *foldername)
-{
-  char buffer[80];
-  snprintf(buffer, sizeof(buffer), "./%s/iteration_%d.csv", foldername, iteration);
-  
-  FILE *out;
-  out = fopen(buffer, "w");
-  
-  for(int i = 0; i < N; ++i)
-  {
-    for(int k = 0; k < 1; ++k)
-    {        
-      fprintf(out, "%f, %f, %f, %f, %f, %f, %f \n", 
-              creal(pos[i][k]), creal(pos[i][k + 1]), creal(pos[i][k + 2]), mass[i],
-              creal(vel[i][k]), creal(vel[i][k + 1]), creal(vel[i][k + 2]));
-    }
-  }
-  
-  fclose(out);
-}
-
 void startHermite(int particles, double timestep, double end, char *folder)
 {
   double time = 0.0;
