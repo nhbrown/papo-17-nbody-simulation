@@ -21,12 +21,6 @@
 #include <complex.h>
 #include <math.h>
 #include "mersenne.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <time.h>
-#include <unistd.h>
 #include "plummer.h"
 
 /* factor for scaling to standard units */
