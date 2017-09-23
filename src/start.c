@@ -102,7 +102,6 @@ int main(int argc, const char *argv[])
   free(vel);
   free(acc);
   free(jerk);
-}
   
   return 0;
 }
