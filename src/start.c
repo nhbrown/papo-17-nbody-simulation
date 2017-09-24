@@ -23,7 +23,7 @@ int main(int argc, const char *argv[])
   */
   static const double M = 1.0;
   static const double R = 1.0;
-  static const double G = 1.0;
+  static const double G = 6.67408;
   
   switch(argc)
   {
