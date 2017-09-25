@@ -246,17 +246,23 @@ int main(int argc, char* argv[])
 			}
 			else
 			{
-				while ((fscanf(CSV, "%f,%f,%f,%f,%f,%f,%f\n", &x, &y, &z, &m, &vx, &vy, &vz)) != EOF) //Each loop reads one row of the iteration.csv
-				{
-					//Set position offsets for instance
-					glm::vec3 translation;
-					translation.x = x;
-					translation.y = y;
-					translation.z = z;
-					translations[index] = translation;
-					index++;
-				}
-				fclose(CSV);
+					while ((fscanf(CSV, "%f,%f,%f,%f,%f,%f,%f\n", &x, &y, &z, &m, &vx, &vy, &vz)) > 0 ) //Each loop reads one row of the iteration.csv (-1 : EOF , 0 : not floats)
+					{							
+							//Set position offsets for instance
+							glm::vec3 translation;
+							translation.x = x;
+							translation.y = y;
+							translation.z = z;
+							translations[index] = translation;
+							index++;					
+					}
+					
+					if (index < NUM_PARTICLE) //If not all rows in iteration.cvs were counted => Error
+					{
+						printf("ERROR - iteration_%i.csv: row %i - Press W to resume", iterationCounter, index); //Input-Data Error
+						active = 0; //Stop
+					}
+					fclose(CSV);								
 
 				//If end of data is reached
 				if (iterationCounter >= numOfIterations)
@@ -313,7 +319,7 @@ int main(int argc, char* argv[])
 		shader.setMat4("view", view);
 
 		//Projection
-		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f); //perspective projection
+		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 999.0f); //perspective projection, last parameter: far plane
 		shader.setMat4("projection", projection);
 
 		//Color
