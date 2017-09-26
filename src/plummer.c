@@ -62,12 +62,38 @@ void plummer(int N, double *mass, double complex **pos, double complex **vel, in
   vel[i][2] = (velocity * ccos(theta)) * csqrt(scale);
 }
 
+void center_of_mass_adjustment(int N, double *mass, double complex **pos, double complex **vel)
+{
+  double complex pos_center[3] = {0, 0, 0}; /* position of center of mass */
+  double complex vel_center[3] = {0, 0, 0}; /* velocity of center of mass */
+  
+  for(int i = 0; i < N; ++i) /* measuring position and velocity of center of mass */
+  {
+    for(int j = 0; j < 3; ++j)
+    {
+      pos_center[j] += pos[i][j] * mass[i];
+      vel_center[j] += vel[i][j] * mass[i];
+    }
+  }
+  
+  for(int k = 0; k < N; ++k) /* subtracting position and velocity of center of mass from each particle */
+  {
+    for(int l = 0; l < 3; ++l)
+    {
+      pos[k][l] -= pos_center[l];
+      vel[k][l] -= vel_center[l];
+    }
+  }
+}
+
 void startPlummer(unsigned long seed, int N, double *mass, double complex **pos, double complex **vel, double M, double R, double G)
 {
   init_genrand(seed);
 
   for(int i = 0; i < N; ++i)
   {
-    plummer(N, mass, pos, vel, i, M, R, G);
+    plummer(N, mass, pos, vel, i, M, R, G); /* G not needed */
   }
+  
+  center_of_mass_adjustment(N, mass, pos, vel);
 }
