@@ -40,7 +40,7 @@ void acc_jerk(double *mass, double complex **pos, double complex **vel,
   
  for(int i = 0; i < N; ++i)
  {
-   for(int j = i + 1; j < N; ++j) /* only loops over half of the particles */
+   for(int j = i + 1; j < N; ++j) /* only loops over half of the particles because of Newton (force acts equally on both particles)*/
    {
      double complex rji[DIM]; /* position vector from particle i to j */
      double complex vji[DIM]; /* velocity vector from particle i to j */
