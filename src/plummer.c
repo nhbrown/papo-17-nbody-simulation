@@ -23,7 +23,7 @@
 #include "mersenne.h"
 #include "plummer.h"
 
-/* factor for scaling to standard units */
+/* factor for scaling to standard units (Heggie units) */
 static const double scale = 16.0 / (3.0 * M_PI);
 
 double frand(double low, double high)
