@@ -5,4 +5,5 @@
 - Stop reading iteration data with S
 - Reset to 1 iteration with X
 - Zoom and rotation with UP/DOWN/LEFT/RIGHT
-- Change colors with R/G/B
+- Change point size with 1/2/3
+- Effects with E/R/F
