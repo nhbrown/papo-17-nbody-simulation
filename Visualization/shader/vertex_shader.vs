@@ -29,5 +29,17 @@ void main()
 	}
 	
 	gl_Position = projection * view * vec4(aPos + aOffset, 1.0);
+
+	if((aColor.x + aColor.y) < 1)
+	{
 	gl_PointSize = pointSize;
+	}
+	else if((aColor.x + aColor.z) < 1)
+	{
+	gl_PointSize = pointSize+0.5;
+	}
+	else
+	{
+	gl_PointSize = pointSize+0.8;
+	}	
 }
