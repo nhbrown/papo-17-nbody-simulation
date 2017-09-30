@@ -230,8 +230,26 @@ int main(int argc, char* argv[])
 		+0.0005f,  -0.0005f, -0.0005f,
 		-0.0005f,  +0.0005f, -0.0005f,
 		+0.0005f,  -0.0005f, +0.0005f,
+
+		//cross outside
+		0.000f, 0.001f, 0.000f,
+		0.000f, -0.001f, 0.000f,
+		0.001f, 0.000f, 0.000f,
+		-0.001f, 0.000f, 0.000f,
+		0.000f, 0.000f, 0.001f,
+		0.000f, 0.000f, -0.001f,
+
+			0.000f, 0.002f, 0.000f,
+			0.000f, -0.002f, 0.000f,
+			0.002f, 0.000f, 0.000f,
+			-0.002f, 0.000f, 0.000f,
+			0.000f, 0.000f, 0.002f,
+			0.000f, 0.000f, -0.002f,
+
+
+
 	};
-	int numberOfPoints = 91; //Number of points for particle shape (number of vertices)
+	int numberOfPoints = 105; //Number of points for particle shape (number of vertices)
 
 	//glfw initialize and configure
 	glfwInit();
