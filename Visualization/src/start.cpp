@@ -23,7 +23,7 @@ int countParticle()
 	snprintf(initialConditions, sizeof(char) * 128, "%s\\initial_conditions.csv", dataFolder);
 
 	int rows = 0;
-	float x, y, z, m, vx, vy, vz;
+	char c = 0;
 
 	FILE *file = fopen(initialConditions, "r");
 
@@ -36,9 +36,12 @@ int countParticle()
 	}
 	else
 	{
-		while (fscanf(file, "%f,%f,%f,%f,%f,%f,%f\n", &x, &y, &z, &m, &vx, &vy, &vz) != EOF) //While row exists
+		while ((c = fgetc(file)) != EOF) //Check every char
 		{
-			rows++;
+			if (c == '\n') //if char is \n => count as row
+			{
+				rows++;
+			}
 		}
 		fclose(file);
 
@@ -65,6 +68,9 @@ int countIterations()
 }
 
 //---Settings
+int pointSize = 1; //Size of particles
+int antiAliasing = 1;
+int effectStatus = 1;
 
 //Default color
 float red = 1.0f; //1.0f corresponds 255 in RGB
@@ -83,6 +89,7 @@ glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 //Various settings
 int active = 0; //Reading of iteration data on/off
 unsigned int iterationCounter = 1; //Current iteration
+int testCounter = 0; //Counting of Stars for Console-Status
 
 int main(int argc, char* argv[])
 {
@@ -105,14 +112,62 @@ int main(int argc, char* argv[])
 	unsigned const int numOfIterations = countIterations(); //set number of Iterations
 	const unsigned int SCR_WIDTH = 1920; //Start screen resolution
 	const unsigned int SCR_HEIGHT = 1080; //Start screen resolution
-	int pointSize = 2; //Size of particles
+
+	//Default vertex
+	float vertices[] =
+	{
+		//Middle
+		0.000000f,  0.000000f, 0.000000f,
+
+		//cross
+		0.000000f,  -0.001f, 0.000000f,
+		0.000000f,  0.001f, 0.000000f,
+		0.001f,  0.000000f, 0.000000f,
+		-0.001f,  0.000000f, 0.000000f,
+		0.000000f,  0.000000f, 0.001f,
+		0.000000f,  0.000000f, -0.001f,
+
+		//inner cross
+		0.000000f,  -0.0005f, 0.000000f,
+		0.000000f,  0.0005f, 0.000000f,
+		0.0005f,  0.000000f, 0.000000f,
+		-0.0005f,  0.000000f, 0.000000f,
+		0.000000f,  0.000000f, 0.0005f,
+		0.000000f,  0.000000f, -0.0005f,
+
+		//fillment
+		0.000000f,  -0.0005f, -0.0005f,
+		0.000000f,  0.0005f, -0.0005f,
+		0.000000f,  -0.0005f, 0.0005f,
+		0.000000f,  0.0005f, 0.0005f,
+
+		0.0005f,  0.000000f, -0.0005f,
+		-0.0005f,  0.000000f, -0.0005f,
+		0.0005f,  0.000000f, 0.0005f,
+		-0.0005f,  0.000000f, 0.0005f,
+
+		0.0005f,  -0.0005f, 0.000000f,
+		-0.0005f,  -0.0005f, 0.000000f,
+		0.0005f,  0.0005f, 0.000000f,
+		-0.0005f,  0.0005f, 0.000000f,
+
+		-0.0005f,  -0.0005f, -0.0005f,
+		-0.0005f,  -0.0005f, +0.0005f,
+		-0.0005f,  +0.0005f, +0.0005f,
+		+0.0005f,  +0.0005f, +0.0005f,
+		+0.0005f,  +0.0005f, -0.0005f,
+		+0.0005f,  -0.0005f, -0.0005f,
+		-0.0005f,  +0.0005f, -0.0005f,
+		+0.0005f,  -0.0005f, +0.0005f,
+	};
+	int numberOfPoints = 33; //Number of points for particle shape (number of vertices)
 
 	//glfw initialize and configure
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	//glfwWindowHint(GLFW_SAMPLES, 2); // 2 x Antialiasing 
+	glfwWindowHint(GLFW_SAMPLES, antiAliasing); // Antialiasing
 	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
 
 	//glfw window creation
@@ -134,15 +189,18 @@ int main(int argc, char* argv[])
 	}
 
 	//configure global opengl state
-	//glEnable(GL_MULTISAMPLE); //Enable antialiasing 
+	glEnable(GL_MULTISAMPLE); //Enable antialiasing 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_PROGRAM_POINT_SIZE);
 
 	//build and compile shaders
 	Shader shader("shader/vertex_shader.vs", "shader/fragment_shader.fs");
-
-	//generate a list of NUM_PARTICLE particles
+	
+	// generate a new list of NUM_PARTICLE particles
 	glm::vec3 *translations = (glm::vec3 *)malloc(NUM_PARTICLE * sizeof(glm::vec3));
+
+	//generate a list of NUM_PARTICLE particles for colors
+	glm::vec3 *colorTranslations = (glm::vec3 *)malloc(NUM_PARTICLE * sizeof(glm::vec3));
 
 	//Read locations from initial_conditions.csv
 	char initialConditions[128];
@@ -159,7 +217,7 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-		while ((fscanf(CSV, "%f,%f,%f,%f,%f,%f,%f\n", &x, &y, &z, &m, &vx, &vy, &vz)) != EOF) //Each loop reads one row of the initial_conditions.csv
+		while ((fscanf(CSV, "%f,%f,%f,%f,%f,%f,%f\n", &x, &y, &z, &m, &vx, &vy, &vz)) > 0) //Each loop reads one row of the initial_conditions.csv
 		{
 			//Set position offsets for instance
 			glm::vec3 translation;
@@ -167,7 +225,21 @@ int main(int argc, char* argv[])
 			translation.y = y;
 			translation.z = z;
 			translations[index] = translation;
+
+			//Set color offsets 
+			glm::vec3 colorTranslation;
+			colorTranslation.x = x;
+			colorTranslation.y = y;
+			colorTranslation.z = z;
+			colorTranslations[index] = colorTranslation;
+
 			index++;
+		}
+
+		if (index < NUM_PARTICLE) //If not all rows in iteration.cvs were counted => Error
+		{
+			printf("ERROR - initial_conditions.csv: row %i - Press W to resume \n", index+1); //Input-Data Error
+			active = 0; //Stop
 		}
 		fclose(CSV);
 	}
@@ -179,14 +251,17 @@ int main(int argc, char* argv[])
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * NUM_PARTICLE, &translations[0], GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	free(translations); //Free allocated memory
+	//store instance color data in an array buffer
+	unsigned int instanceVBOColor;
+	glGenBuffers(1, &instanceVBOColor);
+	glBindBuffer(GL_ARRAY_BUFFER, instanceVBOColor);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * NUM_PARTICLE, &colorTranslations[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	//Default vertex
-	float vertices[] =
-	{
-		//positions				//colors
-		0.00f,  0.00f, 0.00f,	1.0f, 0.0f, 0.0f,
-	};
+	free(translations); //Free allocated memory
+	free(colorTranslations);
+
+	
 
 	//Configure vertex attributes
 	unsigned int VAO, VBO;
@@ -199,15 +274,22 @@ int main(int argc, char* argv[])
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(3 * sizeof(float)));
+	
 	//set instance data
+	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, instanceVBOColor); // this attribute comes from a different color vertex buffer
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(3 * sizeof(float)));
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glVertexAttribDivisor(1, 1); // tell OpenGL this is an instanced vertex attribute.
+
 	glEnableVertexAttribArray(2);
 	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO); // this attribute comes from a different vertex buffer
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(6 * sizeof(float)));
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glVertexAttribDivisor(2, 1); // tell OpenGL this is an instanced vertex attribute.
 
 	//Print operation manual
-	printf("Use W to start, S to stop, X to reset, UP/DOWN/LEFT/RIGHT to zoom and rotate and R/G/B to adjust colors\n");
+	printf("Use W to start, S to stop, X to reset, UP/DOWN/LEFT/RIGHT to zoom and rotate, 1/2/3 to change point size and E/R/F for effects\n");
 
 	//render loop
 	while (!glfwWindowShouldClose(window))
@@ -220,8 +302,9 @@ int main(int argc, char* argv[])
 		{
 			if (iterationCounter < numOfIterations)
 			{
-				printf("Iteration %d\n", iterationCounter); // Print current iteration if not last iteration
+				printf("Iteration: %d - Particles with distance to center > 1: %d\n", iterationCounter, testCounter); // Print current iteration if not last iteration
 			}
+			testCounter = 0; //Reset counter 
 
 			//Delete old vertex and buffers
 			glDeleteVertexArrays(1, &VAO);
@@ -229,6 +312,9 @@ int main(int argc, char* argv[])
 
 			// generate a new list of NUM_PARTICLE particles
 			glm::vec3 *translations = (glm::vec3 *)malloc(NUM_PARTICLE * sizeof(glm::vec3));
+
+			//generate a list of NUM_PARTICLE particles for colors
+			glm::vec3 *colorTranslations = (glm::vec3 *)malloc(NUM_PARTICLE * sizeof(glm::vec3));
 
 			//Read locations from iterations
 			FILE *CSV;
@@ -247,19 +333,56 @@ int main(int argc, char* argv[])
 			else
 			{
 					while ((fscanf(CSV, "%f,%f,%f,%f,%f,%f,%f\n", &x, &y, &z, &m, &vx, &vy, &vz)) > 0 ) //Each loop reads one row of the iteration.csv (-1 : EOF , 0 : not floats)
-					{							
+					{						
 							//Set position offsets for instance
 							glm::vec3 translation;
 							translation.x = x;
 							translation.y = y;
 							translation.z = z;
-							translations[index] = translation;
-							index++;					
+							translations[index] = translation;					
+
+							int randomForSparkling = sin(glfwGetTime());
+
+							
+							//Set color offsets 
+							if (index % 2 == 0) //If  then sparkle => not every star will sparkle
+							{
+								if (randomForSparkling < 0.4)
+								{
+									randomForSparkling = randomForSparkling + 0.4;
+								}
+
+								glm::vec3 colorTranslation;
+								colorTranslation.x = x; //sparkle Stars
+								colorTranslation.y = y;
+								colorTranslation.z = randomForSparkling*z;
+								colorTranslations[index] = colorTranslation;
+							}
+							else
+							{
+								glm::vec3 colorTranslation;
+								colorTranslation.x = x; 
+								colorTranslation.y = y;
+								colorTranslation.z = z;
+								colorTranslations[index] = colorTranslation;
+							}
+							
+							index++;
 					}
-					
+
+					 //Count stars outside of inner circle with range 1.0	
+					for (int i = 0; i < NUM_PARTICLE;i++)
+					{
+						if (abs(translations[i].x) > 1 || abs(translations[i].y) > 1 || abs(translations[i].z) > 1)
+						{
+							testCounter++;
+						}
+					}
+				
+
 					if (index < NUM_PARTICLE) //If not all rows in iteration.cvs were counted => Error
 					{
-						printf("ERROR - iteration_%i.csv: row %i - Press W to resume", iterationCounter, index); //Input-Data Error
+						printf("ERROR - iteration_%i.csv: row %i - Press W to resume \n", iterationCounter, index); //Input-Data Error
 						active = 0; //Stop
 					}
 					fclose(CSV);								
@@ -273,24 +396,26 @@ int main(int argc, char* argv[])
 				{
 					iterationCounter++;
 				}
-			}
+			}		
 
-			//store instance data in an array buffer
+			//store instance position data in an array buffer
 			unsigned int instanceVBO;
 			glGenBuffers(1, &instanceVBO);
 			glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * NUM_PARTICLE, &translations[0], GL_STATIC_DRAW);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+			//store instance color data in an array buffer
+			unsigned int instanceVBOColor;
+			glGenBuffers(1, &instanceVBOColor);
+			glBindBuffer(GL_ARRAY_BUFFER, instanceVBOColor);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * NUM_PARTICLE, &colorTranslations[0], GL_STATIC_DRAW);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 			free(translations); //Free allocated memory
+			free(colorTranslations);
 
-			//Default vertex
-			float vertices[] =
-			{
-				//positions				//colors
-				0.00f,  0.00f, 0.00f,	1.0f, 0.0f, 0.0f,
-			};
-
+			
 			//Configure vertex attributes
 			unsigned int VAO, VBO;
 			glGenVertexArrays(1, &VAO);
@@ -299,16 +424,22 @@ int main(int argc, char* argv[])
 			glBindBuffer(GL_ARRAY_BUFFER, VBO);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(3 * sizeof(float)));
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); //Vertex
 			// also set instance data
+			glEnableVertexAttribArray(1);
+			glBindBuffer(GL_ARRAY_BUFFER, instanceVBOColor); // this attribute comes from a different color vertex buffer
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(3 * sizeof(float))); //Color
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glVertexAttribDivisor(1, 1); // tell OpenGL this is an instanced vertex attribute.
+	
 			glEnableVertexAttribArray(2);
 			glBindBuffer(GL_ARRAY_BUFFER, instanceVBO); // this attribute comes from a different vertex buffer
-			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(6 * sizeof(float)));
+			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(6 * sizeof(float))); //Position offset
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glVertexAttribDivisor(2, 1); // tell OpenGL this is an instanced vertex attribute.
 		}
+
+
 
 		//render
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //Clear and set color of screen every frame
@@ -330,10 +461,25 @@ int main(int argc, char* argv[])
 		int pointSizeLocation = glGetUniformLocation(shader.ID, "pointSize"); //get adress of pointSize uniform variable in vertex_shader
 		glUniform1i(pointSizeLocation, pointSize); //set pointSize 
 
+		
+		//Send random 0-1 to Shader for effects
+		float randSinus = abs(sin(10*glfwGetTime()));
+		if (randSinus > 0.5)
+		{
+			randSinus = randSinus - 0.4;
+		}
+		float timeLocation = glGetUniformLocation(shader.ID, "random");
+		glUniform1f(timeLocation, randSinus);
+		
+
+		//Send effectStatus
+		int effectLocation = glGetUniformLocation(shader.ID, "effects");
+		glUniform1i(effectLocation, effectStatus);
+		
 		//draw NUM_PARTICLE particles instanced 
 		shader.use();
 		glBindVertexArray(VAO);
-		glDrawArraysInstanced(GL_POINTS, 0, 1, NUM_PARTICLE); // draw NUM_PARTICLE instanced points 
+		glDrawArraysInstanced(GL_POINTS, 0, numberOfPoints, NUM_PARTICLE); // draw NUM_PARTICLE instanced points 
 		glBindVertexArray(0);
 
 		//glfw swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -472,6 +618,41 @@ void processInput(GLFWwindow *window)
 			printf("Press W to continue with 1 iteration \n");
 		}
 	}
+	//pointSize  1 
+	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
+	{
+		pointSize = 1;
+	}
+	//pointSize  2 
+	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
+	{
+		pointSize = 2;
+	}
+	//pointSize  3 
+	if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
+	{
+		pointSize = 3;
+	}
+
+	//Effects on 
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+	{
+		effectStatus = 1;
+	}
+
+	//Effects off 
+	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+	{
+		effectStatus = 0;
+	}
+
+	//Effects color 
+	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+	{
+		effectStatus = 2;
+	}
+
+
 }
 
 //glfw whenever the window size changed this callback function executes
