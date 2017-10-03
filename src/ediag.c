@@ -44,5 +44,5 @@ void energy_diagnostics(int N, double *mass, double complex **pos, double comple
   
   e_total = e_kinetic + e_potential;
   
-  printf("Kinetic Energy: %f \n Potential Energy: %f \n Total Energy: %f \n", e_kinetic, e_potential, e_total);
+  printf("Kinetic Energy: %f \nPotential Energy: %f \nTotal Energy: %f \n", e_kinetic, e_potential, e_total);
 }
