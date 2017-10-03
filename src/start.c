@@ -7,14 +7,17 @@
 #include "hermite.h"
 
 int N; /* amount of particles */
-double *mass;
+int DIM = 3; /* dimensions */
+
+double *mass; /* holds masses for all particles */
   
-double complex **pos;
-double complex **vel;
+double complex **pos; /* holds positions for all particles */
+double complex **vel; /* hold velocities for all particles */
 
-double complex **acc;
-double complex **jerk;
+double complex **acc; /* holds acceleration for all particles */
+double complex **jerk; /* holds jerk for all particles */
 
+/* allocates neccessary space for all arrays */
 void mallocArrays()
 {
   mass = malloc(N * sizeof(double));
@@ -45,6 +48,7 @@ void mallocArrays()
   }
 }
 
+/* frees the allocated space of all arrays */
 void freeArrays()
 {
   free(mass);
@@ -74,6 +78,7 @@ int main(int argc, const char *argv[])
   static const double R = 1.0; /* radius of cluster */
   static const double G = 1.0; /* gravitational constant */
   
+  /* input computation */
   switch(argc)
   {
     case 4 :
