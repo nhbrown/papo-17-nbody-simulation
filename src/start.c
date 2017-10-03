@@ -127,10 +127,10 @@ int main(int argc, const char *argv[])
   startPlummer(seed, N, mass, pos, vel, M, R); /* starts the Plummer Model routine for initial conditions */
   
   printInitialConditions(N, mass, pos, vel); /* creates and writes to the initial conditions file */
+    
+  energy_diagnostics(N, mass, pos, vel);
   
   startHermite(N, DIM, dt, end_time, mass, pos, vel, acc, jerk); /* starts the Hermite scheme for further computation */
-  
-  energy_diagnostics(N, mass, pos, vel);
   
   freeArrays(); /* frees allocated space of arrays after computation has finished */
   
