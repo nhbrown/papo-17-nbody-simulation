@@ -101,8 +101,8 @@ void startPlummer(unsigned long seed, int N, double *mass, double complex **pos,
 
   for(int i = 0; i < N; ++i)
   {
-    plummer(N, mass, pos, vel, i, M, R);
+    plummer(N, mass, pos, vel, i, M, R); /* generate mass, positon and velocity for specified amount of particles */
   }
   
-  center_of_mass_adjustment(N, mass, pos, vel);
+  center_of_mass_adjustment(N, mass, pos, vel); /* adjust center of mass for all particles */
 }
