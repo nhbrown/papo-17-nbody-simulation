@@ -6,20 +6,21 @@ double e_kinetic = 0.0;
 double e_potential = 0.0;
 double e_total = 0.0;
 
-void kinetic_energy(int N, double complex *mass, double complex **vel)
+void kinetic_energy(int N, double *mass, double complex **vel)
 {
   for(int i = 0; i < N; ++i)
   {
-    double complex vel2 = (cpow (vel[i][0] + vel[i][1] + vel[i][2]) 2.0);
+    double complex vel2 = (cpow (vel[i][0] + vel[i][1] + vel[i][2]), 2.0);
     e_kinetic += 0.5 * mass[i] * creal(vel2);
   }
 }
 
-void potential_energy(int N, double complex *mass, double complex **pos)
+void potential_energy(int N, double *mass, double complex **pos)
 {
+  double complex x = 0;
+  
   for(int i = 0; i < N; ++i)
   {
-    double complex x = 0;
     for(int j = 0; j < N; ++j)
     {
       if(j != i)
@@ -30,10 +31,11 @@ void potential_energy(int N, double complex *mass, double complex **pos)
       }
     }
   }
+  
   e_potential = creal(x) / 2;
 }
 
-void energy_diagnostics(int N, double complex *mass, double complex **pos, double complex **vel)
+void energy_diagnostics(int N, double *mass, double complex **pos, double complex **vel)
 {
   kinetic_energy(N, mass, vel);
   
