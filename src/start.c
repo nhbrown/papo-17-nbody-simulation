@@ -127,7 +127,7 @@ int main(int argc, const char *argv[])
   
   printInitialConditions(N, mass, pos, vel); /* creates and writes to the initial conditions file */
   
-  startHermite(N, dt, end_time, mass, pos, vel, acc, jerk); /* starts the Hermite scheme for furthe computation */
+  startHermite(N, DIM, dt, end_time, mass, pos, vel, acc, jerk); /* starts the Hermite scheme for furthe computation */
   
   freeArrays(); /* frees allocated space of arrays after computation has finished */
   
