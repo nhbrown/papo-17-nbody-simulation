@@ -82,9 +82,11 @@ int main(int argc, const char *argv[])
     }
   }
   
+  printLog(seed, N, M, R, G, dt, end_time);
+  
   startPlummer(seed, N, mass, pos, vel, M, R);
   
-  printInitialConditions(seed, N, M, R, G, dt, end_time, mass, pos, vel);
+  printInitialConditions(N, mass, pos, vel);
   
   startHermite(N, dt, end_time, mass, pos, vel, acc, jerk);
   
