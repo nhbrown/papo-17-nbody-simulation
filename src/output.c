@@ -28,16 +28,8 @@ void createNames()
   }
 }
 
-void printInitialConditions(unsigned long seed, int N, double M, double R, double G, double timestep, double end_time, double *mass, double complex **pos, double complex **vel)
+void printInitialConditions(int N, double *mass, double complex **pos, double complex **vel)
 { 
-  FILE *log;
-  log = fopen(logname, "w"); /* writes to new file log_<currentdate>.txt which holds important parameters */
-
-  fprintf(log, "Seed used: %lu \nNumber of particles: %d \nTotal mass of cluster: %f \nDimensions of cluster: %f \nGravitational constant: %f \nTimestep: %f \nEndtime: %f", 
-          seed, N, M, R, G, timestep, end_time);
-
-  fclose(log);
-
   FILE *conditions;
   conditions = fopen(conditionsname, "w"); /* writes to new file initial_conditions.csv which holds positions */
 
@@ -52,6 +44,17 @@ void printInitialConditions(unsigned long seed, int N, double M, double R, doubl
   }
 
   fclose(conditions);
+}
+
+void printLog(unsigned long seed, int N, double M, double R, double G, double timestep, double end_time)
+{
+  FILE *log;
+  log = fopen(logname, "w"); /* writes to new file log_<currentdate>.txt which holds important parameters */
+
+  fprintf(log, "Seed used: %lu \nNumber of particles: %d \nTotal mass of cluster: %f \nDimensions of cluster: %f \nGravitational constant: %f \nTimestep: %f \nEndtime: %f", 
+          seed, N, M, R, G, timestep, end_time);
+
+  fclose(log);
 }
 
 void printIteration(double *mass, double complex **pos, double complex **vel, int iteration, int N)

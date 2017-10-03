@@ -31,7 +31,7 @@ double frand(double low, double high)
   return low + genrand_real1() * (high - low);
 }
 
-void plummer(int N, double *mass, double complex **pos, double complex **vel, int i, double M, double R, double G)
+void plummer(int N, double *mass, double complex **pos, double complex **vel, int i, double M, double R)
 {  
   mass[i] = M / N; /* mass equilibrium */
   
@@ -86,13 +86,13 @@ void center_of_mass_adjustment(int N, double *mass, double complex **pos, double
   }
 }
 
-void startPlummer(unsigned long seed, int N, double *mass, double complex **pos, double complex **vel, double M, double R, double G)
+void startPlummer(unsigned long seed, int N, double *mass, double complex **pos, double complex **vel, double M, double R)
 {
   init_genrand(seed);
 
   for(int i = 0; i < N; ++i)
   {
-    plummer(N, mass, pos, vel, i, M, R, G); /* G not needed */
+    plummer(N, mass, pos, vel, i, M, R);
   }
   
   center_of_mass_adjustment(N, mass, pos, vel);
