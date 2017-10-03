@@ -29,7 +29,7 @@ static const double scale = 16.0 / (3.0 * M_PI);
 /* returns pseudo-random number within specified range */
 double frand(double low, double high)
 {
-  return low + genrand_real1() * (high - low);
+  return low + genrand_int32() * (high - low);
 }
 
 /* implementation of the Plummer density profile (Plummer Model) */
@@ -37,7 +37,7 @@ void plummer(int N, double *mass, double complex **pos, double complex **vel, in
 {  
   mass[i] = M / N; /* mass equilibrium */
   
-  double complex radius = R / csqrt((cpow(genrand_real1(), (-2.0/3.0))) - 1.0); /* inverted cumulative mass distribution */
+  double complex radius = R / csqrt((cpow(genrand_int32(), (-2.0/3.0))) - 1.0); /* inverted cumulative mass distribution */
   double complex theta = cacos(frand(-1.0, 1.0)); /* Polar Angle */
   double complex phi = frand(0.0, (2 * M_PI)); /* Azimuthal Angle */
   
