@@ -26,11 +26,13 @@
 /* factor for scaling to standard units (Heggie units) */
 static const double scale = 16.0 / (3.0 * M_PI);
 
+/* returns pseudo-random number within specified range */
 double frand(double low, double high)
 {
   return low + genrand_real1() * (high - low);
 }
 
+/* implementation of the Plummer density profile (Plummer Model) */
 void plummer(int N, double *mass, double complex **pos, double complex **vel, int i, double M, double R)
 {  
   mass[i] = M / N; /* mass equilibrium */
@@ -47,27 +49,32 @@ void plummer(int N, double *mass, double complex **pos, double complex **vel, in
   double x = 0.0;
   double y = 0.1;
   
+  /* rejection technique */
   while(y > (x * x * (pow((1.0 - x * x), 3.5))))
   {
     x = frand(0.0, 1.0);
     y = frand(0.0, 0.1);
   }
   
+  /* distribution function */
   double complex velocity = x * csqrt(2.0) * cpow((1.0 + radius * radius), -0.25);
   theta = cacos(frand(-1.0, 1.0));
   phi = frand(0.0, (2 * M_PI));
   
+  /* conversion */
   vel[i][0] = (velocity * csin(theta) * ccos(phi)) * csqrt(scale);
   vel[i][1] = (velocity * csin(theta) * csin(phi)) * csqrt(scale);
   vel[i][2] = (velocity * ccos(theta)) * csqrt(scale);
 }
 
+/* adjusting positions and velocities of all particles towards center of mass */
 void center_of_mass_adjustment(int N, double *mass, double complex **pos, double complex **vel)
 {
   double complex pos_center[3] = {0, 0, 0}; /* position of center of mass */
   double complex vel_center[3] = {0, 0, 0}; /* velocity of center of mass */
   
-  for(int i = 0; i < N; ++i) /* measuring position and velocity of center of mass */
+  /* measuring position and velocity of center of mass */
+  for(int i = 0; i < N; ++i) 
   {
     for(int j = 0; j < 3; ++j)
     {
@@ -76,7 +83,8 @@ void center_of_mass_adjustment(int N, double *mass, double complex **pos, double
     }
   }
   
-  for(int k = 0; k < N; ++k) /* subtracting position and velocity of center of mass from each particle */
+  /* subtracting position and velocity of center of mass from each particle */
+  for(int k = 0; k < N; ++k) 
   {
     for(int l = 0; l < 3; ++l)
     {
@@ -86,9 +94,10 @@ void center_of_mass_adjustment(int N, double *mass, double complex **pos, double
   }
 }
 
+/* starts the Plummer Model routine to generate initial conditions for our cluster */
 void startPlummer(unsigned long seed, int N, double *mass, double complex **pos, double complex **vel, double M, double R)
 {
-  init_genrand(seed);
+  init_genrand(seed); /* seeding Mersenne Twister */
 
   for(int i = 0; i < N; ++i)
   {
