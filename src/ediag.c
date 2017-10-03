@@ -1,4 +1,5 @@
 #include <complex.h>
+#include <math.h>
 #include <stdio.h>
 #include "ediag.h"
 
@@ -10,8 +11,8 @@ void kinetic_energy(int N, double *mass, double complex **vel)
 {
   for(int i = 0; i < N; ++i)
   {
-    double complex vel2 = (cpow (vel[i][0] + vel[i][1] + vel[i][2]), 2.0);
-    e_kinetic += 0.5 * mass[i] * creal(vel2);
+    double vel2 = pow(creal(vel[i][0] + vel[i][1] + vel[i][2]), 2.0);
+    e_kinetic += 0.5 * mass[i] * vel2;
   }
 }
 
