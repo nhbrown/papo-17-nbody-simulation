@@ -1,3 +1,20 @@
+/*    
+    The following source code provides an entry point for the NBody routine,
+    computing user input, initialising and maintaining all important 
+    variables and containers, as well as orchestrating the execution.
+    Copyright (C) 2017  Nicholas Lee Hickson-Brown, Michael Eidus
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -81,14 +98,14 @@ int main(int argc, const char *argv[])
   /* input computation */
   switch(argc)
   {
-    case 4 :
+    case 4 : /* when no seed is specified by user */
       seed = (unsigned long) time(NULL);
       N = atoi(argv[1]);
       dt = atof(argv[2]);
       end_time = atof(argv[3]);
       break;
       
-    case 5 :
+    case 5 : /* when seed is specified by user */
       seed = atol(argv[1]);
       N = atoi(argv[2]);
       dt = atof(argv[3]);
@@ -100,19 +117,19 @@ int main(int argc, const char *argv[])
       exit(0);
   }
   
-  createNames();
+  createNames(); /* creates folder and names for files */
   
-  mallocArrays();
+  mallocArrays(); /* allocates space for arrays */
   
-  printLog(seed, N, M, R, G, dt, end_time);
+  printLog(seed, N, M, R, G, dt, end_time); /* creates and writes to the log file */
   
-  startPlummer(seed, N, mass, pos, vel, M, R);
+  startPlummer(seed, N, mass, pos, vel, M, R); /* starts the Plummer Model routine for initial conditions */
   
-  printInitialConditions(N, mass, pos, vel);
+  printInitialConditions(N, mass, pos, vel); /* creates and writes to the initial conditions file */
   
-  startHermite(N, dt, end_time, mass, pos, vel, acc, jerk);
+  startHermite(N, dt, end_time, mass, pos, vel, acc, jerk); /* starts the Hermite scheme for furthe computation */
   
-  freeArrays();
+  freeArrays(); /* frees allocated space of arrays after computation has finished */
   
   return 0;
 }
