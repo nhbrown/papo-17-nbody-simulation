@@ -1,3 +1,19 @@
+/*    
+    The following source code provides methods for writing initial conditions,
+    important information and iterations of the computation to *.txt or *.csv files.
+    Copyright (C) 2017  Nicholas Lee Hickson-Brown, Michael Eidus
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <stdio.h>
 #include <time.h>
 #include <complex.h>
@@ -5,10 +21,11 @@
 #include <sys/stat.h>
 #include "output.h"
 
-char foldername[40]; /* buffer for foldername */ 
-char logname[80]; /* buffer for logname */
-char conditionsname[80]; /* buffer for conditionsname */
+char foldername[40]; /* buffer for name of folder */ 
+char logname[80]; /* buffer for name of log file */
+char conditionsname[80]; /* buffer for name of intial conditions file */
 
+/* creates names and folder for files of the currently running simulation */
 void createNames()
 {
   struct tm *sTm;
@@ -28,10 +45,11 @@ void createNames()
   }
 }
 
+/* creates and writes to inital conditions file, which holds intial masses, positions and velocities of all particles */
 void printInitialConditions(int N, double *mass, double complex **pos, double complex **vel)
 { 
   FILE *conditions;
-  conditions = fopen(conditionsname, "w"); /* writes to new file initial_conditions.csv which holds positions */
+  conditions = fopen(conditionsname, "w");
 
   for(int i = 0; i < N; ++i)
   {
@@ -46,6 +64,7 @@ void printInitialConditions(int N, double *mass, double complex **pos, double co
   fclose(conditions);
 }
 
+/* creates and writes to log file, which holds important information about the current run */
 void printLog(unsigned long seed, int N, double M, double R, double G, double timestep, double end_time)
 {
   FILE *log;
@@ -57,6 +76,7 @@ void printLog(unsigned long seed, int N, double M, double R, double G, double ti
   fclose(log);
 }
 
+/* creates and writes to new file for specified iteration of the computation */
 void printIteration(double *mass, double complex **pos, double complex **vel, int iteration, int N)
 {
   char buffer[80];
