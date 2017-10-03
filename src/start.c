@@ -23,7 +23,7 @@ int main(int argc, const char *argv[])
   */
   static const double M = 1.0;
   static const double R = 1.0;
-  static const double G = 6.67408;
+  static const double G = 1.0;
   
   switch(argc)
   {
@@ -82,7 +82,7 @@ int main(int argc, const char *argv[])
     }
   }
   
-  startPlummer(seed, N, mass, pos, vel, M, R, G);
+  startPlummer(seed, N, mass, pos, vel, M, R);
   
   printInitialConditions(seed, N, M, R, G, dt, end_time, mass, pos, vel);
   
