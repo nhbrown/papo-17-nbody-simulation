@@ -28,7 +28,7 @@ void potential_energy(int N, int DIM, double *mass, double complex **pos)
     
       for (int k = 0; k < DIM ; ++k)
       {
-        rij2 += (pos[j][k] - pos[i][k]) * (pos[j][k] - pos[i][j]);
+        rij2 += (pos[j][k] - pos[i][k]) * (pos[j][k] - pos[i][k]);
       }
       
       e_potential -= mass[i] * mass[j] / sqrt(rij2);
