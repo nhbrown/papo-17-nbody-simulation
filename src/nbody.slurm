@@ -15,4 +15,4 @@ then
 fi
 
 srun hostname
-time ./nbody 100 0.01 1
+time ./nbody 1000 0.01 1
