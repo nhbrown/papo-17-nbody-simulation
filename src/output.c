@@ -76,7 +76,7 @@ void printLog(unsigned long seed, int N, double M, double R, double G, double ti
   fclose(log);
 }
 
-void writeEnergyDiagnostics(int marker, double e_kinetic, double e_potential, double e_total)
+void printEnergyDiagnostics(int marker, double e_kinetic, double e_potential, double e_total)
 {
   FILE *log;
   log = fopen(logname, "a");
