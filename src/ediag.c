@@ -24,7 +24,7 @@ void potential_energy(int N, int DIM, double *mass, double complex **pos)
   {
     for (int j = i+1; j < N ; ++j)
     {
-      double complex rij2;
+      double complex rij2 = 0;
     
       for (int k = 0; k < DIM ; ++k)
       {
