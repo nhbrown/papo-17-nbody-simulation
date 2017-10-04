@@ -19,12 +19,8 @@
 #include "hermite.h"
 #include "output.h"
 
-int N; /* amount of particles */
-int DIM; /* dimensions */
-double dt; /* timestep */
-
 /* calculates acceleration and jerk for all particles */
-void acc_jerk(double *mass, double complex **pos, double complex **vel, 
+void acc_jerk(int N, int DIM, double *mass, double complex **pos, double complex **vel, 
               double complex **acc, double complex **jerk)
 { 
   /* default values for acceleration and jerk */
@@ -87,8 +83,8 @@ Implementation of the Hermite scheme, calculates new positions and velocities fo
 For mathematical expressions used, see: http://www.ub.uni-heidelberg.de/archiv/6553 (Section 4.5) 
 Further information: Kokubo E., Yoshinaga K., Makino J., 1998, MNRAS 297, 1067
 */
-void hermite(double *mass, double complex **pos, double complex **vel, 
-              double complex **acc, double complex **jerk)
+void hermite(int N, int DIM, double dt, double *mass, double complex **pos, 
+             double complex **vel, double complex **acc, double complex **jerk)
 {
   /* storing positions, velocities, acceleration and jerk from last iteration */
   double complex old_pos[N][DIM];
@@ -117,7 +113,7 @@ void hermite(double *mass, double complex **pos, double complex **vel,
     }
   }
   
-  acc_jerk(mass, pos, vel, acc, jerk); /* get the new accleration and jerk for all particles*/
+  acc_jerk(N, DIM, mass, pos, vel, acc, jerk); /* get the new accleration and jerk for all particles*/
   
   /* correction in reversed order of computation (for mathematical expression please see links provided above) 
      reversed order allows the corrected velocities to be used to correct the positions for better energy behaviour */
@@ -138,12 +134,12 @@ void startHermite(int N, int DIM, double dt, double end_time, double *mass, doub
   double time = 0.0; /* default time */
   int iterations = 0; /* iteration counter, iteration 0 is equal to initial conditions */
   
-  acc_jerk(mass, pos, vel, acc, jerk); /* one time calculation to get inital acceleration and jerk for all particles */
+  acc_jerk(N, DIM, mass, pos, vel, acc, jerk); /* one time calculation to get inital acceleration and jerk for all particles */
   
   while(time < end_time) /* until user specified end of simulation is reached */
   {
     ++iterations; /* increment iteration counter from last iteration to current iteration */
-    hermite(mass, pos, vel, acc, jerk); /* calculate movement for current iteration */
+    hermite(N, DIM, dt, mass, pos, vel, acc, jerk); /* calculate movement for current iteration */
     printIteration(mass, pos, vel, iterations, N); /* print current iteration */
     time += dt; /* add timestep to current time to advance to next iteration */
   }
