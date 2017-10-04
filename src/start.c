@@ -24,6 +24,10 @@
 #include "hermite.h"
 #include "ediag.h"
 
+/* prototypes */
+void mallocArrays(void);
+void freeArrays(void);
+
 int N; /* amount of particles */
 int DIM = 3; /* dimensions */
 
@@ -128,7 +132,7 @@ int main(int argc, const char *argv[])
   
   printInitialConditions(N, mass, pos, vel); /* creates and writes to the initial conditions file */
     
-  energy_diagnostics(N, DIM, mass, pos, vel);
+  energy_diagnostics(N, DIM, mass, pos, vel); /* calculate kinetic, potential and total energy of the cluster */
   
   startHermite(N, DIM, dt, end_time, mass, pos, vel, acc, jerk); /* starts the Hermite scheme for further computation */
   

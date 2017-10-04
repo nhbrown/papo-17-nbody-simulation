@@ -1,7 +1,7 @@
 #ifndef OUTPUT_H_
 #define OUTPUT_H_
 
-void createNames();
+void createNames(void);
 
 void printInitialConditions(int N, double *mass, double complex **pos, double complex **vel);
 
