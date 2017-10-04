@@ -24,20 +24,14 @@ void potential_energy(int N, int DIM, double *mass, double complex **pos)
   {
     for (int j = i+1; j < N ; ++j)
     {
-      double complex rji[DIM];
-      double complex r2;
+      double complex rij2;
     
       for (int k = 0; k < DIM ; ++k)
       {
-        rji[k] = pos[j][k] - pos[i][k];
-      }
-    
-      for (int k = 0; k < DIM ; ++k)
-      {
-        r2 += rji[k] * rji[k];
+        rij2 += (pos[j][k] - pos[i][k]) * (pos[j][k] - pos[i][j]);
       }
       
-      e_potential -= mass[i] * mass[j] / sqrt(r2);
+      e_potential -= mass[i] * mass[j] / sqrt(rij2);
     }
   }
 }
