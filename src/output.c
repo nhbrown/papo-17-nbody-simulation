@@ -83,11 +83,11 @@ void printEnergyDiagnostics(int marker, double e_kinetic, double e_potential, do
   
   if(marker == 0)
   {
-    fprintf("\nEnergy Diagnostics at Beginning of Simulation: \nKinetic Energy: %f \nPotential Energy: %f \nTotal Energy: %f \n", e_kinetic, e_potential, e_total);
+    fprintf(log, "\nEnergy Diagnostics at Beginning of Simulation: \nKinetic Energy: %f \nPotential Energy: %f \nTotal Energy: %f \n", e_kinetic, e_potential, e_total);
   }
   else
   {
-    fprintf("\nEnergy Diagnostics at End of Simulation: \nKinetic Energy: %f \nPotential Energy: %f \nTotal Energy: %f \n", e_kinetic, e_potential, e_total);
+    fprintf(log, "\nEnergy Diagnostics at End of Simulation: \nKinetic Energy: %f \nPotential Energy: %f \nTotal Energy: %f \n", e_kinetic, e_potential, e_total);
   }
   
   fclose(log);
