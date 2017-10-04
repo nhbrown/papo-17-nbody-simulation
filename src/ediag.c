@@ -2,6 +2,7 @@
 #include <math.h>
 #include <stdio.h>
 #include "ediag.h"
+#include "output.h"
 
 double e_kinetic = 0.0;
 double e_potential = 0.0;
@@ -36,7 +37,7 @@ void potential_energy(int N, int DIM, double *mass, double complex **pos)
   }
 }
 
-void energy_diagnostics(int N, int DIM, double *mass, double complex **pos, double complex **vel)
+void energy_diagnostics(int N, int DIM, int marker, double *mass, double complex **pos, double complex **vel)
 {
   kinetic_energy(N, DIM, mass, vel);
   
@@ -44,5 +45,5 @@ void energy_diagnostics(int N, int DIM, double *mass, double complex **pos, doub
   
   e_total = e_kinetic + e_potential;
   
-  printf("Kinetic Energy: %f \nPotential Energy: %f \nTotal Energy: %f \n", e_kinetic, e_potential, e_total);
+  printEnergyDiagnostics(marker, e_kinetic, e_potential, e_total);
 }
