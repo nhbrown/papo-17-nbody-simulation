@@ -11,7 +11,7 @@ void kinetic_energy(int N, int DIM, double *mass, double complex **vel)
 {
   for(int i = 0; i < N; ++i)
   {
-    for(int j = 0; i < DIM; ++j)
+    for(int j = 0; j < DIM; ++j)
     {
       e_kinetic += 0.5 * mass[i] * vel[i][j] * vel[i][j];
     }
