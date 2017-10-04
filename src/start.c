@@ -128,7 +128,7 @@ int main(int argc, const char *argv[])
   
   printInitialConditions(N, mass, pos, vel); /* creates and writes to the initial conditions file */
     
-  energy_diagnostics(N, mass, pos, vel);
+  energy_diagnostics(N, DIM, mass, pos, vel);
   
   startHermite(N, DIM, dt, end_time, mass, pos, vel, acc, jerk); /* starts the Hermite scheme for further computation */
   
