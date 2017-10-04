@@ -24,7 +24,7 @@
 #include "plummer.h"
 
 /* factor for scaling to standard units (Heggie units) */
-static const double scale = 16.0 / (3.0 * M_PI);
+static const double scale = 16.0 / (3.0 * 3.14159265359);
 
 /* returns pseudo-random number within specified range */
 double frand(double low, double high)
@@ -39,7 +39,7 @@ void plummer(int N, double *mass, double complex **pos, double complex **vel, in
   
   double complex radius = R / csqrt((cpow(genrand_real1(), (-2.0/3.0))) - 1.0); /* inverted cumulative mass distribution */
   double complex theta = cacos(frand(-1.0, 1.0)); /* Polar Angle */
-  double complex phi = frand(0.0, (2 * M_PI)); /* Azimuthal Angle */
+  double complex phi = frand(0.0, (2 * 3.14159265359)); /* Azimuthal Angle */
   
   /* conversion from radial to cartesian coordinates */
   pos[i][0] = (radius * csin(theta) * ccos(phi)) / scale; 
@@ -59,7 +59,7 @@ void plummer(int N, double *mass, double complex **pos, double complex **vel, in
   /* distribution function */
   double complex velocity = x * csqrt(2.0) * cpow((1.0 + radius * radius), -0.25);
   theta = cacos(frand(-1.0, 1.0));
-  phi = frand(0.0, (2 * M_PI));
+  phi = frand(0.0, (2 * 3.14159265359));
   
   /* conversion */
   vel[i][0] = (velocity * csin(theta) * ccos(phi)) * csqrt(scale);
