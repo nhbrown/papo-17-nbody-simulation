@@ -7,40 +7,48 @@ double e_kinetic = 0.0;
 double e_potential = 0.0;
 double e_total = 0.0;
 
-void kinetic_energy(int N, double *mass, double complex **vel)
+void kinetic_energy(int N, int DIM, double *mass, double complex **vel)
 {
   for(int i = 0; i < N; ++i)
   {
-    double vel2 = pow(creal(vel[i][0] + vel[i][1] + vel[i][2]), 2.0);
-    e_kinetic += 0.5 * mass[i] * vel2;
-  }
-}
-
-void potential_energy(int N, double *mass, double complex **pos)
-{
-  double complex x = 0;
-  
-  for(int i = 0; i < N; ++i)
-  {
-    for(int j = 0; j < N; ++j)
+    for(int j = 0; i < DIM; ++j)
     {
-      if(j != i)
-      {
-        double complex y = (pos[i][0] + pos[i][1] + pos[i][2]) - (pos[j][0] + pos[j][1] + pos[j][2]);
-        double complex z = (-1 * mass[j]) * mass[i];
-        x += z / csqrt(y * y);
-      }
+      e_kinetic += 0.5 * mass[i] * vel[i][j] * vel[i][j];
     }
   }
-  
-  e_potential = creal(x) / 2;
 }
 
-void energy_diagnostics(int N, double *mass, double complex **pos, double complex **vel)
+void potential_energy(int N, int DIM, double *mass, double complex **pos)
 {
-  kinetic_energy(N, mass, vel);
+  for (int i = 0; i < N ; ++i)
+  {
+    for (int j = i+1; j < N ; ++j)
+    {
+      double complex rji[DIM];
+      double complex r2;
+    
+      for (int k = 0; k < DIM ; ++k)
+      {
+        rji[k] = pos[j][k] - pos[i][k];
+      }
+    
+      for (int k = 0; k < DIM ; ++k)
+      {
+        r2 += rji[k] * rji[k];
+      }
+    
+      double r = sqrt(r2);
+    
+      e_potential -= mass[i] * mass[j] / r;
+    }
+  }
+}
+
+void energy_diagnostics(int N, int DIM, double *mass, double complex **pos, double complex **vel)
+{
+  kinetic_energy(N, DIM, mass, vel);
   
-  potential_energy(N, mass, pos);
+  potential_energy(N, DIM, mass, pos);
   
   e_total = e_kinetic + e_potential;
   
