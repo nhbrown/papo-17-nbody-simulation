@@ -157,7 +157,7 @@ int main(int argc, const char *argv[])
   
   startHermite(N, DIM, dt, end_time, mass, pos, vel, acc, jerk); /* starts the Hermite scheme for further computation */
     
-  energy_diagnostics(N, DIM, 0, mass, pos, vel); /* calculate kinetic, potential and total energy of the cluster at end */
+  energy_diagnostics(N, DIM, 1, mass, pos, vel); /* calculate kinetic, potential and total energy of the cluster at end */
   
   freeArrays(N); /* frees allocated space of arrays after computation has finished */
   
