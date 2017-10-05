@@ -40,9 +40,14 @@ void acc_jerk(int N, int DIM, double *mass, double complex **pos, double complex
      double complex rji[DIM]; /* position vector from particle i to j */
      double complex vji[DIM]; /* velocity vector from particle i to j */
      
-     double complex r2; /* rij^2 */
-     double complex v2; /* vij^2 */
-     double complex rv; /* rij*vij */
+     for(int k = 0; k < DIM; ++k)
+     {
+       rji[k] = vji[k] = 0.0;
+     }
+     
+     double complex r2 = 0.0; /* rij^2 */
+     double complex v2 = 0.0; /* vij^2 */
+     double complex rv = 0.0; /* rij*vij */
      
      /* filling the arrays described above */
      for(int k = 0; k < DIM; ++k)
@@ -61,6 +66,11 @@ void acc_jerk(int N, int DIM, double *mass, double complex **pos, double complex
      
      double complex da[DIM];
      double complex dj[DIM];
+     
+     for(int k = 0; k < DIM; ++k)
+     {
+       da[k] = dj[k] = 0.0;
+     }
      
      /* calculates new accceleration and jerk for both particles i and j */
      for (int k = 0; k < DIM ; k++)
