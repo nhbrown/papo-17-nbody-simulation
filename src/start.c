@@ -31,7 +31,7 @@ void freeArrays(void);
 /* for measuring cpu time */
 clock_t start;
 clock_t end;
-double cpu_time_used;
+double cpu_time;
 
 int N; /* amount of particles */
 int DIM = 3; /* dimensions */
