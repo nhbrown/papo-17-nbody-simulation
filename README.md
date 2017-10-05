@@ -4,7 +4,8 @@ Repository for developing and parallelizing a direct gravitational N-body simula
 Copyright by Nicholas Hickson-Brown and Michael Eidus unless otherwise stated, please refer to the license for this project for more information or the license header of each individual file. Implementation of the Mersenne Twister is provided by Makoto Matsumoto and Takuji Nishimura, please see their implementation for copyright notice.
 
 ## Compiling the source code ##
-To compile the source code for the computation make sure that the files contained in the __Simulation/src__ folder are all in the same place and then run the following command: `gcc -o nbody start.c plummer.c mersenne.c hermite.c output.c ediag.c -lm`.
+To compile the source code for the computation make sure that the files contained in the __src__ folder are all in the same place and then run the following command: `gcc -o nbody start.c plummer.c mersenne.c hermite.c output.c ediag.c -lm`.
+
 Alternatively you can use the provided __makefile__.
 
 The source code for the visualization does not need to be individually as the folder __Visualization__ contains the executable __NBodyVisualization_1.0.exe__ for ease of use.
