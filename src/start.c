@@ -86,7 +86,7 @@ void initializeArrays(int N, int DIM)
 }
 
 /* frees the allocated space of all arrays */
-void freeArrays()
+void freeArrays(int N)
 {
   free(mass);
   
