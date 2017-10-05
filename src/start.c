@@ -26,6 +26,7 @@
 
 /* prototypes */
 void mallocArrays(int N, int DIM);
+void initializeArrays(int N, int DIM);
 void freeArrays(int N);
 
 double *mass; /* holds masses for all particles */
@@ -63,6 +64,23 @@ void mallocArrays(int N, int DIM)
     {
       fprintf(stderr, "Out of memory!\n");
       exit(0);
+    }
+  }
+}
+
+/* zeroes out all elements of our arrays to get rid of any garbage values which might have been in memory */
+void initializeArrays(int N, int DIM)
+{
+  for(int i = 0; i < N; ++i)
+  {
+    mass[i] = 0.0;
+    
+    for(int j = 0; j < DIM; ++j)
+    {
+      pos[i][j] = 0.0;
+      vel[i][j] = 0.0;
+      acc[i][j] = 0.0;
+      jerk[i][j] = 0.0;
     }
   }
 }
@@ -126,6 +144,8 @@ int main(int argc, const char *argv[])
   createNames(); /* creates folder and names for files */
   
   mallocArrays(N, DIM); /* allocates space for arrays */
+  
+  initializeArrays(N, DIM); /* zero out all elements */
   
   printLog(seed, N, M, R, G, dt, end_time); /* creates and writes to the log file */
   
