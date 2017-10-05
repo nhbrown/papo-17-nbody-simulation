@@ -1,9 +1,0 @@
-- start NBodyVisualization_1.0.exe for visualization of particle data
-- need "shader" folder with vertex_shader.vs and fragment_shader.fs 
-- need "run" folder with initial_conditions.csv and iteration data, for another folder start NBodyVisualization_1.0.exe foldername
-- Start reading iteration data with W
-- Stop reading iteration data with S
-- Reset to 1 iteration with X
-- Zoom and rotation with UP/DOWN/LEFT/RIGHT
-- Change point size with 1/2/3
-- Effects with E/R/F
