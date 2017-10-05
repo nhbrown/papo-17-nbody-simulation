@@ -28,6 +28,11 @@
 void mallocArrays(void);
 void freeArrays(void);
 
+/* for measuring cpu time */
+clock_t start;
+clock_t end;
+double cpu_time_used;
+
 int N; /* amount of particles */
 int DIM = 3; /* dimensions */
 
@@ -91,6 +96,8 @@ void freeArrays()
 
 int main(int argc, const char *argv[])
 {
+  start = clock();
+  
   unsigned long seed; /* seed for Mersenne-Twister. */  
 
   double dt; /* timestep */
@@ -139,6 +146,11 @@ int main(int argc, const char *argv[])
   energy_diagnostics(N, DIM, 0, mass, pos, vel); /* calculate kinetic, potential and total energy of the cluster at end */
   
   freeArrays(); /* frees allocated space of arrays after computation has finished */
+  
+  end = clock();
+  cpu_time = ((double) (end - start)) / CLOCKS_PER_SEC;
+  
+  printf("CPU time used: %f", cpu_time);
   
   return 0;
 }
