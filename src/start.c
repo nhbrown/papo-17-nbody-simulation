@@ -25,11 +25,8 @@
 #include "ediag.h"
 
 /* prototypes */
-void mallocArrays(void);
-void freeArrays(void);
-
-int N; /* amount of particles */
-int DIM; /* dimensions */
+void mallocArrays(int N, int DIM);
+void freeArrays(int N);
 
 double *mass; /* holds masses for all particles */
   
@@ -40,7 +37,7 @@ double complex **acc; /* holds acceleration for all particles */
 double complex **jerk; /* holds jerk for all particles */
 
 /* allocates neccessary space for all arrays */
-void mallocArrays()
+void mallocArrays(int N, int DIM)
 {
   mass = malloc(N * sizeof(double));
   
@@ -93,6 +90,8 @@ int main(int argc, const char *argv[])
 {
   clock_t start = clock();
   
+  int N = 0; /* amount of particles */
+  int DIM = 3; /* dimensions */
   unsigned long seed = 0; /* seed for Mersenne-Twister. */  
 
   double dt = 0.0; /* timestep */
@@ -126,7 +125,7 @@ int main(int argc, const char *argv[])
   
   createNames(); /* creates folder and names for files */
   
-  mallocArrays(); /* allocates space for arrays */
+  mallocArrays(N, DIM); /* allocates space for arrays */
   
   printLog(seed, N, M, R, G, dt, end_time); /* creates and writes to the log file */
   
@@ -140,7 +139,7 @@ int main(int argc, const char *argv[])
     
   energy_diagnostics(N, DIM, 0, mass, pos, vel); /* calculate kinetic, potential and total energy of the cluster at end */
   
-  freeArrays(); /* frees allocated space of arrays after computation has finished */
+  freeArrays(N); /* frees allocated space of arrays after computation has finished */
   
   clock_t end = clock();
   double cpu_time = ((double) (end - start)) / CLOCKS_PER_SEC;
