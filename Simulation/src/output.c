@@ -82,14 +82,12 @@ void printEnergyDiagnostics(int marker, double e_kinetic, double e_potential, do
   FILE *log;
   log = fopen(logname, "a");
   
-  if(marker == 0)
+  if( access( fname, F_OK ) != -1 )
   {
-    fprintf(log, "\nEnergy Diagnostics at Beginning of Simulation: \nKinetic Energy: %f \nPotential Energy: %f \nTotal Energy: %f \n", e_kinetic, e_potential, e_total);
-  }
-  else
-  {
-    fprintf(log, "\nEnergy Diagnostics at End of Simulation: \nKinetic Energy: %f \nPotential Energy: %f \nTotal Energy: %f \n", e_kinetic, e_potential, e_total);
-  }
+    // file exists
+  } else {
+    // file doesn't exist
+}
   
   fclose(log);
 }
