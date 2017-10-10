@@ -57,7 +57,7 @@ void potential_energy(int N, int DIM, double *mass, double complex **pos)
 }
 
 /* entry point for energy diagnostics, also calculates total energy of the cluster */
-void energy_diagnostics(int N, int DIM, int marker, double *mass, double complex **pos, double complex **vel)
+void energy_diagnostics(int N, int DIM, double *mass, double complex **pos, double complex **vel)
 {
   kinetic_energy(N, DIM, mass, vel);
   
@@ -65,5 +65,5 @@ void energy_diagnostics(int N, int DIM, int marker, double *mass, double complex
   
   e_total = e_kinetic + e_potential;
   
-  printEnergyDiagnostics(marker, e_kinetic, e_potential, e_total);
+  printEnergyDiagnostics(e_kinetic, e_potential, e_total);
 }
