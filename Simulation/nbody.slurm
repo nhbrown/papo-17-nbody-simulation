@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --time=480
+#SBATCH --time=360
 
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
