@@ -1,0 +1,22 @@
+\BOOKMARK [0][-]{chapter.1}{Einf\374hrung}{}% 1
+\BOOKMARK [0][-]{chapter.2}{Problemstellung}{}% 2
+\BOOKMARK [0][-]{chapter.3}{Design}{}% 3
+\BOOKMARK [1][-]{section.3.1}{Simulation}{chapter.3}% 4
+\BOOKMARK [2][-]{subsection.3.1.1}{Plummer Model}{section.3.1}% 5
+\BOOKMARK [2][-]{subsection.3.1.2}{Mersenne Twister}{section.3.1}% 6
+\BOOKMARK [2][-]{subsection.3.1.3}{Hermite Integrator}{section.3.1}% 7
+\BOOKMARK [1][-]{section.3.2}{Visualisierung}{chapter.3}% 8
+\BOOKMARK [0][-]{chapter.4}{Implementation}{}% 9
+\BOOKMARK [1][-]{section.4.1}{Simulation}{chapter.4}% 10
+\BOOKMARK [1][-]{section.4.2}{Visualisierung}{chapter.4}% 11
+\BOOKMARK [0][-]{chapter.5}{Parallelisierungsschema}{}% 12
+\BOOKMARK [0][-]{chapter.6}{Laufzeitmessungen}{}% 13
+\BOOKMARK [1][-]{section.6.1}{Sequentielle Laufzeitmessungen}{chapter.6}% 14
+\BOOKMARK [1][-]{section.6.2}{Parallele Laufzeitmessungen}{chapter.6}% 15
+\BOOKMARK [0][-]{chapter.7}{Leistungsanalyse}{}% 16
+\BOOKMARK [0][-]{chapter.8}{Skalierbarkeit}{}% 17
+\BOOKMARK [0][-]{chapter.9}{Ausblick: Verbesserungen}{}% 18
+\BOOKMARK [0][-]{chapter*.3}{Bibliography}{}% 19
+\BOOKMARK [0][-]{section*.4}{Appendices}{}% 20
+\BOOKMARK [0][-]{appendix.A}{Verwendete Hard- und Software}{}% 21
+\BOOKMARK [0][-]{appendix.B}{Grafiken der Programmausgabe}{}% 22
