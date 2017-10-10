@@ -26,11 +26,11 @@ double e_potential = 0.0; /* potential energy of the cluster */
 double e_total = 0.0; /* total energy of the cluster */
 
 /* calculates kinetic energy of the cluster */
-void kinetic_energy(int N, int DIM, double *mass, double complex **vel)
+void kinetic_energy(int N, double *mass, double complex **vel)
 {
   for(int i = 0; i < N; ++i)
   {
-    for(int j = 0; j < DIM; ++j)
+    for(int j = 0; j < 3; ++j)
     {
       e_kinetic += 0.5 * mass[i] * vel[i][j] * vel[i][j];
     }
@@ -38,7 +38,7 @@ void kinetic_energy(int N, int DIM, double *mass, double complex **vel)
 }
 
 /* calculates potential energy of the cluster */
-void potential_energy(int N, int DIM, double *mass, double complex **pos)
+void potential_energy(int N, double *mass, double complex **pos)
 {
   for (int i = 0; i < N ; ++i)
   {
@@ -46,7 +46,7 @@ void potential_energy(int N, int DIM, double *mass, double complex **pos)
     {
       double complex rij2 = 0;
     
-      for (int k = 0; k < DIM ; ++k)
+      for (int k = 0; k < 3 ; ++k)
       {
         rij2 += (pos[j][k] - pos[i][k]) * (pos[j][k] - pos[i][k]);
       }
@@ -57,11 +57,11 @@ void potential_energy(int N, int DIM, double *mass, double complex **pos)
 }
 
 /* entry point for energy diagnostics, also calculates total energy of the cluster */
-void energy_diagnostics(int N, int DIM, int marker, double *mass, double complex **pos, double complex **vel)
+void energy_diagnostics(int N, int marker, double *mass, double complex **pos, double complex **vel)
 {
-  kinetic_energy(N, DIM, mass, vel);
+  kinetic_energy(N, mass, vel);
   
-  potential_energy(N, DIM, mass, pos);
+  potential_energy(N, mass, pos);
   
   e_total = e_kinetic + e_potential;
   
