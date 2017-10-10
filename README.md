@@ -8,7 +8,7 @@ To compile the source code for the computation make sure that the files containe
 
 Alternatively you can use the provided __makefile__.
 
-The source code for the visualization does not need to be individually as the folder __Visualization__ contains the executable __NBodyVisualization_1.0.exe__ for ease of use.
+The source code for the visualization does not need to be individually compiled as the folder __Visualization__ contains the executable __NBodyVisualization_1.0.exe__ for ease of use.
 
 ## Running the simulation ##
 To run the simulation you need to execute the file __nbody__ after compiling the source code and specify the desired parameters. Available options are:
@@ -24,6 +24,7 @@ If no __seed__ is specified, the seed used to initialize the Mersenne Twister is
 During the execution of the simulation a new folder __"run_YEAR_MONTH_DAY_HOURS:MINUTES:SECONDS"__ will be created, which holds all the data produced by the simulation. Files generated are:
 * _"log_YEAR_MONTH_DAY_HOURS:MINUTES:SECONDS.txt"_ - contains all important informations about the current run
 * _"initial_conditions.csv"_ - contains mass, positions and velocities for all particles at the start of the simulation
+* _"energy_diagnostics.csv"_ - contains kinetic, potential and total energy for all iterations, in that order
 * _"iteration_X.csv"_ - subsequent iterations which contain the respective mass, positions and velocities for all particles
 
 The order of the particle information within initial_conditions.csv and the iteration_X.csv files is as follows: 
