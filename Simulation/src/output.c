@@ -84,7 +84,7 @@ void printEnergyDiagnostics(double e_kinetic, double e_potential, double e_total
 {
   FILE *ediag;
   
-  if(access(fname, F_OK) != -1)
+  if(access(ediag, F_OK) != -1)
   {
     ediag = fopen(ediagname, "a");
   } 
@@ -94,7 +94,7 @@ void printEnergyDiagnostics(double e_kinetic, double e_potential, double e_total
     fprintf(ediag, "%f, %f, %f \n", e_kinetic, e_potential, e_total);
   }
   
-  fclose(log);
+  fclose(ediag);
 }
 
 /* creates and writes to new file for specified iteration of the computation */
