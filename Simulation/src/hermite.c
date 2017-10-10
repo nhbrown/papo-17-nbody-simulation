@@ -18,6 +18,7 @@
 #include <complex.h>
 #include "hermite.h"
 #include "output.h"
+#include "ediag.h"
 
 /* calculates acceleration and jerk for all particles */
 void acc_jerk(int N, int DIM, double *mass, double complex **pos, double complex **vel, 
@@ -145,12 +146,14 @@ void startHermite(int N, int DIM, double dt, double end_time, double *mass, doub
   int iterations = 0; /* iteration counter, iteration 0 is equal to initial conditions */
   
   acc_jerk(N, DIM, mass, pos, vel, acc, jerk); /* one time calculation to get inital acceleration and jerk for all particles */
+  energy_diagnostics(N, DIM, mass, pos, vel); /* get energy diagnostics for initial conditions */
   
   while(time < end_time) /* until user specified end of simulation is reached */
   {
     ++iterations; /* increment iteration counter from last iteration to current iteration */
     hermite(N, DIM, dt, mass, pos, vel, acc, jerk); /* calculate movement for current iteration */
     printIteration(mass, pos, vel, iterations, N); /* print current iteration */
+    energy_diagnostics(N, DIM, mass, pos, vel); /* get energy diagnostics for current iteration */
     time += dt; /* add timestep to current time to advance to next iteration */
   }
 }

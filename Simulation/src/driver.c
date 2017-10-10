@@ -22,7 +22,6 @@
 #include "plummer.h"
 #include "output.h"
 #include "hermite.h"
-#include "ediag.h"
 
 /* prototypes */
 void mallocArrays(int N, int DIM);
@@ -85,12 +84,8 @@ int main(int argc, const char *argv[])
   startPlummer(seed, N, mass, pos, vel, M, R); /* starts the Plummer Model routine for initial conditions */
   
   printInitialConditions(N, mass, pos, vel); /* creates and writes to the initial conditions file */
-    
-  energy_diagnostics(N, DIM, 0, mass, pos, vel); /* calculate kinetic, potential and total energy of the cluster at start */
   
   startHermite(N, DIM, dt, end_time, mass, pos, vel, acc, jerk); /* starts the Hermite scheme for further computation */
-    
-  energy_diagnostics(N, DIM, 1, mass, pos, vel); /* calculate kinetic, potential and total energy of the cluster at end */
   
   freeArrays(N); /* frees allocated space of arrays after computation has finished */
   
