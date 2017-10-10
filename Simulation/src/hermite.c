@@ -18,6 +18,7 @@
 #include <complex.h>
 #include "hermite.h"
 #include "output.h"
+#include "ediag.h"
 
 /* calculates acceleration and jerk for all particles */
 void acc_jerk(int N, int DIM, double *mass, double complex **pos, double complex **vel, 
