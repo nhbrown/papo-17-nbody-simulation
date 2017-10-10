@@ -19,11 +19,13 @@
 #include <complex.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #include "output.h"
 
 char foldername[40]; /* buffer for name of folder */ 
 char logname[80]; /* buffer for name of log file */
 char conditionsname[80]; /* buffer for name of intial conditions file */
+char ediagname[80]; /* buffer for name of energy diagnostics file */
 
 /* creates names and folder for files of the currently running simulation */
 void createNames()
@@ -36,6 +38,7 @@ void createNames()
   strftime (foldername, sizeof(foldername), "run_%Y_%m_%d_%H:%M:%S", sTm);
   strftime (logname, sizeof(logname), "run_%Y_%m_%d_%H:%M:%S/log_%Y_%m_%d_%H:%M:%S.txt", sTm);
   strftime (conditionsname, sizeof(conditionsname), "run_%Y_%m_%d_%H:%M:%S/initial_conditions.csv", sTm);
+  strftime (ediagname, sizeof(ediagname), "run_%Y_%m_%d_%H:%M:%S/energy_diagnostics.csv", sTm);
 
   struct stat st = {0};
 
@@ -76,18 +79,20 @@ void printLog(unsigned long seed, int N, double M, double R, double G, double ti
   fclose(log);
 }
 
-/* writes energy diagnostics to already existing log file; variable marker is used to specify start or end of simulation */
-void printEnergyDiagnostics(int marker, double e_kinetic, double e_potential, double e_total)
+/* writes energy diagnostics to file */
+void printEnergyDiagnostics(double e_kinetic, double e_potential, double e_total)
 {
-  FILE *log;
-  log = fopen(logname, "a");
+  FILE *ediag;
   
-  if( access( fname, F_OK ) != -1 )
+  if(access(fname, F_OK) != -1)
   {
-    // file exists
-  } else {
-    // file doesn't exist
-}
+    ediag = fopen(ediagname, "a");
+  } 
+  else 
+  {
+    ediag = fopen(ediagname, "w");
+    fprintf(ediag, "%f, %f, %f \n", e_kinetic, e_potential, e_total);
+  }
   
   fclose(log);
 }
