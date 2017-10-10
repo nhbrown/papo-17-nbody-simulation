@@ -34,7 +34,7 @@ __x-Axis-Position, y-Axis-Position, z-Axis-Position, Mass, x-Axis-Velocity, y-Ax
 ## Visualizing the generated output ##
 To visualize the generated data from the simulation make sure that the executable __NBodyVisualization_1.0.exe__, the folder __shader__ and the folder containing the generated data are all in the same place. 
 
-Rename the __"run_YEAR_MONTH_DAY_HOURS:MINUTES:SECONDS"__ to just __"run"__ and start the executable. Two windows should appear, one containing information and another containing the visualization.
+Rename the folder __"run_YEAR_MONTH_DAY_HOURS:MINUTES:SECONDS"__ to just __"run"__ and start the executable. Two windows should appear, one containing information and another containing the visualization.
 
 The visualization can be started by pressing __W__, stopped by pressing __S__ and reset by pressing __X__.
 
