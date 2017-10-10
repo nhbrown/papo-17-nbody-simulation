@@ -37,70 +37,6 @@ double complex **vel; /* hold velocities for all particles */
 double complex **acc; /* holds acceleration for all particles */
 double complex **jerk; /* holds jerk for all particles */
 
-/* allocates neccessary space for all arrays */
-void mallocArrays(int N, int DIM)
-{
-  mass = malloc(N * sizeof(double));
-  
-  if(mass == NULL)
-  {
-    fprintf(stderr, "Out of memory!\n");
-    exit(0);
-  }
-  
-  pos = malloc(N * sizeof(double complex *));
-  vel = malloc(N * sizeof(double complex *));
-  acc = malloc(N * sizeof(double complex *));
-  jerk = malloc(N * sizeof(double complex *));
-  
-  for(int i = 0; i < N; ++i)
-  {
-    pos[i] = malloc(DIM * sizeof(double complex));
-    vel[i] = malloc(DIM * sizeof(double complex));
-    acc[i] = malloc(DIM * sizeof(double complex));
-    jerk[i] = malloc(DIM * sizeof(double complex));
-    
-    if(pos[i] == NULL || vel[i] == NULL || acc[i] == NULL || jerk[i] == NULL)
-    {
-      fprintf(stderr, "Out of memory!\n");
-      exit(0);
-    }
-  }
-}
-
-/* zeroes out all elements of our arrays to get rid of any garbage values which might have been in memory */
-void initializeArrays(int N, int DIM)
-{
-  for(int i = 0; i < N; ++i)
-  {
-    mass[i] = 0.0;
-    
-    for(int j = 0; j < DIM; ++j)
-    {
-      pos[i][j] = vel[i][j] = acc[i][j] = jerk[i][j] = 0.0;
-    }
-  }
-}
-
-/* frees the allocated space of all arrays */
-void freeArrays(int N)
-{
-  free(mass);
-  
-  for(int i = 0; i < N; ++i)
-  {
-    free(pos[i]);
-    free(vel[i]);
-    free(acc[i]);
-    free(jerk[i]);
-  }
-  
-  free(pos);
-  free(vel);
-  free(acc);
-  free(jerk);
-}
-
 int main(int argc, const char *argv[])
 {
   clock_t start = clock();
@@ -164,4 +100,68 @@ int main(int argc, const char *argv[])
   printf("CPU time used: %f", cpu_time);
   
   return 0;
+}
+
+/* allocates neccessary space for all arrays */
+void mallocArrays(int N, int DIM)
+{
+  mass = malloc(N * sizeof(double));
+  
+  if(mass == NULL)
+  {
+    fprintf(stderr, "Out of memory!\n");
+    exit(0);
+  }
+  
+  pos = malloc(N * sizeof(double complex *));
+  vel = malloc(N * sizeof(double complex *));
+  acc = malloc(N * sizeof(double complex *));
+  jerk = malloc(N * sizeof(double complex *));
+  
+  for(int i = 0; i < N; ++i)
+  {
+    pos[i] = malloc(DIM * sizeof(double complex));
+    vel[i] = malloc(DIM * sizeof(double complex));
+    acc[i] = malloc(DIM * sizeof(double complex));
+    jerk[i] = malloc(DIM * sizeof(double complex));
+    
+    if(pos[i] == NULL || vel[i] == NULL || acc[i] == NULL || jerk[i] == NULL)
+    {
+      fprintf(stderr, "Out of memory!\n");
+      exit(0);
+    }
+  }
+}
+
+/* zeroes out all elements of our arrays to get rid of any garbage values which might have been in memory */
+void initializeArrays(int N, int DIM)
+{
+  for(int i = 0; i < N; ++i)
+  {
+    mass[i] = 0.0;
+    
+    for(int j = 0; j < DIM; ++j)
+    {
+      pos[i][j] = vel[i][j] = acc[i][j] = jerk[i][j] = 0.0;
+    }
+  }
+}
+
+/* frees the allocated space of all arrays */
+void freeArrays(int N)
+{
+  free(mass);
+  
+  for(int i = 0; i < N; ++i)
+  {
+    free(pos[i]);
+    free(vel[i]);
+    free(acc[i]);
+    free(jerk[i]);
+  }
+  
+  free(pos);
+  free(vel);
+  free(acc);
+  free(jerk);
 }
