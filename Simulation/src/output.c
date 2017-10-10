@@ -84,9 +84,10 @@ void printEnergyDiagnostics(double e_kinetic, double e_potential, double e_total
 {
   FILE *ediag;
   
-  if(access(ediag, F_OK) != -1)
+  if(access(ediagname, F_OK) != -1)
   {
     ediag = fopen(ediagname, "a");
+    fprintf(ediag, "%f, %f, %f \n", e_kinetic, e_potential, e_total);
   } 
   else 
   {
