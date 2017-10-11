@@ -29,8 +29,7 @@ void acc_jerk(int N, int DIM, double *mass, double complex **pos, double complex
   {
     for(int k = 0; k < 3; ++k)
     {
-      acc[i][k] = 0;
-      jerk[i][k] = 0;
+      acc[i][k] = jerk[i][k] = 0;
     }
   }
   
