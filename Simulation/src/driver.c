@@ -98,15 +98,15 @@ int main(int argc, const char *argv[])
   return 0;
 }
 
-/* allocate necessary space for all 2-dimensional arrays in contiguous memory */
+/* allocate necessary space for all 2-dimensional arrays in contiguous memory, can be acccessed with double subscripts */
 double complex **malloc_2d(int rows, int cols) 
 {
-  double complex *data = (double complex *)malloc(rows*cols*sizeof(double complex));
-  double complex **array= (double complex **)malloc(rows*sizeof(double complex *));
+  double complex **array= malloc(rows * sizeof(double complex *));
+  double complex *data = malloc(rows * cols * sizeof(double complex));
   
-  for (int i = 0; i < rows; i++)
+  for (int i = 0; i < rows; ++i)
   {
-    array[i] = &(data[cols*i]);
+    array[i] = &data[cols * i];
     
     if(array[i] == NULL)
     {
