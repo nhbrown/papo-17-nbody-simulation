@@ -24,9 +24,10 @@
 #include "hermite.h"
 
 /* prototypes */
+double complex **malloc_2d(int rows, int cols);
 void mallocArrays(int N, int DIM);
 void initializeArrays(int N, int DIM);
-void freeArrays(int N);
+void freeArrays(void);
 
 double *mass; /* holds masses for all particles */
   
@@ -87,7 +88,7 @@ int main(int argc, const char *argv[])
   
   startHermite(N, DIM, dt, end_time, mass, pos, vel, acc, jerk); /* starts the Hermite scheme for further computation */
   
-  freeArrays(N); /* frees allocated space of arrays after computation has finished */
+  freeArrays(); /* frees allocated space of arrays after computation has finished */
   
   clock_t end = clock();
   double cpu_time = ((double) (end - start)) / CLOCKS_PER_SEC;
@@ -95,6 +96,26 @@ int main(int argc, const char *argv[])
   printf("CPU time used: %f", cpu_time);
   
   return 0;
+}
+
+/* allocate necessary space for all 2-dimensional arrays in contiguous memory, can be acccessed with double subscripts */
+double complex **malloc_2d(int rows, int cols) 
+{
+  double complex **array= malloc(rows * sizeof(double complex *));
+  double complex *data = malloc(rows * cols * sizeof(double complex));
+  
+  for (int i = 0; i < rows; ++i)
+  {
+    array[i] = &data[cols * i];
+    
+    if(array[i] == NULL)
+    {
+      fprintf(stderr, "Out of memory!\n");
+      exit(0);
+    }
+  }
+  
+  return array;
 }
 
 /* allocates neccessary space for all arrays */
@@ -108,24 +129,10 @@ void mallocArrays(int N, int DIM)
     exit(0);
   }
   
-  pos = malloc(N * sizeof(double complex *));
-  vel = malloc(N * sizeof(double complex *));
-  acc = malloc(N * sizeof(double complex *));
-  jerk = malloc(N * sizeof(double complex *));
-  
-  for(int i = 0; i < N; ++i)
-  {
-    pos[i] = malloc(DIM * sizeof(double complex));
-    vel[i] = malloc(DIM * sizeof(double complex));
-    acc[i] = malloc(DIM * sizeof(double complex));
-    jerk[i] = malloc(DIM * sizeof(double complex));
-    
-    if(pos[i] == NULL || vel[i] == NULL || acc[i] == NULL || jerk[i] == NULL)
-    {
-      fprintf(stderr, "Out of memory!\n");
-      exit(0);
-    }
-  }
+  pos = malloc_2d(N, DIM);
+  vel = malloc_2d(N, DIM);
+  acc = malloc_2d(N, DIM);
+  jerk = malloc_2d(N, DIM);
 }
 
 /* zeroes out all elements of our arrays to get rid of any garbage values which might have been in memory */
@@ -143,17 +150,14 @@ void initializeArrays(int N, int DIM)
 }
 
 /* frees the allocated space of all arrays */
-void freeArrays(int N)
+void freeArrays()
 {
   free(mass);
   
-  for(int i = 0; i < N; ++i)
-  {
-    free(pos[i]);
-    free(vel[i]);
-    free(acc[i]);
-    free(jerk[i]);
-  }
+  free(pos[0]);
+  free(vel[0]);
+  free(acc[0]);
+  free(jerk[0]);
   
   free(pos);
   free(vel);
