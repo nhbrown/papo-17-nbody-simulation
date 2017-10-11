@@ -24,10 +24,10 @@
 #include "hermite.h"
 
 /* prototypes */
-double **malloc_2d(int rows, int cols);
+double complex **malloc_2d(int rows, int cols);
 void mallocArrays(int N, int DIM);
 void initializeArrays(int N, int DIM);
-void freeArrays(int N);
+void freeArrays(void);
 
 double *mass; /* holds masses for all particles */
   
@@ -88,7 +88,7 @@ int main(int argc, const char *argv[])
   
   startHermite(N, DIM, dt, end_time, mass, pos, vel, acc, jerk); /* starts the Hermite scheme for further computation */
   
-  freeArrays(N); /* frees allocated space of arrays after computation has finished */
+  freeArrays(); /* frees allocated space of arrays after computation has finished */
   
   clock_t end = clock();
   double cpu_time = ((double) (end - start)) / CLOCKS_PER_SEC;
@@ -99,7 +99,7 @@ int main(int argc, const char *argv[])
 }
 
 /* allocate necessary space for all 2-dimensional arrays in contiguous memory */
-double **malloc_2d(int rows, int cols) 
+double complex **malloc_2d(int rows, int cols) 
 {
   double complex *data = (double complex *)malloc(rows*cols*sizeof(double complex));
   double complex **array= (double complex **)malloc(rows*sizeof(double complex *));
@@ -150,7 +150,7 @@ void initializeArrays(int N, int DIM)
 }
 
 /* frees the allocated space of all arrays */
-void freeArrays(int N)
+void freeArrays()
 {
   free(mass);
   
