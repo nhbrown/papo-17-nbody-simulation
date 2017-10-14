@@ -24,18 +24,12 @@
 #include "hermite.h"
 
 /* prototypes */
-/* double complex **malloc_2d(int rows, int cols); */
 void mallocArrays(int N, int DIM);
 void initializeArrays(int N, int DIM);
 void freeArrays(void);
 
-double *mass; /* holds masses for all particles */
-  
-double complex *pos; /* holds positions for all particles */
-double complex *vel; /* hold velocities for all particles */
-
-double complex *acc; /* holds acceleration for all particles */
-double complex *jerk; /* holds jerk for all particles */
+double *mass; /* holds masses of all particles */  
+double complex *pos, *vel, *acc, *jerk; /* containers for positions, velocities, acceleration and jerks for all particles */
 
 int main(int argc, const char *argv[])
 {
@@ -97,26 +91,6 @@ int main(int argc, const char *argv[])
   
   return 0;
 }
-
-/* allocate necessary space for all 2-dimensional arrays in contiguous memory, can be acccessed with double subscripts
-double complex **malloc_2d(int rows, int cols) 
-{
-  double complex **array= malloc(rows * sizeof(double complex *));
-  double complex *data = malloc(rows * cols * sizeof(double complex));
-  
-  for (int i = 0; i < rows; ++i)
-  {
-    array[i] = &data[cols * i];
-    
-    if(array[i] == NULL)
-    {
-      fprintf(stderr, "Out of memory!\n");
-      exit(0);
-    }
-  }
-  
-  return array;
-} */
 
 /* allocates neccessary space for all arrays */
 void mallocArrays(int N, int DIM)
