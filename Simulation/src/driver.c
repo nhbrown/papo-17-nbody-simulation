@@ -122,10 +122,10 @@ double complex **malloc_2d(int rows, int cols)
 void mallocArrays(int N, int DIM)
 {
   mass = malloc(N * sizeof(double));
-  pos = malloc(N * sizeof(double complex));
-  vel = malloc(N * sizeof(double complex));
-  acc = malloc(N * sizeof(double complex));
-  jerk = malloc(N * sizeof(double complex));
+  pos = malloc((N * sizeof(double complex)) * DIM);
+  vel = malloc((N * sizeof(double complex)) * DIM);
+  acc = malloc((N * sizeof(double complex)) * DIM);
+  jerk = malloc((N * sizeof(double complex)) * DIM);
   
   if(mass == NULL || pos = NULL || vel = NULL || acc = NULL || jerk = NULL)
   {
