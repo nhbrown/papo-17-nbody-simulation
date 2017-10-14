@@ -15,4 +15,4 @@ then
 fi
 
 srun hostname
-time ./nbody 1000 0.01 1
+time mpiexec ./nbody 1000 0.01 1
