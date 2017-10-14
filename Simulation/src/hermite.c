@@ -102,6 +102,12 @@ void hermite(int N, int DIM, double dt, double *mass, double complex *pos,
   double complex old_acc[N * DIM];
   double complex old_jerk[N * DIM];
   
+  memcpy(old_pos, pos, sizeof(old_pos));
+  memcpy(old_vel, vel, sizeof(old_vel));
+  memcpy(old_acc, acc, sizeof(old_acc));
+  memcpy(old_jerk, jerk, sizeof(old_jerk));
+  
+  /*
   for(int i = 0; i < N; ++i)
   {
     for(int j = 0; j < DIM; ++j)
@@ -111,7 +117,7 @@ void hermite(int N, int DIM, double dt, double *mass, double complex *pos,
       old_acc[i + j] = acc[i + j];
       old_jerk[i + j] = jerk[i + j];
     }
-  }
+  } */
   
   /* prediction for all particles (for mathematical expression please see links provided above) */
   for(int i = 0; i < N; ++i)
