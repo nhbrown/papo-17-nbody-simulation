@@ -49,19 +49,16 @@ void createNames()
 }
 
 /* creates and writes to inital conditions file, which holds intial masses, positions and velocities of all particles */
-void printInitialConditions(int N, double *mass, double complex **pos, double complex **vel)
+void printInitialConditions(int N, double *mass, double complex *pos, double complex *vel)
 { 
   FILE *conditions;
   conditions = fopen(conditionsname, "w");
 
   for(int i = 0; i < N; ++i)
-  {
-    for(int k = 0; k < 1; ++k)
-    {        
-      fprintf(conditions, "%f, %f, %f, %f, %f, %f, %f \n", 
-              creal(pos[i][k]), creal(pos[i][k + 1]), creal(pos[i][k + 2]), mass[i],
-              creal(vel[i][k]), creal(vel[i][k + 1]), creal(vel[i][k + 2]));
-    }
+  {     
+    fprintf(conditions, "%f, %f, %f, %f, %f, %f, %f \n",
+            creal(pos[i]), creal(pos[i + 1]), creal(pos[i + 2]), mass[i], 
+            creal(vel[i]), creal(vel[i + 1]), creal(vel[i + 2]));
   }
 
   fclose(conditions);
@@ -99,7 +96,7 @@ void printEnergyDiagnostics(double e_kinetic, double e_potential, double e_total
 }
 
 /* creates and writes to new file for specified iteration of the computation */
-void printIteration(double *mass, double complex **pos, double complex **vel, int iteration, int N)
+void printIteration(int N, int iteration, double *mass, double complex *pos, double complex *vel)
 {
   char buffer[80];
   snprintf(buffer, sizeof(buffer), "./%s/iteration_%d.csv", foldername, iteration);
@@ -109,12 +106,9 @@ void printIteration(double *mass, double complex **pos, double complex **vel, in
   
   for(int i = 0; i < N; ++i)
   {
-    for(int k = 0; k < 1; ++k)
-    {        
-      fprintf(out, "%f, %f, %f, %f, %f, %f, %f \n", 
-              creal(pos[i][k]), creal(pos[i][k + 1]), creal(pos[i][k + 2]), mass[i],
-              creal(vel[i][k]), creal(vel[i][k + 1]), creal(vel[i][k + 2]));
-    }
+    fprintf(out, "%f, %f, %f, %f, %f, %f, %f \n", 
+            creal(pos[i]), creal(pos[i + 1]), creal(pos[i + 2]), mass[i], 
+            creal(vel[i]), creal(vel[i + 1]), creal(vel[i + 2]));
   }
   
   fclose(out);
