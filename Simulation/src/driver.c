@@ -127,7 +127,7 @@ void mallocArrays(int N, int DIM)
   acc = malloc((N * sizeof(double complex)) * DIM);
   jerk = malloc((N * sizeof(double complex)) * DIM);
   
-  if(mass == NULL || pos = NULL || vel = NULL || acc = NULL || jerk = NULL)
+  if(mass == NULL || pos == NULL || vel == NULL || acc == NULL || jerk == NULL)
   {
     fprintf(stderr, "Out of memory!\n");
     exit(0);
