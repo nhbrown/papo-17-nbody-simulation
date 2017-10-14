@@ -27,7 +27,7 @@
 static const double scale = 16.0 / (3.0 * 3.14159265359);
 
 /* returns pseudo-random number within specified range */
-double frand(double low, double high)
+double rrand(double low, double high)
 {
   return low + genrand_real1() * (high - low);
 }
@@ -38,8 +38,8 @@ void plummer(int N, double *mass, double complex *pos, double complex *vel, int 
   mass[i] = M / N; /* mass equilibrium */
   
   double complex radius = R / csqrt((cpow(genrand_real1(), (-2.0/3.0))) - 1.0); /* inverted cumulative mass distribution */
-  double complex theta = cacos(frand(-1.0, 1.0)); /* Polar Angle */
-  double complex phi = frand(0.0, (2 * 3.14159265359)); /* Azimuthal Angle */
+  double complex theta = cacos(rrand(-1.0, 1.0)); /* Polar Angle */
+  double complex phi = rrand(0.0, (2 * 3.14159265359)); /* Azimuthal Angle */
   
   /* conversion from radial to cartesian coordinates */
   pos[i] = (radius * csin(theta) * ccos(phi)) / scale; 
@@ -49,17 +49,17 @@ void plummer(int N, double *mass, double complex *pos, double complex *vel, int 
   double x = 0.0;
   double y = 0.1;
   
-  /* rejection technique */
+  /* Neumann's rejection technique */
   while(y > (x * x * (pow((1.0 - x * x), 3.5))))
   {
-    x = frand(0.0, 1.0);
-    y = frand(0.0, 0.1);
+    x = rrand(0.0, 1.0);
+    y = rrand(0.0, 0.1);
   }
   
   /* distribution function */
   double complex velocity = x * csqrt(2.0) * cpow((1.0 + radius * radius), -0.25);
-  theta = cacos(frand(-1.0, 1.0));
-  phi = frand(0.0, (2 * 3.14159265359));
+  theta = cacos(rrand(-1.0, 1.0));
+  phi = rrand(0.0, (2 * 3.14159265359));
   
   /* conversion */
   vel[i] = (velocity * csin(theta) * ccos(phi)) * csqrt(scale);
