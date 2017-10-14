@@ -17,6 +17,7 @@
 
 #include <complex.h>
 #include <string.h>
+#include <stdlib.h>
 #include <mpi.h>
 #include "hermite.h"
 #include "output.h"
@@ -99,7 +100,7 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
     }
   }
   
-  MPI_Gather(local_mas, proc_elem, MPI_DOUBLE, mass, proc_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  MPI_Gather(local_mass, proc_elem, MPI_DOUBLE, mass, proc_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   
   MPI_Gather(local_pos, proc_elem, MPI_DOUBLE_COMPLEX, pos, proc_elem, MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
   MPI_Gather(local_vel, proc_elem, MPI_DOUBLE_COMPLEX, vel, proc_elem, MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
