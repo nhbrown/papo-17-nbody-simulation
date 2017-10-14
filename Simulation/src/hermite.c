@@ -17,6 +17,7 @@
 
 #include <complex.h>
 #include <string.h>
+#include <mpi.h>
 #include "hermite.h"
 #include "output.h"
 #include "ediag.h"
@@ -34,9 +35,33 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
     }
   }
   
-  for(int i = 0; i < N; ++i) /* loops over all particles */
+  int world_size = 0, world_rank = 0;
+  
+  MPI_Init(NULL, NULL);
+	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+	MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+  
+  int proc_elem = N / world_size; 
+  
+  double *local_mass = malloc(proc_elem * sizeof(double));
+  
+  double complex *local_pos = malloc(proc_elem * sizeof(double complex));
+  double complex *local_vel = malloc(proc_elem * sizeof(double complex));
+  
+  double complex *local_acc = malloc(proc_elem * sizeof(double complex));
+  double complex *local_jerk = malloc(proc_elem * sizeof(double complex));
+  
+  MPI_Scatter(mass, proc_elem, MPI_DOUBLE, local_mass, proc_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  
+  MPI_Scatter(pos, proc_elem, MPI_DOUBLE_COMPLEX, local_pos, proc_elem, MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+  MPI_Scatter(vel, proc_elem, MPI_DOUBLE_COMPLEX, local_vel, proc_elem, MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+  
+  MPI_Scatter(acc, proc_elem, MPI_DOUBLE_COMPLEX, local_acc, proc_elem, MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+  MPI_Scatter(jerk, proc_elem, MPI_DOUBLE_COMPLEX, local_jerk, proc_elem, MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+  
+  for(int i = 0; i < proc_elem; ++i) /* loops over all particles */
   {
-    for(int j = i + 1; j < N; ++j) /* only loops over half of the particles because force acts equally on both particles (Newton) */
+    for(int j = i + 1; j < proc_elem; ++j) /* only loops over half of the particles because force acts equally on both particles (Newton) */
     {
       double complex rji[DIM] = {0, 0, 0}; /* position vector from particle i to j */
       double complex vji[DIM] = {0, 0, 0}; /* position vector from particle i to j */
@@ -73,6 +98,16 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
       }
     }
   }
+  
+  MPI_Gather(local_mas, proc_elem, MPI_DOUBLE, mass, proc_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  
+  MPI_Gather(local_pos, proc_elem, MPI_DOUBLE_COMPLEX, pos, proc_elem, MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+  MPI_Gather(local_vel, proc_elem, MPI_DOUBLE_COMPLEX, vel, proc_elem, MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+  
+  MPI_Gather(local_acc, proc_elem, MPI_DOUBLE_COMPLEX, acc, proc_elem, MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+  MPI_Gather(local_jerk, proc_elem, MPI_DOUBLE_COMPLEX, jerk, proc_elem, MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+  
+  MPI_Finalize();
 }
 
 /* 
