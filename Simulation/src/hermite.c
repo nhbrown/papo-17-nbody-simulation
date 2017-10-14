@@ -16,6 +16,7 @@
 */
 
 #include <complex.h>
+#include <string.h>
 #include "hermite.h"
 #include "output.h"
 #include "ediag.h"
