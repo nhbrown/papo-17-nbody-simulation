@@ -39,8 +39,8 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
   int world_size = 0, world_rank = 0;
   
   MPI_Init(NULL, NULL);
-	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
-	MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+  MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+  MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
   
   int proc_elem = N / world_size; 
   
