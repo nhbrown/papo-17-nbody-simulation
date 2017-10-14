@@ -1,7 +1,7 @@
 #ifndef PLUMMER_H_
 #define PLUMMER_H_
 
-double frand(double low, double high);
+double rrand(double low, double high);
 
 void plummer(int N, double *mass, double complex *pos, double complex *vel, int i, double M, double R);
 
