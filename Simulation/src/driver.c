@@ -24,18 +24,18 @@
 #include "hermite.h"
 
 /* prototypes */
-double complex **malloc_2d(int rows, int cols);
+/* double complex **malloc_2d(int rows, int cols); */
 void mallocArrays(int N, int DIM);
 void initializeArrays(int N, int DIM);
 void freeArrays(void);
 
 double *mass; /* holds masses for all particles */
   
-double complex **pos; /* holds positions for all particles */
-double complex **vel; /* hold velocities for all particles */
+double complex *pos; /* holds positions for all particles */
+double complex *vel; /* hold velocities for all particles */
 
-double complex **acc; /* holds acceleration for all particles */
-double complex **jerk; /* holds jerk for all particles */
+double complex *acc; /* holds acceleration for all particles */
+double complex *jerk; /* holds jerk for all particles */
 
 int main(int argc, const char *argv[])
 {
@@ -98,7 +98,7 @@ int main(int argc, const char *argv[])
   return 0;
 }
 
-/* allocate necessary space for all 2-dimensional arrays in contiguous memory, can be acccessed with double subscripts */
+/* allocate necessary space for all 2-dimensional arrays in contiguous memory, can be acccessed with double subscripts
 double complex **malloc_2d(int rows, int cols) 
 {
   double complex **array= malloc(rows * sizeof(double complex *));
@@ -116,23 +116,22 @@ double complex **malloc_2d(int rows, int cols)
   }
   
   return array;
-}
+} */
 
 /* allocates neccessary space for all arrays */
 void mallocArrays(int N, int DIM)
 {
   mass = malloc(N * sizeof(double));
+  pos = malloc(N * sizeof(double complex));
+  vel = malloc(N * sizeof(double complex));
+  acc = malloc(N * sizeof(double complex));
+  jerk = malloc(N * sizeof(double complex));
   
-  if(mass == NULL)
+  if(mass == NULL || pos = NULL || vel = NULL || acc = NULL || jerk = NULL)
   {
     fprintf(stderr, "Out of memory!\n");
     exit(0);
   }
-  
-  pos = malloc_2d(N, DIM);
-  vel = malloc_2d(N, DIM);
-  acc = malloc_2d(N, DIM);
-  jerk = malloc_2d(N, DIM);
 }
 
 /* zeroes out all elements of our arrays to get rid of any garbage values which might have been in memory */
@@ -144,7 +143,7 @@ void initializeArrays(int N, int DIM)
     
     for(int j = 0; j < DIM; ++j)
     {
-      pos[i][j] = vel[i][j] = acc[i][j] = jerk[i][j] = 0.0;
+      pos[i + j] = vel[i + j] = acc[i + j] = jerk[i + j] = 0.0;
     }
   }
 }
@@ -153,12 +152,6 @@ void initializeArrays(int N, int DIM)
 void freeArrays()
 {
   free(mass);
-  
-  free(pos[0]);
-  free(vel[0]);
-  free(acc[0]);
-  free(jerk[0]);
-  
   free(pos);
   free(vel);
   free(acc);
