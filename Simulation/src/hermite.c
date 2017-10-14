@@ -33,59 +33,59 @@ void acc_jerk(int N, int DIM, double *mass, double complex **pos, double complex
     }
   }
   
- for(int i = 0; i < N; ++i) /* loops over all particles */
- {
-   for(int j = i + 1; j < N; ++j) /* only loops over half of the particles because force acts equally on both particles (Newton) */
-   {
-     double complex rji[DIM]; /* position vector from particle i to j */
-     double complex vji[DIM]; /* velocity vector from particle i to j */
+  for(int i = 0; i < N; ++i) /* loops over all particles */
+  {
+    for(int j = i + 1; j < N; ++j) /* only loops over half of the particles because force acts equally on both particles (Newton) */
+    {
+      double complex rji[DIM]; /* position vector from particle i to j */
+      double complex vji[DIM]; /* velocity vector from particle i to j */
      
-     for(int k = 0; k < DIM; ++k)
-     {
-       rji[k] = vji[k] = 0.0;
-     }
+      for(int k = 0; k < DIM; ++k)
+      {
+        rji[k] = vji[k] = 0.0;
+      }
      
-     double complex r2 = 0.0; /* rij^2 */
-     double complex v2 = 0.0; /* vij^2 */
-     double complex rv = 0.0; /* rij*vij */
+      double complex r2 = 0.0; /* rij^2 */
+      double complex v2 = 0.0; /* vij^2 */
+      double complex rv = 0.0; /* rij*vij */
      
-     /* filling the arrays described above */
-     for(int k = 0; k < DIM; ++k)
-     {
+      /* filling the arrays described above */
+      for(int k = 0; k < DIM; ++k)
+      {
         rji[k] = pos[j][k] - pos[i][k];
         vji[k] = vel[j][k] - vel[i][k];
        
         r2 += rji[k] * rji[k];
         v2 += vji[k] * vji[k];
         rv += rji[k] * vji[k];
-     }
+      }
      
-     rv /= r2; /* rv/r2 */
-     double complex r = csqrt(r2); /* absolute value of rij */
-     double complex r3 = r * r2; /* |rij| * rij^2 */
+      rv /= r2; /* rv/r2 */
+      double complex r = csqrt(r2); /* absolute value of rij */
+      double complex r3 = r * r2; /* |rij| * rij^2 */
      
-     double complex da[DIM];
-     double complex dj[DIM];
+      double complex da[DIM];
+      double complex dj[DIM];
      
-     for(int k = 0; k < DIM; ++k)
-     {
-       da[k] = dj[k] = 0.0;
-     }
-     
-     /* calculates new accceleration and jerk for both particles i and j */
-     for (int k = 0; k < DIM ; k++)
-     {
-       da[k] = rji[k] / r3;
-       dj[k] = (vji[k] - 3 * rv * rji[k]) / r3;
+      for(int k = 0; k < DIM; ++k)
+      {
+        da[k] = dj[k] = 0.0;
+      }
+    
+      /* calculates new accceleration and jerk for both particles i and j */
+      for (int k = 0; k < DIM ; k++)
+      {
+        da[k] = rji[k] / r3;
+        dj[k] = (vji[k] - 3 * rv * rji[k]) / r3;
        
-       acc[i][k] += mass[j] * da[k];
-       acc[j][k] -= mass[i] * da[k];
+        acc[i][k] += mass[j] * da[k];
+        acc[j][k] -= mass[i] * da[k];
        
-       jerk[i][k] += mass[j] * dj[k];                
-       jerk[j][k] -= mass[i] * dj[k];  
-     }
-   }
- }
+        jerk[i][k] += mass[j] * dj[k];                
+        jerk[j][k] -= mass[i] * dj[k];  
+      }
+    }
+  }
 }
 
 /* 
