@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <complex.h>
+#include <mpi.h>
 #include "plummer.h"
 #include "output.h"
 #include "hermite.h"
@@ -92,7 +93,7 @@ int main(int argc, const char *argv[])
     printInitialConditions(N, mass, pos, vel); /* creates and writes to the initial conditions file */
   }
 
-  proc_elem = (N / world_size) * DIM;
+  int proc_elem = (N / world_size) * DIM;
   startHermite(N, DIM, dt, end_time, mass, pos, vel, acc, jerk, proc_elem, world_rank); /* starts the Hermite scheme for further computation */
   
   freeArrays(); /* frees allocated space of arrays after computation has finished */
