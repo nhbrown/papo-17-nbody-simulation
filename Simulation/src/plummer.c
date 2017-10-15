@@ -27,48 +27,48 @@
 static const double scale = 16.0 / (3.0 * 3.14159265359);
 
 /* returns pseudo-random number within specified range */
-double frand(double low, double high)
+double rrand(double low, double high)
 {
   return low + genrand_real1() * (high - low);
 }
 
 /* implementation of the Plummer density profile (Plummer Model) */
-void plummer(int N, double *mass, double complex **pos, double complex **vel, int i, double M, double R)
+void plummer(int N, double *mass, double complex *pos, double complex *vel, int i, double M, double R)
 {  
   mass[i] = M / N; /* mass equilibrium */
   
   double complex radius = R / csqrt((cpow(genrand_real1(), (-2.0/3.0))) - 1.0); /* inverted cumulative mass distribution */
-  double complex theta = cacos(frand(-1.0, 1.0)); /* Polar Angle */
-  double complex phi = frand(0.0, (2 * 3.14159265359)); /* Azimuthal Angle */
+  double complex theta = cacos(rrand(-1.0, 1.0)); /* Polar Angle */
+  double complex phi = rrand(0.0, (2 * 3.14159265359)); /* Azimuthal Angle */
   
   /* conversion from radial to cartesian coordinates */
-  pos[i][0] = (radius * csin(theta) * ccos(phi)) / scale; 
-  pos[i][1] = (radius * csin(theta) * csin(phi)) / scale;
-  pos[i][2] = (radius * ccos(theta)) / scale;
+  pos[i] = (radius * csin(theta) * ccos(phi)) / scale; 
+  pos[i + 1] = (radius * csin(theta) * csin(phi)) / scale;
+  pos[i + 2] = (radius * ccos(theta)) / scale;
   
   double x = 0.0;
   double y = 0.1;
   
-  /* rejection technique */
+  /* Neumann's rejection technique */
   while(y > (x * x * (pow((1.0 - x * x), 3.5))))
   {
-    x = frand(0.0, 1.0);
-    y = frand(0.0, 0.1);
+    x = rrand(0.0, 1.0);
+    y = rrand(0.0, 0.1);
   }
   
   /* distribution function */
   double complex velocity = x * csqrt(2.0) * cpow((1.0 + radius * radius), -0.25);
-  theta = cacos(frand(-1.0, 1.0));
-  phi = frand(0.0, (2 * 3.14159265359));
+  theta = cacos(rrand(-1.0, 1.0));
+  phi = rrand(0.0, (2 * 3.14159265359));
   
   /* conversion */
-  vel[i][0] = (velocity * csin(theta) * ccos(phi)) * csqrt(scale);
-  vel[i][1] = (velocity * csin(theta) * csin(phi)) * csqrt(scale);
-  vel[i][2] = (velocity * ccos(theta)) * csqrt(scale);
+  vel[i] = (velocity * csin(theta) * ccos(phi)) * csqrt(scale);
+  vel[i + 1] = (velocity * csin(theta) * csin(phi)) * csqrt(scale);
+  vel[i + 2] = (velocity * ccos(theta)) * csqrt(scale);
 }
 
 /* adjusting positions and velocities of all particles towards center of mass */
-void center_of_mass_adjustment(int N, double *mass, double complex **pos, double complex **vel)
+void center_of_mass_adjustment(int N, double *mass, double complex *pos, double complex *vel)
 {
   double complex pos_center[3] = {0, 0, 0}; /* position of center of mass */
   double complex vel_center[3] = {0, 0, 0}; /* velocity of center of mass */
@@ -78,8 +78,8 @@ void center_of_mass_adjustment(int N, double *mass, double complex **pos, double
   {
     for(int j = 0; j < 3; ++j)
     {
-      pos_center[j] += pos[i][j] * mass[i];
-      vel_center[j] += vel[i][j] * mass[i];
+      pos_center[j] += pos[i + j] * mass[i];
+      vel_center[j] += vel[i + j] * mass[i];
     }
   }
   
@@ -88,14 +88,14 @@ void center_of_mass_adjustment(int N, double *mass, double complex **pos, double
   {
     for(int l = 0; l < 3; ++l)
     {
-      pos[k][l] -= pos_center[l];
-      vel[k][l] -= vel_center[l];
+      pos[k + l] -= pos_center[l];
+      vel[k + l] -= vel_center[l];
     }
   }
 }
 
 /* starts the Plummer Model routine to generate initial conditions for our cluster */
-void startPlummer(unsigned long seed, int N, double *mass, double complex **pos, double complex **vel, double M, double R)
+void startPlummer(unsigned long seed, int N, double *mass, double complex *pos, double complex *vel, double M, double R)
 {
   init_genrand(seed); /* seeding Mersenne Twister */
 
