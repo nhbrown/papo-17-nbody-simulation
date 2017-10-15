@@ -35,6 +35,12 @@ int main(int argc, const char *argv[])
 {
   clock_t start = clock();
   
+  int world_size = 0, world_rank = 0;
+  
+  MPI_Init(NULL, NULL);
+  MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+  MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+  
   int N = 0; /* amount of particles */
   int DIM = 3; /* dimensions */
   unsigned long seed = 0; /* seed for Mersenne-Twister. */  
@@ -74,20 +80,32 @@ int main(int argc, const char *argv[])
   
   initializeArrays(N, DIM); /* zero out all elements */
   
-  printLog(seed, N, M, R, G, dt, end_time); /* creates and writes to the log file */
+  if(world_rank == 0)
+  {
+    printLog(seed, N, M, R, G, dt, end_time); /* creates and writes to the log file */
+  }
   
   startPlummer(seed, N, mass, pos, vel, M, R); /* starts the Plummer Model routine for initial conditions */
   
-  printInitialConditions(N, mass, pos, vel); /* creates and writes to the initial conditions file */
-  
-  startHermite(N, DIM, dt, end_time, mass, pos, vel, acc, jerk); /* starts the Hermite scheme for further computation */
+  if(world_rank == 0)
+  {
+    printInitialConditions(N, mass, pos, vel); /* creates and writes to the initial conditions file */
+  }
+
+  proc_elem = (N / world_size) * DIM;
+  startHermite(N, DIM, dt, end_time, mass, pos, vel, acc, jerk, proc_elem, world_rank); /* starts the Hermite scheme for further computation */
   
   freeArrays(); /* frees allocated space of arrays after computation has finished */
   
-  clock_t end = clock();
-  double cpu_time = ((double) (end - start)) / CLOCKS_PER_SEC;
+  if(world_rank == 0)
+  {
+    clock_t end = clock();
+    double cpu_time = ((double) (end - start)) / CLOCKS_PER_SEC;
   
-  printf("CPU time used: %f", cpu_time);
+    printf("CPU time used: %f", cpu_time); 
+  }
+  
+  MPI_Finalize();
   
   return 0;
 }
