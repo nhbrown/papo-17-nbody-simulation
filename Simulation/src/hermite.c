@@ -38,8 +38,12 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
   {
     for(int j = i + 1; j < N; ++j) /* only loops over half of the particles because force acts equally on both particles (Newton) */
     {
-      double complex rji[DIM] = {0, 0, 0}; /* position vector from particle i to j */
-      double complex vji[DIM] = {0, 0, 0}; /* position vector from particle i to j */
+      double complex rji[DIM], vji[DIM]; /* position vector from particle i to j */
+      
+      for(int k = 0; k < DIM; ++k)
+      {
+        rji[k] = vji[k] = 0.0;
+      }
      
       double complex r2 = 0.0; /* rij^2 */
       double complex rv = 0.0; /* rij*vij */
@@ -56,8 +60,12 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
       
       double complex r3 = csqrt(r2) * r2; /* |rij| * rij^2 */
      
-      double complex da[DIM] = {0, 0, 0};
-      double complex dj[DIM] = {0, 0, 0};
+      double complex da[DIM], dj[DIM];
+      
+      for(int k = 0; k < DIM; ++k)
+      {
+        da[k] = dj[k] = 0.0;
+      }
     
       /* calculates new accceleration and jerk for both particles i and j */
       for (int k = 0; k < DIM ; k++)
