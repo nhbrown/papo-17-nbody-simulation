@@ -23,7 +23,7 @@
 #include "output.h"
 #include "ediag.h"
 
-int proc_elem;
+int proc_elem, world_rank;
 
 /* calculates acceleration and jerk for all particles */
 void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex *vel, 
@@ -156,18 +156,13 @@ void hermite(int N, int DIM, double dt, double *mass, double complex *pos,
 
 /* entry point for the Hermite integrator, starts computation and continues until end of simulation is reached */
 void startHermite(int N, int DIM, double dt, double end_time, double *mass, double complex *pos, double complex *vel, 
-                  double complex *acc, double complex *jerk)
+                  double complex *acc, double complex *jerk, int elements_per_proc, int rank)
 {
   double time = 0.0; /* default time */
   int iterations = 0; /* iteration counter, iteration 0 is equal to initial conditions */
-  
-  int world_size = 0, world_rank = 0;
-  
-  MPI_Init(NULL, NULL);
-  MPI_Comm_size(MPI_COMM_WORLD, &world_size);
-  MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-  
-  proc_elem = N / world_size; 
+    
+  proc_elem = elements_per_proc;
+  world_rank = rank;
   
   acc_jerk(N, DIM, mass, pos, vel, acc, jerk); /* one time calculation to get inital acceleration and jerk for all particles */
   if(world_rank == 0)
@@ -179,13 +174,13 @@ void startHermite(int N, int DIM, double dt, double end_time, double *mass, doub
   {
     ++iterations; /* increment iteration counter from last iteration to current iteration */
     hermite(N, DIM, dt, mass, pos, vel, acc, jerk); /* calculate movement for current iteration */
+    
     if(world_rank == 0)
     {
       printIteration(N, iterations, mass, pos, vel); /* print current iteration */
       energy_diagnostics(N, DIM, mass, pos, vel); /* get energy diagnostics for current iteration */ 
     }
+    
     time += dt; /* add timestep to current time to advance to next iteration */
   }
-  
-  MPI_Finalize();
 }
