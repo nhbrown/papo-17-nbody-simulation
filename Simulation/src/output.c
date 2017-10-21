@@ -54,10 +54,10 @@ void printInitialConditions(int N, double *mass, double complex *pos, double com
   FILE *conditions;
   conditions = fopen(conditionsname, "w");
 
-  for(int i = 0; i < N; ++i)
+  for(int i = 0, mi = 0; i < N; i += 3, ++mi)
   {     
     fprintf(conditions, "%f, %f, %f, %f, %f, %f, %f \n",
-            creal(pos[i]), creal(pos[i + 1]), creal(pos[i + 2]), mass[i], 
+            creal(pos[i]), creal(pos[i + 1]), creal(pos[i + 2]), mass[mi], 
             creal(vel[i]), creal(vel[i + 1]), creal(vel[i + 2]));
   }
 
@@ -104,10 +104,10 @@ void printIteration(int N, int iteration, double *mass, double complex *pos, dou
   FILE *out;
   out = fopen(buffer, "w");
   
-  for(int i = 0; i < N; ++i)
+  for(int i = 0, mi = 0; i < N; i += 3, ++mi)
   {
     fprintf(out, "%f, %f, %f, %f, %f, %f, %f \n", 
-            creal(pos[i]), creal(pos[i + 1]), creal(pos[i + 2]), mass[i], 
+            creal(pos[i]), creal(pos[i + 1]), creal(pos[i + 2]), mass[mi], 
             creal(vel[i]), creal(vel[i + 1]), creal(vel[i + 2]));
   }
   
