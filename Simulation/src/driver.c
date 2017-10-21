@@ -118,10 +118,7 @@ void initializeArrays(int N, int DIM)
   
   for(int i = 0; i < (N * DIM); ++i)
   { 
-    pos[i] = 0.0; 
-    vel[i] = 0.0;
-    acc[i] = 0.0;
-    jerk[i] = 0.0;
+    pos[i] = vel[i] = acc[i] = jerk[i] = 0.0; 
   }
 }
 
