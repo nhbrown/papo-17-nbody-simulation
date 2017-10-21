@@ -99,7 +99,7 @@ void startPlummer(unsigned long seed, int N, double *mass, double complex *pos, 
 {
   init_genrand(seed); /* seeding Mersenne Twister */
 
-  for(int i = 0; i < N; ++i)
+  for(int i = 0; i < N; i += 3)
   {
     plummer(N, mass, pos, vel, i, M, R); /* generate mass, positon and velocity for specified amount of particles */
   }
