@@ -92,11 +92,11 @@ int main(int argc, const char *argv[])
 /* allocates neccessary space for all arrays */
 void callocArrays(int N, int DIM)
 {
-  mass = calloc(N * sizeof(double));
-  pos = calloc((N * DIM) * sizeof(double complex));
-  vel = calloc((N * DIM) * sizeof(double complex));
-  acc = calloc((N * DIM) * sizeof(double complex));
-  jerk = calloc((N * DIM) * sizeof(double complex));
+  mass = calloc(N, sizeof(double));
+  pos = calloc((N * DIM), sizeof(double complex));
+  vel = calloc((N * DIM), sizeof(double complex));
+  acc = calloc((N * DIM), sizeof(double complex));
+  jerk = calloc((N * DIM), sizeof(double complex));
   
   if(mass == NULL || pos == NULL || vel == NULL || acc == NULL || jerk == NULL)
   {
