@@ -14,13 +14,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
-#include <time.h>
 #include <complex.h>
+#include <time.h>
+#include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>
-#include "output.h"
 
 char foldername[40]; /* buffer for name of folder */ 
 char logname[80]; /* buffer for name of log file */
