@@ -3,7 +3,7 @@
 
 double rrand(double low, double high);
 
-void plummer(int N, double *mass, double complex *pos, double complex *vel, int i, double M, double R);
+void plummer(int N, double *mass, double complex *pos, double complex *vel, int i, int mi, double M, double R);
 
 void center_of_mass_adjustment(int N, double *mass, double complex *pos, double complex *vel);
 
