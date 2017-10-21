@@ -7,7 +7,7 @@ void plummer(int N, double *mass, double complex *pos, double complex *vel, int 
 
 void center_of_mass_adjustment(int N, double *mass, double complex *pos, double complex *vel);
 
-void startPlummer(unsigned long s, int N, double *mass, double complex *pos, double complex *vel, 
+void startPlummer(unsigned long s, int N, int DIM, double *mass, double complex *pos, double complex *vel, 
                   double M, double R);
 
 #endif // PLUMMER_H_
