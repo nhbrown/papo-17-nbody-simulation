@@ -15,17 +15,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <complex.h>
+#include "hermite.h"
+#include "plummer.h"
+#include "output.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <complex.h>
-#include "plummer.h"
-#include "output.h"
-#include "hermite.h"
 
 /* prototypes */
-void mallocArrays(int N, int DIM);
-void initializeArrays(int N, int DIM);
+void callocArrays(int N, int DIM);
 void freeArrays(void);
 
 double *mass; /* holds masses of all particles */  
@@ -70,9 +69,7 @@ int main(int argc, const char *argv[])
   
   createNames(); /* creates folder and names for files */
   
-  mallocArrays(N, DIM); /* allocates space for arrays */
-  
-  initializeArrays(N, DIM); /* zero out all elements */
+  callocArrays(N, DIM); /* allocates space for arrays */
   
   printLog(seed, N, M, R, G, dt, end_time); /* creates and writes to the log file */
   
@@ -93,32 +90,18 @@ int main(int argc, const char *argv[])
 }
 
 /* allocates neccessary space for all arrays */
-void mallocArrays(int N, int DIM)
+void callocArrays(int N, int DIM)
 {
-  mass = malloc(N * sizeof(double));
-  pos = malloc((N * DIM) * sizeof(double complex));
-  vel = malloc((N * DIM) * sizeof(double complex));
-  acc = malloc((N * DIM) * sizeof(double complex));
-  jerk = malloc((N * DIM) * sizeof(double complex));
+  mass = calloc(N * sizeof(double));
+  pos = calloc((N * DIM) * sizeof(double complex));
+  vel = calloc((N * DIM) * sizeof(double complex));
+  acc = calloc((N * DIM) * sizeof(double complex));
+  jerk = calloc((N * DIM) * sizeof(double complex));
   
   if(mass == NULL || pos == NULL || vel == NULL || acc == NULL || jerk == NULL)
   {
     fprintf(stderr, "Out of memory!\n");
     exit(0);
-  }
-}
-
-/* zeroes out all elements of our arrays to get rid of any garbage values which might have been in memory */
-void initializeArrays(int N, int DIM)
-{
-  for(int i = 0; i < N; ++i)
-  {
-    mass[i] = 0.0;
-  }
-  
-  for(int i = 0; i < (N * DIM); ++i)
-  { 
-    pos[i] = vel[i] = acc[i] = jerk[i] = 0.0; 
   }
 }
 
