@@ -134,7 +134,7 @@ void startHermite(int N, int DIM, double dt, double end_time, double *mass, doub
   {
     ++iterations; /* increment iteration counter from last iteration to current iteration */
     hermite(N, DIM, dt, mass, pos, vel, acc, jerk); /* calculate movement for current iteration */
-    printIteration(N, iterations, mass, pos, vel); /* print current iteration */
+    printIteration(N, DIM, iterations, mass, pos, vel); /* print current iteration */
     energy_diagnostics(N, DIM, mass, pos, vel); /* get energy diagnostics for current iteration */
     time += dt; /* add timestep to current time to advance to next iteration */
   }
