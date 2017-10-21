@@ -96,10 +96,10 @@ int main(int argc, const char *argv[])
 void mallocArrays(int N, int DIM)
 {
   mass = malloc(N * sizeof(double));
-  pos = malloc((N * sizeof(double complex)) * DIM);
-  vel = malloc((N * sizeof(double complex)) * DIM);
-  acc = malloc((N * sizeof(double complex)) * DIM);
-  jerk = malloc((N * sizeof(double complex)) * DIM);
+  pos = malloc((N * DIM) * sizeof(double complex));
+  vel = malloc((N * DIM) * sizeof(double complex));
+  acc = malloc((N * DIM) * sizeof(double complex));
+  jerk = malloc((N * DIM) * sizeof(double complex));
   
   if(mass == NULL || pos == NULL || vel == NULL || acc == NULL || jerk == NULL)
   {
@@ -114,11 +114,14 @@ void initializeArrays(int N, int DIM)
   for(int i = 0; i < N; ++i)
   {
     mass[i] = 0.0;
-    
-    for(int j = 0; j < DIM; ++j)
-    {
-      pos[i + j] = vel[i + j] = acc[i + j] = jerk[i + j] = 0.0;
-    }
+  }
+  
+  for(int i = 0; i < (N * DIM); ++i)
+  { 
+    pos[i] = 0.0; 
+    vel[i] = 0.0;
+    acc[i] = 0.0;
+    jerk[i] = 0.0;
   }
 }
 
