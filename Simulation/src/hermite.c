@@ -26,7 +26,7 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
               double complex *acc, double complex *jerk)
 { 
   /* default values for acceleration and jerk */
-  for(int i = 0; i < N; i += 3)
+  for(int i = 0; i < (N * DIM); i += DIM)
   {
     for(int j = 0; j < DIM; ++j)
     {
@@ -34,9 +34,9 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
     }
   }
   
-  for(int i = 0, mi = 0; i < N; i += 3, ++mi) /* loops over all particles */
+  for(int i = 0, mi = 0; i < (N * DIM); i += DIM, ++mi) /* loops over all particles */
   { 
-    for(int j = i + 3, mj = 0; j < N; j += 3, ++mj) /* only loops over half of the particles because force acts equally on both particles (Newton) */
+    for(int j = i + DIM, mj = 0; j < (N * DIM); j += DIM, ++mj) /* only loops over half of the particles because force acts equally on both particles (Newton) */
     {
       double complex rji[DIM], vji[DIM]; /* position vector from particle i to j */
       
@@ -103,26 +103,20 @@ void hermite(int N, int DIM, double dt, double *mass, double complex *pos,
   memcpy(old_jerk, jerk, sizeof(old_jerk));
   
   /* prediction for all particles (for mathematical expression please see links provided above) */
-  for(int i = 0; i < N; i += 3)
+  for(int i = 0; i < (N * DIM); ++i)
   {
-    for(int j = 0; j < DIM; ++j)
-    {
-      pos[i + j] += vel[i + j] * dt + acc[i + j] * ((dt * dt)/2) + jerk[i + j] * ((dt * dt * dt)/6);
-      vel[i + j] += acc[i + j] * dt + jerk[i + j] * ((dt * dt)/2);
-    }
+    pos[i] += vel[i] * dt + acc[i] * ((dt * dt)/2) + jerk[i] * ((dt * dt * dt)/6);
+    vel[i] += acc[i] * dt + jerk[i] * ((dt * dt)/2);
   }
   
   acc_jerk(N, DIM, mass, pos, vel, acc, jerk); /* get the new acceleration and jerk for all particles*/
   
   /* correction in reversed order of computation (for mathematical expression please see links provided above) 
      reversed order allows the corrected velocities to be used to correct the positions for better energy behaviour */
-  for (int i = 0; i < N; i += 3)
+  for (int i = 0; i < (N * DIM); ++i)
   {
-    for (int j = 0; j < DIM; ++j)
-    {
-      vel[i + j] = old_vel[i + j] + (old_acc[i + j] + acc[i + j]) * (dt/2) + (old_jerk[i + j] - jerk[i + j]) * ((dt * dt)/12);       
-      pos[i + j] = old_pos[i + j] + (old_vel[i + j] + vel[i + j]) * (dt/2) + (old_acc[i + j] - acc[i + j]) * ((dt * dt)/12);
-    }
+    vel[i] = old_vel[i] + (old_acc[i] + acc[i]) * (dt/2) + (old_jerk[i] - jerk[i]) * ((dt * dt)/12);       
+    pos[i] = old_pos[i] + (old_vel[i] + vel[i]) * (dt/2) + (old_acc[i] - acc[i]) * ((dt * dt)/12);
   }
 }
 
