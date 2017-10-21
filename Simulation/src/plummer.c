@@ -95,7 +95,7 @@ void center_of_mass_adjustment(int N, double *mass, double complex *pos, double 
 }
 
 /* starts the Plummer Model routine to generate initial conditions for our cluster */
-void startPlummer(unsigned long seed, int N, double *mass, double complex *pos, double complex *vel, double M, double R)
+void startPlummer(unsigned long seed, int N, int DIM, double *mass, double complex *pos, double complex *vel, double M, double R)
 {
   init_genrand(seed); /* seeding Mersenne Twister */
 
