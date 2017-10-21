@@ -26,17 +26,17 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
               double complex *acc, double complex *jerk)
 { 
   /* default values for acceleration and jerk */
-  for(int i = 0; i < N; ++i)
+  for(int i = 0; i < N; i += 3)
   {
-    for(int j = 0; j < 3; ++j)
+    for(int j = 0; j < DIM; ++j)
     {
       acc[i + j] = jerk[i + j] = 0;
     }
   }
   
-  for(int i = 0; i < N; ++i) /* loops over all particles */
-  {
-    for(int j = i + 1; j < N; ++j) /* only loops over half of the particles because force acts equally on both particles (Newton) */
+  for(int i = 0, mi = 0; i < N; i += 3, ++mi) /* loops over all particles */
+  { 
+    for(int j = i + 3, mj = 0; j < N; j += 3, ++mj) /* only loops over half of the particles because force acts equally on both particles (Newton) */
     {
       double complex rji[DIM], vji[DIM]; /* position vector from particle i to j */
       
@@ -73,11 +73,11 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
         da[k] = rji[k] / r3;
         dj[k] = (vji[k] - 3 * (rv / r2) * rji[k]) / r3;
         
-        acc[i + k] += mass[j] * da[k]; /* add positive acceleration to particle i */
-        acc[j + k] -= mass[i] * da[k]; /* add negative acceleration to particle j */
+        acc[i + k] += mass[mj] * da[k]; /* add positive acceleration to particle i */
+        acc[j + k] -= mass[mi] * da[k]; /* add negative acceleration to particle j */
        
-        jerk[i + k] += mass[j] * dj[k]; /* add positive jerk to particle i */                
-        jerk[j + k] -= mass[i] * dj[k]; /* add negative jerk to particle j */
+        jerk[i + k] += mass[mj] * dj[k]; /* add positive jerk to particle i */                
+        jerk[j + k] -= mass[mi] * dj[k]; /* add negative jerk to particle j */
       }
     }
   }
@@ -103,7 +103,7 @@ void hermite(int N, int DIM, double dt, double *mass, double complex *pos,
   memcpy(old_jerk, jerk, sizeof(old_jerk));
   
   /* prediction for all particles (for mathematical expression please see links provided above) */
-  for(int i = 0; i < N; ++i)
+  for(int i = 0; i < N; i += 3)
   {
     for(int j = 0; j < DIM; ++j)
     {
@@ -112,11 +112,11 @@ void hermite(int N, int DIM, double dt, double *mass, double complex *pos,
     }
   }
   
-  acc_jerk(N, DIM, mass, pos, vel, acc, jerk); /* get the new accleration and jerk for all particles*/
+  acc_jerk(N, DIM, mass, pos, vel, acc, jerk); /* get the new acceleration and jerk for all particles*/
   
   /* correction in reversed order of computation (for mathematical expression please see links provided above) 
      reversed order allows the corrected velocities to be used to correct the positions for better energy behaviour */
-  for (int i = 0; i < N; ++i)
+  for (int i = 0; i < N; i += 3)
   {
     for (int j = 0; j < DIM; ++j)
     {
