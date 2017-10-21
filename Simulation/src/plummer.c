@@ -68,25 +68,25 @@ void plummer(int N, double *mass, double complex *pos, double complex *vel, int 
 }
 
 /* adjusting positions and velocities of all particles towards center of mass */
-void center_of_mass_adjustment(int N, double *mass, double complex *pos, double complex *vel)
+void center_of_mass_adjustment(int N, int DIM, double *mass, double complex *pos, double complex *vel)
 {
   double complex pos_center[3] = {0, 0, 0}; /* position of center of mass */
   double complex vel_center[3] = {0, 0, 0}; /* velocity of center of mass */
   
   /* measuring position and velocity of center of mass */
-  for(int i = 0; i < N; ++i) 
+  for(int i = 0, mi = 0; i < (N * DIM); i += 3, ++mi) 
   {
-    for(int j = 0; j < 3; ++j)
+    for(int j = 0; j < DIM; ++j)
     {
-      pos_center[j] += pos[i + j] * mass[i];
-      vel_center[j] += vel[i + j] * mass[i];
+      pos_center[j] += pos[i + j] * mass[mi];
+      vel_center[j] += vel[i + j] * mass[mi];
     }
   }
   
   /* subtracting position and velocity of center of mass from each particle */
-  for(int k = 0; k < N; ++k) 
+  for(int k = 0; k < (N * DIM); k += 3) 
   {
-    for(int l = 0; l < 3; ++l)
+    for(int l = 0; l < DIM; ++l)
     {
       pos[k + l] -= pos_center[l];
       vel[k + l] -= vel_center[l];
@@ -104,5 +104,5 @@ void startPlummer(unsigned long seed, int N, int DIM, double *mass, double compl
     plummer(N, mass, pos, vel, i, mi, M, R); /* generate masses, positions and velocities for specified amount of particles */
   }
   
-  center_of_mass_adjustment(N, mass, pos, vel); /* adjust center of mass for all particles */
+  center_of_mass_adjustment(N, DIM, mass, pos, vel); /* adjust center of mass for all particles */
 }
