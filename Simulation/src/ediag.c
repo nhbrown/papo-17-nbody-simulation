@@ -28,11 +28,11 @@ double e_total = 0.0; /* total energy of the cluster */
 /* calculates kinetic energy of the cluster */
 void kinetic_energy(int N, int DIM, double *mass, double complex *vel)
 {
-  for(int i = 0; i < N; ++i)
+  for(int i = 0, mi = 0; i < N; i += 3, ++mi)
   {
     for(int j = 0; j < DIM; ++j)
     {
-      e_kinetic += 0.5 * mass[i] * vel[i + j] * vel[i + j];
+      e_kinetic += 0.5 * mass[mi] * vel[i + j] * vel[i + j];
     }
   }
 }
@@ -40,9 +40,9 @@ void kinetic_energy(int N, int DIM, double *mass, double complex *vel)
 /* calculates potential energy of the cluster */
 void potential_energy(int N, int DIM, double *mass, double complex *pos)
 {
-  for (int i = 0; i < N ; ++i)
+  for (int i = 0, mi = 0; i < N ; i += 0, ++mi)
   {
-    for (int j = i+1; j < N ; ++j)
+    for (int j = i + 3, mj = 0; j < N ; j += 3, ++mj)
     {
       double complex rij2 = 0;
     
@@ -51,7 +51,7 @@ void potential_energy(int N, int DIM, double *mass, double complex *pos)
         rij2 += (pos[j + k] - pos[i + k]) * (pos[j + k] - pos[i + k]);
       }
       
-      e_potential -= mass[i] * mass[j] / sqrt(rij2);
+      e_potential -= mass[mi] * mass[mj] / sqrt(rij2);
     }
   }
 }
