@@ -33,9 +33,9 @@ double rrand(double low, double high)
 }
 
 /* implementation of the Plummer density profile (Plummer Model) */
-void plummer(int N, double *mass, double complex *pos, double complex *vel, int i, double M, double R)
+void plummer(int N, double *mass, double complex *pos, double complex *vel, int i, int mi, double M, double R)
 {  
-  mass[i] = M / N; /* mass equilibrium */
+  mass[mi] = M / N; /* mass equilibrium */
   
   double complex radius = R / csqrt((cpow(genrand_real1(), (-2.0/3.0))) - 1.0); /* inverted cumulative mass distribution */
   double complex theta = cacos(rrand(-1.0, 1.0)); /* Polar Angle */
@@ -99,9 +99,9 @@ void startPlummer(unsigned long seed, int N, int DIM, double *mass, double compl
 {
   init_genrand(seed); /* seeding Mersenne Twister */
 
-  for(int i = 0; i < (N * DIM); i += 3)
+  for(int i = 0, mi = 0; i < (N * DIM); i += 3, ++mi)
   {
-    plummer(N, mass, pos, vel, i, M, R); /* generate mass, positon and velocity for specified amount of particles */
+    plummer(N, mass, pos, vel, i, mi, M, R); /* generate masses, positions and velocities for specified amount of particles */
   }
   
   center_of_mass_adjustment(N, mass, pos, vel); /* adjust center of mass for all particles */
