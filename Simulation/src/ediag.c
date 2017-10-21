@@ -16,14 +16,12 @@
 */
 
 #include <complex.h>
-#include <math.h>
-#include <stdio.h>
 #include "ediag.h"
+#include <math.h>
 #include "output.h"
+#include <stdio.h>
 
-double e_kinetic = 0.0; /* kinetic energy of the cluster */
-double e_potential = 0.0; /* potential energy of the cluster */
-double e_total = 0.0; /* total energy of the cluster */
+double e_kinetic, e_potential, e_total; /* kinetic, potential and total energy of the cluster */
 
 /* calculates kinetic energy of the cluster */
 void kinetic_energy(int N, int DIM, double *mass, double complex *vel)
