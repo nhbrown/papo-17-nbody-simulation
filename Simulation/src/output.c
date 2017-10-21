@@ -49,7 +49,7 @@ void createNames()
 }
 
 /* creates and writes to inital conditions file, which holds intial masses, positions and velocities of all particles */
-void printInitialConditions(int N, double *mass, double complex *pos, double complex *vel)
+void printInitialConditions(int N, int DIM, double *mass, double complex *pos, double complex *vel)
 { 
   FILE *conditions;
   conditions = fopen(conditionsname, "w");
@@ -96,7 +96,7 @@ void printEnergyDiagnostics(double e_kinetic, double e_potential, double e_total
 }
 
 /* creates and writes to new file for specified iteration of the computation */
-void printIteration(int N, int iteration, double *mass, double complex *pos, double complex *vel)
+void printIteration(int N, int DIM, int iteration, double *mass, double complex *pos, double complex *vel)
 {
   char buffer[80];
   snprintf(buffer, sizeof(buffer), "./%s/iteration_%d.csv", foldername, iteration);
