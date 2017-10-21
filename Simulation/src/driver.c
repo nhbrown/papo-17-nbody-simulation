@@ -76,9 +76,9 @@ int main(int argc, const char *argv[])
   
   printLog(seed, N, M, R, G, dt, end_time); /* creates and writes to the log file */
   
-  startPlummer(seed, N, mass, pos, vel, M, R); /* starts the Plummer Model routine for initial conditions */
+  startPlummer(seed, N, DIM, mass, pos, vel, M, R); /* starts the Plummer Model routine for initial conditions */
   
-  printInitialConditions(N, mass, pos, vel); /* creates and writes to the initial conditions file */
+  printInitialConditions(N, DIM, mass, pos, vel); /* creates and writes to the initial conditions file */
   
   startHermite(N, DIM, dt, end_time, mass, pos, vel, acc, jerk); /* starts the Hermite scheme for further computation */
   
