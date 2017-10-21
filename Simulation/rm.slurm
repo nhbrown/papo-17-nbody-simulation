@@ -6,8 +6,8 @@
 #SBATCH --ntasks=1
 #SBATCH --partition=west
 
-#SBATCH --output=tar.out
-#SBATCH --error=tar.err
+#SBATCH --output=rm.out
+#SBATCH --error=rm.err
 
 if [ "${SLURM_PARTITION}" = 'abu' ]
 then

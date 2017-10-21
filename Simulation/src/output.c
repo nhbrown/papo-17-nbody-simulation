@@ -14,13 +14,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
-#include <time.h>
 #include <complex.h>
+#include <time.h>
+#include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>
-#include "output.h"
 
 char foldername[40]; /* buffer for name of folder */ 
 char logname[80]; /* buffer for name of log file */
@@ -49,15 +49,15 @@ void createNames()
 }
 
 /* creates and writes to inital conditions file, which holds intial masses, positions and velocities of all particles */
-void printInitialConditions(int N, double *mass, double complex *pos, double complex *vel)
+void printInitialConditions(int N, int DIM, double *mass, double complex *pos, double complex *vel)
 { 
   FILE *conditions;
   conditions = fopen(conditionsname, "w");
 
-  for(int i = 0; i < N; ++i)
+  for(int i = 0, mi = 0; i < (N * DIM); i += 3, ++mi)
   {     
     fprintf(conditions, "%f, %f, %f, %f, %f, %f, %f \n",
-            creal(pos[i]), creal(pos[i + 1]), creal(pos[i + 2]), mass[i], 
+            creal(pos[i]), creal(pos[i + 1]), creal(pos[i + 2]), mass[mi], 
             creal(vel[i]), creal(vel[i + 1]), creal(vel[i + 2]));
   }
 
@@ -96,7 +96,7 @@ void printEnergyDiagnostics(double e_kinetic, double e_potential, double e_total
 }
 
 /* creates and writes to new file for specified iteration of the computation */
-void printIteration(int N, int iteration, double *mass, double complex *pos, double complex *vel)
+void printIteration(int N, int DIM, int iteration, double *mass, double complex *pos, double complex *vel)
 {
   char buffer[80];
   snprintf(buffer, sizeof(buffer), "./%s/iteration_%d.csv", foldername, iteration);
@@ -104,10 +104,10 @@ void printIteration(int N, int iteration, double *mass, double complex *pos, dou
   FILE *out;
   out = fopen(buffer, "w");
   
-  for(int i = 0; i < N; ++i)
+  for(int i = 0, mi = 0; i < (N * DIM); i += 3, ++mi)
   {
     fprintf(out, "%f, %f, %f, %f, %f, %f, %f \n", 
-            creal(pos[i]), creal(pos[i + 1]), creal(pos[i + 2]), mass[i], 
+            creal(pos[i]), creal(pos[i + 1]), creal(pos[i + 2]), mass[mi], 
             creal(vel[i]), creal(vel[i + 1]), creal(vel[i + 2]));
   }
   

@@ -33,9 +33,9 @@ double rrand(double low, double high)
 }
 
 /* implementation of the Plummer density profile (Plummer Model) */
-void plummer(int N, double *mass, double complex *pos, double complex *vel, int i, double M, double R)
+void plummer(int N, double *mass, double complex *pos, double complex *vel, int i, int mi, double M, double R)
 {  
-  mass[i] = M / N; /* mass equilibrium */
+  mass[mi] = M / N; /* mass equilibrium */
   
   double complex radius = R / csqrt((cpow(genrand_real1(), (-2.0/3.0))) - 1.0); /* inverted cumulative mass distribution */
   double complex theta = cacos(rrand(-1.0, 1.0)); /* Polar Angle */
@@ -68,25 +68,25 @@ void plummer(int N, double *mass, double complex *pos, double complex *vel, int 
 }
 
 /* adjusting positions and velocities of all particles towards center of mass */
-void center_of_mass_adjustment(int N, double *mass, double complex *pos, double complex *vel)
+void center_of_mass_adjustment(int N, int DIM, double *mass, double complex *pos, double complex *vel)
 {
   double complex pos_center[3] = {0, 0, 0}; /* position of center of mass */
   double complex vel_center[3] = {0, 0, 0}; /* velocity of center of mass */
   
   /* measuring position and velocity of center of mass */
-  for(int i = 0; i < N; ++i) 
+  for(int i = 0, mi = 0; i < (N * DIM); i += 3, ++mi) 
   {
-    for(int j = 0; j < 3; ++j)
+    for(int j = 0; j < DIM; ++j)
     {
-      pos_center[j] += pos[i + j] * mass[i];
-      vel_center[j] += vel[i + j] * mass[i];
+      pos_center[j] += pos[i + j] * mass[mi];
+      vel_center[j] += vel[i + j] * mass[mi];
     }
   }
   
   /* subtracting position and velocity of center of mass from each particle */
-  for(int k = 0; k < N; ++k) 
+  for(int k = 0; k < (N * DIM); k += 3) 
   {
-    for(int l = 0; l < 3; ++l)
+    for(int l = 0; l < DIM; ++l)
     {
       pos[k + l] -= pos_center[l];
       vel[k + l] -= vel_center[l];
@@ -95,14 +95,14 @@ void center_of_mass_adjustment(int N, double *mass, double complex *pos, double 
 }
 
 /* starts the Plummer Model routine to generate initial conditions for our cluster */
-void startPlummer(unsigned long seed, int N, double *mass, double complex *pos, double complex *vel, double M, double R)
+void startPlummer(unsigned long seed, int N, int DIM, double *mass, double complex *pos, double complex *vel, double M, double R)
 {
   init_genrand(seed); /* seeding Mersenne Twister */
 
-  for(int i = 0; i < N; ++i)
+  for(int i = 0, mi = 0; i < (N * DIM); i += 3, ++mi)
   {
-    plummer(N, mass, pos, vel, i, M, R); /* generate mass, positon and velocity for specified amount of particles */
+    plummer(N, mass, pos, vel, i, mi, M, R); /* generate masses, positions and velocities for specified amount of particles */
   }
   
-  center_of_mass_adjustment(N, mass, pos, vel); /* adjust center of mass for all particles */
+  center_of_mass_adjustment(N, DIM, mass, pos, vel); /* adjust center of mass for all particles */
 }
