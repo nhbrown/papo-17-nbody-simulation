@@ -20,6 +20,8 @@
 #include "hermite.h"
 #include <mpi.h>
 #include "output.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 int world_rank, world_size, proc_elem;
@@ -34,53 +36,102 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
     acc[i] = jerk[i] = 0;
   }
   
-  for(int i = 0, mi = 0; i < (N * DIM); i += DIM, ++mi) /* loops over all particles */
+  double *local_mass = calloc((proc_elem / DIM), sizeof(double));
+  
+  double complex *local_pos = calloc(proc_elem, sizeof(double complex));
+  double complex *local_vel = calloc(proc_elem, sizeof(double complex));
+  
+  double complex *local_acc = calloc(proc_elem, sizeof(double complex));
+  double complex *local_jerk = calloc(proc_elem, sizeof(double complex));
+  
+  if(local_mass == NULL || local_pos == NULL || local_vel == NULL || local_acc == NULL || local_jerk == NULL)
+  {
+    fprintf(stderr, "Out of memory!\n");
+    exit(0);
+  }
+  
+  MPI_Scatter(mass, (proc_elem / DIM), MPI_DOUBLE, local_mass, (proc_elem / DIM), MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  
+  MPI_Scatter(pos, proc_elem, MPI_C_DOUBLE_COMPLEX, local_pos, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+  MPI_Scatter(vel, proc_elem, MPI_C_DOUBLE_COMPLEX, local_vel, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+  
+  MPI_Scatter(acc, proc_elem, MPI_C_DOUBLE_COMPLEX, local_acc, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+  MPI_Scatter(jerk, proc_elem, MPI_C_DOUBLE_COMPLEX, local_jerk, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+  
+  /*
+  double *other_mass = calloc(((proc_elem / DIM) * --world_size), sizeof(double));
+  
+  double complex *other_pos = calloc((N - proc_elem), sizeof(double complex));
+  double complex *other_vel = calloc((N - proc_elem), sizeof(double complex));
+  
+  if(other_mass == NULL || other_pos == NULL || other_vel == NULL)
+  {
+    fprintf(stderr, "Out of memory!\n");
+    exit(0);
+  }
+  
+  MPI_Allgather(local_mass, (proc_elem / DIM), MPI_DOUBLE, other_mass, (proc_elem / DIM), MPI_DOUBLE, MPI_COMM_WORLD);
+  
+  MPI_Allgather(local_pos, proc_elem, MPI_C_DOUBLE_COMPLEX, other_pos, proc_elem, MPI_C_DOUBLE_COMPLEX, MPI_COMM_WORLD);
+  MPI_Allgather(local_vel, proc_elem, MPI_C_DOUBLE_COMPLEX, other_vel, proc_elem, MPI_C_DOUBLE_COMPLEX, MPI_COMM_WORLD);
+  */
+  
+  for(int i = 0, mi = 0; i < proc_elem; i += DIM, ++mi) /* loops over all particles */
   { 
-    for(int j = i + DIM, mj = 0; j < (N * DIM); j += DIM, ++mj) /* only loops over half of the particles because force acts equally on both particles (Newton) */
+    for(int j = 0, mj = 0; j < (proc_elem * world_size); j += DIM, ++mj) /* loops over all other particles */
     {
-      double complex rji[DIM], vji[DIM]; /* position vector from particle i to j */
+      if(local_pos[i] != pos[j] && local_pos[i + 1] != pos[j + 1] && local_pos[i + 2] != pos[j + 2]
+        && local_vel[i] != vel[j] && local_vel[i + 1] != vel[j + 1] && local_vel[i + 2] != vel[j + 2])
+      {
+        double complex rji[DIM], vji[DIM]; /* position vector from particle i to j */
       
-      for(int k = 0; k < DIM; ++k)
-      {
-        rji[k] = vji[k] = 0.0;
-      }
+        for(int k = 0; k < DIM; ++k)
+        {
+          rji[k] = vji[k] = 0.0;
+        }
      
-      double complex r2 = 0.0; /* rij^2 */
-      double complex rv = 0.0; /* rij*vij */
+        double complex r2 = 0.0; /* rij^2 */
+        double complex rv = 0.0; /* rij*vij */
      
-      /* calculating position and velocity vectors */
-      for(int k = 0; k < DIM; ++k)
-      {
-        rji[k] = pos[j + k] - pos[i + k];
-        vji[k] = vel[j + k] - vel[i + k];
+        /* calculating position and velocity vectors */
+        for(int k = 0; k < DIM; ++k)
+        {
+          rji[k] = pos[j + k] - local_pos[i + k];
+          vji[k] = vel[j + k] - local_vel[i + k];
        
-        r2 += rji[k] * rji[k];
-        rv += rji[k] * vji[k];
-      }
+          r2 += rji[k] * rji[k];
+          rv += rji[k] * vji[k];
+        }
       
-      double complex r3 = csqrt(r2) * r2; /* |rij| * rij^2 */
+        double complex r3 = csqrt(r2) * r2; /* |rij| * rij^2 */
      
-      double complex da[DIM], dj[DIM];
+        double complex da[DIM], dj[DIM];
       
-      for(int k = 0; k < DIM; ++k)
-      {
-        da[k] = dj[k] = 0.0;
-      }
+        for(int k = 0; k < DIM; ++k)
+        {
+          da[k] = dj[k] = 0.0;
+        }
     
-      /* calculates new accceleration and jerk for both particles i and j */
-      for (int k = 0; k < DIM ; k++)
-      {
-        da[k] = rji[k] / r3;
-        dj[k] = (vji[k] - 3 * (rv / r2) * rji[k]) / r3;
+        /* calculates new accceleration and jerk for both particles i and j */
+        for (int k = 0; k < DIM ; k++)
+        {
+          da[k] = rji[k] / r3;
+          dj[k] = (vji[k] - 3 * (rv / r2) * rji[k]) / r3;
         
-        acc[i + k] += mass[mj] * da[k]; /* add positive acceleration to particle i */
-        acc[j + k] -= mass[mi] * da[k]; /* add negative acceleration to particle j */
-       
-        jerk[i + k] += mass[mj] * dj[k]; /* add positive jerk to particle i */                
-        jerk[j + k] -= mass[mi] * dj[k]; /* add negative jerk to particle j */
+          local_acc[i + k] += mass[mj] * da[k]; /* add positive acceleration to particle i */
+          local_jerk[i + k] += mass[mj] * dj[k]; /* add positive jerk to particle i */                
+        }
       }
     }
   }
+  
+  MPI_Gather(local_mass, (proc_elem / DIM), MPI_DOUBLE, mass, (proc_elem / DIM), MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  
+  MPI_Gather(local_pos, proc_elem, MPI_C_DOUBLE_COMPLEX, pos, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+  MPI_Gather(local_vel, proc_elem, MPI_C_DOUBLE_COMPLEX, vel, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+  
+  MPI_Gather(local_acc, proc_elem, MPI_C_DOUBLE_COMPLEX, acc, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+  MPI_Gather(local_jerk, proc_elem, MPI_C_DOUBLE_COMPLEX, jerk, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
 }
 
 /* 

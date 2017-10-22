@@ -81,9 +81,12 @@ int main(int argc, const char *argv[])
   if(world_rank == 0)
   {
     printLog(seed, N, M, R, G, dt, end_time); /* creates and writes to the log file */
-    
-    startPlummer(seed, N, DIM, mass, pos, vel, M, R); /* starts the Plummer Model routine for initial conditions */
+  }
   
+  startPlummer(seed, N, DIM, mass, pos, vel, M, R); /* starts the Plummer Model routine for initial conditions */
+  
+  if(world_rank == 0)
+  {
     printInitialConditions(N, DIM, mass, pos, vel); /* creates and writes to the initial conditions file */
   }
   
