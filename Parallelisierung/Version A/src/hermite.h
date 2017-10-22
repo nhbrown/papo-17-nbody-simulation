@@ -8,6 +8,6 @@ void hermite(int N, int DIM, double dt, double *mass, double complex *pos,
              double complex *vel, double complex *acc, double complex *jerk);
 
 void startHermite(int N, int DIM, double dt, double end_time, double *mass, double complex *pos, double complex *vel, 
-                  double complex *acc, double complex *jerk);
+                  double complex *acc, double complex *jerk, int rank, int size, int elements);
 
 #endif // HERMITE_H_
