@@ -74,6 +74,17 @@ int main(int argc, const char *argv[])
       exit(0);
   }
   
+  if(N <= 0 || dt <= 0 || end_time <= 0)
+  {
+    fprintf(stderr, "Negative values are not allowed!\n");
+    exit(0);
+  }
+  else if(N % world_size != 0 || (N / world_size) % DIM != 0)
+  {
+    fprintf(stderr, "N must be divisible by amount of processes, which in turn must be divisible by 3!\n");
+    exit(0);
+  }
+  
   createNames(); /* creates folder and names for files */
   
   callocArrays(N, DIM); /* allocates space for arrays */
