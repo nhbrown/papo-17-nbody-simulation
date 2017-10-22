@@ -20,6 +20,7 @@
 #include "hermite.h"
 #include <mpi.h>
 #include "output.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -43,6 +44,12 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
   double complex *local_acc = calloc(proc_elem, sizeof(double complex));
   double complex *local_jerk = calloc(proc_elem, sizeof(double complex));
   
+  if(local_mass == NULL || local_pos == NULL || local_vel == NULL || local_acc == NULL || local_jerk == NULL)
+  {
+    fprintf(stderr, "Out of memory!\n");
+    exit(0);
+  }
+  
   MPI_Scatter(mass, (N / world_size), MPI_DOUBLE, local_mass, (N / world_size), MPI_DOUBLE, 0, MPI_COMM_WORLD);
   
   MPI_Scatter(pos, proc_elem, MPI_C_DOUBLE_COMPLEX, local_pos, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
@@ -51,9 +58,25 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
   MPI_Scatter(acc, proc_elem, MPI_C_DOUBLE_COMPLEX, local_acc, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
   MPI_Scatter(jerk, proc_elem, MPI_C_DOUBLE_COMPLEX, local_jerk, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
   
-  for(int i = 0, mi = 0; i < (N * DIM); i += DIM, ++mi) /* loops over all particles */
+  double *other_mass = calloc((N / world_size), sizeof(double));
+  
+  double complex *other_pos = calloc(proc_elem, sizeof(double complex));
+  double complex *other_vel = calloc(proc_elem, sizeof(double complex));
+  
+  if(other_mass == NULL || other_pos == NULL || other_vel == NULL)
+  {
+    fprintf(stderr, "Out of memory!\n");
+    exit(0);
+  }
+  
+  MPI_Allgather(local_mass, (N / world_size), MPI_DOUBLE, other_mass, (N / world_size), MPI_DOUBLE, MPI_COMM_WORLD);
+  
+  MPI_Allgather(local_pos, proc_elem, MPI_C_DOUBLE_COMPLEX, other_pos, proc_elem, MPI_C_DOUBLE_COMPLEX, MPI_COMM_WORLD);
+  MPI_Allgather(local_vel, proc_elem, MPI_C_DOUBLE_COMPLEX, other_vel, proc_elem, MPI_C_DOUBLE_COMPLEX, MPI_COMM_WORLD);
+  
+  for(int i = 0, mi = 0; i < proc_elem; i += DIM, ++mi) /* loops over all particles */
   { 
-    for(int j = i + DIM, mj = 0; j < (N * DIM); j += DIM, ++mj) /* only loops over half of the particles because force acts equally on both particles (Newton) */
+    for(int j = 0, mj = 0; j < (proc_elem * --world_size); j += DIM, ++mj) /* loops over all other particles */
     {
       double complex rji[DIM], vji[DIM]; /* position vector from particle i to j */
       
@@ -68,8 +91,8 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
       /* calculating position and velocity vectors */
       for(int k = 0; k < DIM; ++k)
       {
-        rji[k] = pos[j + k] - pos[i + k];
-        vji[k] = vel[j + k] - vel[i + k];
+        rji[k] = other_pos[j + k] - local_pos[i + k];
+        vji[k] = other_vel[j + k] - local_vel[i + k];
        
         r2 += rji[k] * rji[k];
         rv += rji[k] * vji[k];
@@ -90,11 +113,8 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
         da[k] = rji[k] / r3;
         dj[k] = (vji[k] - 3 * (rv / r2) * rji[k]) / r3;
         
-        acc[i + k] += mass[mj] * da[k]; /* add positive acceleration to particle i */
-        acc[j + k] -= mass[mi] * da[k]; /* add negative acceleration to particle j */
-       
-        jerk[i + k] += mass[mj] * dj[k]; /* add positive jerk to particle i */                
-        jerk[j + k] -= mass[mi] * dj[k]; /* add negative jerk to particle j */
+        acc[i + k] += other_mass[mj] * da[k]; /* add positive acceleration to particle i */
+        jerk[i + k] += other_mass[mj] * dj[k]; /* add positive jerk to particle i */                
       }
     }
   }
