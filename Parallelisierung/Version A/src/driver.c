@@ -87,7 +87,8 @@ int main(int argc, const char *argv[])
     printInitialConditions(N, DIM, mass, pos, vel); /* creates and writes to the initial conditions file */
   }
   
-  startHermite(N, DIM, dt, end_time, mass, pos, vel, acc, jerk); /* starts the Hermite scheme for further computation */
+  int proc_elem = (N * DIM) / world_size;
+  startHermite(N, DIM, dt, end_time, mass, pos, vel, acc, jerk, world_rank, world_size, proc_elem); /* starts the Hermite scheme for further computation */
   
   freeArrays(); /* frees allocated space of arrays after computation has finished */
   
