@@ -79,9 +79,9 @@ int main(int argc, const char *argv[])
     fprintf(stderr, "Negative values are not allowed!\n");
     exit(0);
   }
-  else if(N % world_size != 0 || (N / world_size) % DIM != 0)
+  else if((N * DIM) % world_size != 0 || ((N * DIM) / world_size) % DIM != 0)
   {
-    fprintf(stderr, "N must be divisible by amount of processes, which in turn must be divisible by 3!\n");
+    fprintf(stderr, "N * %d must be divisible by world size and ((N * %d) / world size) must be divisible by 3!\n", DIM, DIM);
     exit(0);
   }
   
