@@ -36,7 +36,7 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
     acc[i] = jerk[i] = 0;
   }
   
-  double *local_mass = calloc((N / world_size), sizeof(double));
+  double *local_mass = calloc((proc_elem / DIM), sizeof(double));
   
   double complex *local_pos = calloc(proc_elem, sizeof(double complex));
   double complex *local_vel = calloc(proc_elem, sizeof(double complex));
@@ -50,7 +50,7 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
     exit(0);
   }
   
-  MPI_Scatter(mass, (N / world_size), MPI_DOUBLE, local_mass, (N / world_size), MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  MPI_Scatter(mass, (proc_elem / DIM), MPI_DOUBLE, local_mass, (proc_elem / DIM), MPI_DOUBLE, 0, MPI_COMM_WORLD);
   
   MPI_Scatter(pos, proc_elem, MPI_C_DOUBLE_COMPLEX, local_pos, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
   MPI_Scatter(vel, proc_elem, MPI_C_DOUBLE_COMPLEX, local_vel, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
@@ -58,11 +58,10 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
   MPI_Scatter(acc, proc_elem, MPI_C_DOUBLE_COMPLEX, local_acc, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
   MPI_Scatter(jerk, proc_elem, MPI_C_DOUBLE_COMPLEX, local_jerk, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
   
-  /* 
-  double *other_mass = calloc((N / world_size), sizeof(double));
+  double *other_mass = calloc(((proc_elem / DIM) * --world_size), sizeof(double));
   
-  double complex *other_pos = calloc(proc_elem, sizeof(double complex));
-  double complex *other_vel = calloc(proc_elem, sizeof(double complex));
+  double complex *other_pos = calloc((N - proc_elem), sizeof(double complex));
+  double complex *other_vel = calloc((N - proc_elem), sizeof(double complex));
   
   if(other_mass == NULL || other_pos == NULL || other_vel == NULL)
   {
@@ -70,15 +69,14 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
     exit(0);
   }
   
-  MPI_Allgather(local_mass, (N / world_size), MPI_DOUBLE, other_mass, (N / world_size), MPI_DOUBLE, MPI_COMM_WORLD);
+  MPI_Allgather(local_mass, (proc_elem / DIM), MPI_DOUBLE, other_mass, (proc_elem / DIM), MPI_DOUBLE, MPI_COMM_WORLD);
   
   MPI_Allgather(local_pos, proc_elem, MPI_C_DOUBLE_COMPLEX, other_pos, proc_elem, MPI_C_DOUBLE_COMPLEX, MPI_COMM_WORLD);
   MPI_Allgather(local_vel, proc_elem, MPI_C_DOUBLE_COMPLEX, other_vel, proc_elem, MPI_C_DOUBLE_COMPLEX, MPI_COMM_WORLD);
-  */
   
   for(int i = 0, mi = 0; i < proc_elem; i += DIM, ++mi) /* loops over all particles */
   { 
-    for(int j = 0, mj = 0; j < (proc_elem * world_size); j += DIM, ++mj) /* loops over all other particles */
+    for(int j = 0, mj = 0; j < (proc_elem * --world_size); j += DIM, ++mj) /* loops over all other particles */
     {
       double complex rji[DIM], vji[DIM]; /* position vector from particle i to j */
       
@@ -93,8 +91,8 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
       /* calculating position and velocity vectors */
       for(int k = 0; k < DIM; ++k)
       {
-        rji[k] = pos[j + k] - local_pos[i + k];
-        vji[k] = vel[j + k] - local_vel[i + k];
+        rji[k] = other_pos[j + k] - local_pos[i + k];
+        vji[k] = other_vel[j + k] - local_vel[i + k];
        
         r2 += rji[k] * rji[k];
         rv += rji[k] * vji[k];
@@ -115,19 +113,19 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
         da[k] = rji[k] / r3;
         dj[k] = (vji[k] - 3 * (rv / r2) * rji[k]) / r3;
         
-        local_acc[i + k] += mass[mj] * da[k]; /* add positive acceleration to particle i */
-        local_jerk[i + k] += mass[mj] * dj[k]; /* add positive jerk to particle i */                
+        local_acc[i + k] += other_mass[mj] * da[k]; /* add positive acceleration to particle i */
+        local_jerk[i + k] += other_mass[mj] * dj[k]; /* add positive jerk to particle i */                
       }
     }
   }
   
-  MPI_Gather(local_mass, (N / world_size), MPI_DOUBLE, mass, (N / world_size), MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  MPI_Gather(local_mass, (proc_elem / DIM), MPI_DOUBLE, mass, (proc_elem / DIM), MPI_DOUBLE, 0, MPI_COMM_WORLD);
   
-  MPI_Gather(local_pos, proc_elem, MPI_DOUBLE, pos, proc_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-  MPI_Gather(local_vel, proc_elem, MPI_DOUBLE, vel, proc_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  MPI_Gather(local_pos, proc_elem, MPI_C_DOUBLE_COMPLEX, pos, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+  MPI_Gather(local_vel, proc_elem, MPI_C_DOUBLE_COMPLEX, vel, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
   
-  MPI_Gather(local_acc, proc_elem, MPI_DOUBLE, acc, proc_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-  MPI_Gather(local_jerk, proc_elem, MPI_DOUBLE, jerk, proc_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  MPI_Gather(local_acc, proc_elem, MPI_C_DOUBLE_COMPLEX, acc, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+  MPI_Gather(local_jerk, proc_elem, MPI_C_DOUBLE_COMPLEX, jerk, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
 }
 
 /* 
