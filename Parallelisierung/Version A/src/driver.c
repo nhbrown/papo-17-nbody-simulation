@@ -17,8 +17,9 @@
 
 #include <complex.h>
 #include "hermite.h"
-#include "plummer.h"
+#include <mpi.h>
 #include "output.h"
+#include "plummer.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -33,6 +34,12 @@ double complex *pos, *vel, *acc, *jerk; /* containers for positions, velocities,
 int main(int argc, const char *argv[])
 {
   clock_t start = clock();
+  
+  int world_rank, world_size;
+  
+  MPI_Init(NULL, NULL);
+  MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+  MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
   
   int N = 0; /* amount of particles */
   int DIM = 3; /* dimensions */
@@ -71,11 +78,14 @@ int main(int argc, const char *argv[])
   
   callocArrays(N, DIM); /* allocates space for arrays */
   
-  printLog(seed, N, M, R, G, dt, end_time); /* creates and writes to the log file */
+  if(world_rank == 0)
+  {
+    printLog(seed, N, M, R, G, dt, end_time); /* creates and writes to the log file */
+    
+    startPlummer(seed, N, DIM, mass, pos, vel, M, R); /* starts the Plummer Model routine for initial conditions */
   
-  startPlummer(seed, N, DIM, mass, pos, vel, M, R); /* starts the Plummer Model routine for initial conditions */
-  
-  printInitialConditions(N, DIM, mass, pos, vel); /* creates and writes to the initial conditions file */
+    printInitialConditions(N, DIM, mass, pos, vel); /* creates and writes to the initial conditions file */
+  }
   
   startHermite(N, DIM, dt, end_time, mass, pos, vel, acc, jerk); /* starts the Hermite scheme for further computation */
   
@@ -84,7 +94,12 @@ int main(int argc, const char *argv[])
   clock_t end = clock();
   double cpu_time = ((double) (end - start)) / CLOCKS_PER_SEC;
   
-  printf("CPU time used: %f", cpu_time);
+  if(world_rank == 0)
+  {
+    printf("CPU time used: %f", cpu_time);
+  }
+  
+  MPI_Finalize();
   
   return 0;
 }
