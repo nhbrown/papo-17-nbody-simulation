@@ -58,6 +58,7 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
   MPI_Scatter(acc, proc_elem, MPI_C_DOUBLE_COMPLEX, local_acc, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
   MPI_Scatter(jerk, proc_elem, MPI_C_DOUBLE_COMPLEX, local_jerk, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
   
+  /* 
   double *other_mass = calloc((N / world_size), sizeof(double));
   
   double complex *other_pos = calloc(proc_elem, sizeof(double complex));
@@ -73,10 +74,11 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
   
   MPI_Allgather(local_pos, proc_elem, MPI_C_DOUBLE_COMPLEX, other_pos, proc_elem, MPI_C_DOUBLE_COMPLEX, MPI_COMM_WORLD);
   MPI_Allgather(local_vel, proc_elem, MPI_C_DOUBLE_COMPLEX, other_vel, proc_elem, MPI_C_DOUBLE_COMPLEX, MPI_COMM_WORLD);
+  */
   
   for(int i = 0, mi = 0; i < proc_elem; i += DIM, ++mi) /* loops over all particles */
   { 
-    for(int j = 0, mj = 0; j < (proc_elem * --world_size); j += DIM, ++mj) /* loops over all other particles */
+    for(int j = 0, mj = 0; j < (proc_elem * world_size); j += DIM, ++mj) /* loops over all other particles */
     {
       double complex rji[DIM], vji[DIM]; /* position vector from particle i to j */
       
@@ -91,8 +93,8 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
       /* calculating position and velocity vectors */
       for(int k = 0; k < DIM; ++k)
       {
-        rji[k] = other_pos[j + k] - local_pos[i + k];
-        vji[k] = other_vel[j + k] - local_vel[i + k];
+        rji[k] = pos[j + k] - local_pos[i + k];
+        vji[k] = vel[j + k] - local_vel[i + k];
        
         r2 += rji[k] * rji[k];
         rv += rji[k] * vji[k];
@@ -113,8 +115,8 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
         da[k] = rji[k] / r3;
         dj[k] = (vji[k] - 3 * (rv / r2) * rji[k]) / r3;
         
-        acc[i + k] += other_mass[mj] * da[k]; /* add positive acceleration to particle i */
-        jerk[i + k] += other_mass[mj] * dj[k]; /* add positive jerk to particle i */                
+        local_acc[i + k] += mass[mj] * da[k]; /* add positive acceleration to particle i */
+        local_jerk[i + k] += mass[mj] * dj[k]; /* add positive jerk to particle i */                
       }
     }
   }
