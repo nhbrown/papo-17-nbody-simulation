@@ -3,7 +3,7 @@
 #SBATCH --time=360
 
 #SBATCH --nodes=1
-#SBATCH --ntasks=1
+#SBATCH --ntasks=4
 #SBATCH --partition=west
 
 #SBATCH --output=nbody.out
@@ -15,4 +15,4 @@ then
 fi
 
 srun hostname
-time ./nbody 1000 0.01 1
+time mpiexec ./nbody 1000 0.01 1
