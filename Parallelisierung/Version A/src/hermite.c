@@ -20,6 +20,7 @@
 #include "hermite.h"
 #include <mpi.h>
 #include "output.h"
+#include <stdlib.h>
 #include <string.h>
 
 int world_rank, world_size, proc_elem;
@@ -33,6 +34,22 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
   {
     acc[i] = jerk[i] = 0;
   }
+  
+  double *local_mass = calloc((N / world_size), sizeof(double));
+  
+  double complex *local_pos = calloc(proc_elem, sizeof(double complex));
+  double complex *local_vel = calloc(proc_elem, sizeof(double complex));
+  
+  double complex *local_acc = calloc(proc_elem, sizeof(double complex));
+  double complex *local_jerk = calloc(proc_elem,i sizeof(double complex));
+  
+  MPI_Scatter(mass, (N / world_size), MPI_DOUBLE, local_mass, (N / world_size), MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  
+  MPI_Scatter(pos, proc_elem, MPI_C_DOUBLE_COMPLEX, local_pos, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+  MPI_Scatter(vel, proc_elem, MPI_C_DOUBLE_COMPLEX, local_vel, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+  
+  MPI_Scatter(acc, proc_elem, MPI_C_DOUBLE_COMPLEX, local_acc, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+  MPI_Scatter(jerk, proc_elem, MPI_C_DOUBLE_COMPLEX, local_jerk, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
   
   for(int i = 0, mi = 0; i < (N * DIM); i += DIM, ++mi) /* loops over all particles */
   { 
@@ -81,6 +98,14 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
       }
     }
   }
+  
+  MPI_Gather(local_mass, (N / world_size), MPI_DOUBLE, mass, (N / world_size), MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  
+  MPI_Gather(local_pos, proc_elem, MPI_DOUBLE, pos, proc_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  MPI_Gather(local_vel, proc_elem, MPI_DOUBLE, vel, proc_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  
+  MPI_Gather(local_acc, proc_elem, MPI_DOUBLE, acc, proc_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  MPI_Gather(local_jerk, proc_elem, MPI_DOUBLE, jerk, proc_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 }
 
 /* 
