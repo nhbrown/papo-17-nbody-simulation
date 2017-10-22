@@ -41,7 +41,7 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
   double complex *local_vel = calloc(proc_elem, sizeof(double complex));
   
   double complex *local_acc = calloc(proc_elem, sizeof(double complex));
-  double complex *local_jerk = calloc(proc_elem,i sizeof(double complex));
+  double complex *local_jerk = calloc(proc_elem, sizeof(double complex));
   
   MPI_Scatter(mass, (N / world_size), MPI_DOUBLE, local_mass, (N / world_size), MPI_DOUBLE, 0, MPI_COMM_WORLD);
   
