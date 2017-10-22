@@ -15,7 +15,7 @@
 */
 
 #include <complex.h>
-#include <time.h>
+#include "output.h"
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
