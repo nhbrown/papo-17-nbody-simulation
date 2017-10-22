@@ -18,8 +18,11 @@
 #include <complex.h>
 #include "ediag.h"
 #include "hermite.h"
+#include <mpi.h>
 #include "output.h"
 #include <string.h>
+
+int world_rank, world_size, proc_elem;
 
 /* calculates acceleration and jerk for all particles */
 void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex *vel, 
@@ -119,21 +122,38 @@ void hermite(int N, int DIM, double dt, double *mass, double complex *pos,
 
 /* entry point for the Hermite integrator, starts computation and continues until end of simulation is reached */
 void startHermite(int N, int DIM, double dt, double end_time, double *mass, double complex *pos, double complex *vel, 
-                  double complex *acc, double complex *jerk)
+                  double complex *acc, double complex *jerk, int rank, int size, int elements)
 {
   double time = 0.0; /* default time */
   int iterations = 0; /* iteration counter, iteration 0 is equal to initial conditions */
   
+  world_rank = rank;
+  world_size = size;
+  proc_elem = elements;
+  
   acc_jerk(N, DIM, mass, pos, vel, acc, jerk); /* get inital acceleration and jerk for all particles */
-  energy_diagnostics(N, DIM, mass, pos, vel); /* get energy diagnostics for initial conditions */
+  
+  if(world_rank == 0)
+  {
+    energy_diagnostics(N, DIM, mass, pos, vel); /* get energy diagnostics for initial conditions */
+  }
+  
+  MPI_Barrier(MPI_COMM_WORLD);
   
   while(time < end_time) /* until user specified end of simulation is reached */
   {
-    ++iterations; /* increment iteration counter from last iteration to current iteration */
-    
+    ++iterations; /* increment iteration counter from last iteration to current iteration */  
     hermite(N, DIM, dt, mass, pos, vel, acc, jerk); /* calculate movement for current iteration */
-    printIteration(N, DIM, iterations, mass, pos, vel); /* print current iteration */
-    energy_diagnostics(N, DIM, mass, pos, vel); /* get energy diagnostics for current iteration */
+    
+    MPI_Barrier(MPI_COMM_WORLD);
+    
+    if(world_rank == 0)
+    {
+      printIteration(N, DIM, iterations, mass, pos, vel); /* print current iteration */
+      energy_diagnostics(N, DIM, mass, pos, vel); /* get energy diagnostics for current iteration */
+    }
+    
+    MPI_Barrier(MPI_COMM_WORLD);
     
     time += dt; /* add timestep to current time to advance to next iteration */
   }
