@@ -54,6 +54,9 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
   MPI_Scatter(acc, proc_elem, MPI_C_DOUBLE_COMPLEX, local_acc, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
   MPI_Scatter(jerk, proc_elem, MPI_C_DOUBLE_COMPLEX, local_jerk, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
   
+  MPI_Bcast(pos, (N * DIM), MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+  MPI_Bcast(vel, (N * DIM), MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+  
   for(int i = 0, mi = 0; i < proc_elem; i += DIM, ++mi) /* loops over all particles */
   { 
     for(int j = 0, mj = 0; j < (proc_elem * world_size); j += DIM, ++mj) /* loops over all other particles */
@@ -109,11 +112,13 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
   MPI_Gather(local_acc, proc_elem, MPI_C_DOUBLE_COMPLEX, acc, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
   MPI_Gather(local_jerk, proc_elem, MPI_C_DOUBLE_COMPLEX, jerk, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
   
+  /*
   MPI_Bcast(pos, N, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
   MPI_Bcast(vel, N, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
   
   MPI_Bcast(acc, N, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
   MPI_Bcast(jerk, N, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+  */
 }
 
 /* 
@@ -135,21 +140,27 @@ void hermite(int N, int DIM, double dt, double *mass, double complex *pos,
   memcpy(old_acc, acc, sizeof(old_acc));
   memcpy(old_jerk, jerk, sizeof(old_jerk));
   
-  /* prediction for all particles (for mathematical expression please see links provided above) */
-  for(int i = 0; i < (N * DIM); ++i)
-  {
-    pos[i] += vel[i] * dt + acc[i] * ((dt * dt)/2) + jerk[i] * ((dt * dt * dt)/6);
-    vel[i] += acc[i] * dt + jerk[i] * ((dt * dt)/2);
+  if(world_rank == 0)
+  { 
+    /* prediction for all particles (for mathematical expression please see links provided above) */
+    for(int i = 0; i < (N * DIM); ++i)
+    {
+      pos[i] += vel[i] * dt + acc[i] * ((dt * dt)/2) + jerk[i] * ((dt * dt * dt)/6);
+      vel[i] += acc[i] * dt + jerk[i] * ((dt * dt)/2);
+    }
   }
   
   acc_jerk(N, DIM, mass, pos, vel, acc, jerk); /* get the new acceleration and jerk for all particles*/
   
-  /* correction in reversed order of computation (for mathematical expression please see links provided above) 
-     reversed order allows the corrected velocities to be used to correct the positions for better energy behaviour */
-  for (int i = 0; i < (N * DIM); ++i)
+  if(world_rank == 0)
   {
-    vel[i] = old_vel[i] + (old_acc[i] + acc[i]) * (dt/2) + (old_jerk[i] - jerk[i]) * ((dt * dt)/12);       
-    pos[i] = old_pos[i] + (old_vel[i] + vel[i]) * (dt/2) + (old_acc[i] - acc[i]) * ((dt * dt)/12);
+    /* correction in reversed order of computation (for mathematical expression please see links provided above) 
+       reversed order allows the corrected velocities to be used to correct the positions for better energy behaviour */
+    for (int i = 0; i < (N * DIM); ++i)
+    {
+      vel[i] = old_vel[i] + (old_acc[i] + acc[i]) * (dt/2) + (old_jerk[i] - jerk[i]) * ((dt * dt)/12);       
+      pos[i] = old_pos[i] + (old_vel[i] + vel[i]) * (dt/2) + (old_acc[i] - acc[i]) * ((dt * dt)/12);
+    }
   }
 }
 
