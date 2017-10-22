@@ -80,43 +80,47 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
   { 
     for(int j = 0, mj = 0; j < (proc_elem * world_size); j += DIM, ++mj) /* loops over all other particles */
     {
-      double complex rji[DIM], vji[DIM]; /* position vector from particle i to j */
+      if(local_pos[i] != pos[j] && local_pos[i + 1] != pos[j + 1] && local_pos[i + 2] != pos[j + 2]
+        && local_vel[i] != vel[j] && local_vel[i + 1] != vel[j + 1] && local_vel[i + 2] != vel[j + 2])
+      {
+        double complex rji[DIM], vji[DIM]; /* position vector from particle i to j */
       
-      for(int k = 0; k < DIM; ++k)
-      {
-        rji[k] = vji[k] = 0.0;
-      }
+        for(int k = 0; k < DIM; ++k)
+        {
+          rji[k] = vji[k] = 0.0;
+        }
      
-      double complex r2 = 0.0; /* rij^2 */
-      double complex rv = 0.0; /* rij*vij */
+        double complex r2 = 0.0; /* rij^2 */
+        double complex rv = 0.0; /* rij*vij */
      
-      /* calculating position and velocity vectors */
-      for(int k = 0; k < DIM; ++k)
-      {
-        rji[k] = pos[j + k] - local_pos[i + k];
-        vji[k] = vel[j + k] - local_vel[i + k];
+        /* calculating position and velocity vectors */
+        for(int k = 0; k < DIM; ++k)
+        {
+          rji[k] = pos[j + k] - local_pos[i + k];
+          vji[k] = vel[j + k] - local_vel[i + k];
        
-        r2 += rji[k] * rji[k];
-        rv += rji[k] * vji[k];
-      }
+          r2 += rji[k] * rji[k];
+          rv += rji[k] * vji[k];
+        }
       
-      double complex r3 = csqrt(r2) * r2; /* |rij| * rij^2 */
+        double complex r3 = csqrt(r2) * r2; /* |rij| * rij^2 */
      
-      double complex da[DIM], dj[DIM];
+        double complex da[DIM], dj[DIM];
       
-      for(int k = 0; k < DIM; ++k)
-      {
-        da[k] = dj[k] = 0.0;
-      }
+        for(int k = 0; k < DIM; ++k)
+        {
+          da[k] = dj[k] = 0.0;
+        }
     
-      /* calculates new accceleration and jerk for both particles i and j */
-      for (int k = 0; k < DIM ; k++)
-      {
-        da[k] = rji[k] / r3;
-        dj[k] = (vji[k] - 3 * (rv / r2) * rji[k]) / r3;
+        /* calculates new accceleration and jerk for both particles i and j */
+        for (int k = 0; k < DIM ; k++)
+        {
+          da[k] = rji[k] / r3;
+          dj[k] = (vji[k] - 3 * (rv / r2) * rji[k]) / r3;
         
-        local_acc[i + k] += mass[mj] * da[k]; /* add positive acceleration to particle i */
-        local_jerk[i + k] += mass[mj] * dj[k]; /* add positive jerk to particle i */                
+          local_acc[i + k] += mass[mj] * da[k]; /* add positive acceleration to particle i */
+          local_jerk[i + k] += mass[mj] * dj[k]; /* add positive jerk to particle i */                
+        }
       }
     }
   }
