@@ -67,7 +67,7 @@ int main(int argc, const char *argv[])
       exit(0);
   }
   
-  if(seed < 0 || N <= 0 || dt <= 0 || end_time <= 0)
+  if(N <= 0 || dt <= 0 || end_time <= 0)
   {
     fprintf(stderr, "Negative values are not allowed!\n");
     exit(0);
