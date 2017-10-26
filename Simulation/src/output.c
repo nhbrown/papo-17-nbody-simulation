@@ -131,7 +131,6 @@ void printLog(unsigned long seed, int N, double M, double R, double G, double ti
  *  returns: void
  * --------------------
  */
-/* writes energy diagnostics to file */
 void printEnergyDiagnostics(double e_kinetic, double e_potential, double e_total)
 {
   FILE *ediag;
