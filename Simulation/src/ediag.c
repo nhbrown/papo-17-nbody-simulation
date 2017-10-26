@@ -40,7 +40,7 @@ double e_kinetic, e_potential, e_total;
  *  pos: positions of all particles
  *  vel: velocities of all particles
  *
- *  returns: zero
+ *  returns: void
  * --------------------
  */
 void energy_diagnostics(int N, int DIM, double *mass, double complex *pos, double complex *vel)
@@ -64,7 +64,7 @@ void energy_diagnostics(int N, int DIM, double *mass, double complex *pos, doubl
  *  mass: masses of all particles
  *  vel: velocities of all particles
  *
- *  returns: zero
+ *  returns: void
  * --------------------
  */
 void kinetic_energy(int N, int DIM, double *mass, double complex *vel)
@@ -88,7 +88,7 @@ void kinetic_energy(int N, int DIM, double *mass, double complex *vel)
  *  mass: masses of all particles
  *  pos: positions of all particles
  *
- *  returns: zero
+ *  returns: void
  * --------------------
  */
 void potential_energy(int N, int DIM, double *mass, double complex *pos)
