@@ -2,15 +2,19 @@
     The following source code provides methods for energy diagnostics by
     providing functions to calculate kinetic, potential and total energy
     of the cluster.
+    
     Copyright (C) 2017  Nicholas Lee Hickson-Brown, Michael Eidus
+    
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
+    
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
+    
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -21,9 +25,48 @@
 #include "output.h"
 #include <stdio.h>
 
-double e_kinetic, e_potential, e_total; /* kinetic, potential and total energy of the cluster */
+/* kinetic, potential and total energy of the cluster */
+double e_kinetic, e_potential, e_total;
 
-/* calculates kinetic energy of the cluster */
+/*
+ * Function:  kinetic_energy 
+ * ====================
+ *  Entry point for energy diagnostics, calls all other functions,
+ *  calulates total energy and calls printEnergyDiagnostic.
+ *
+ *  N: amout of particles
+ *  DIM: dimensions of space
+ *  mass: masses of all particles
+ *  pos: positions of all particles
+ *  vel: velocities of all particles
+ *
+ *  returns: zero
+ * --------------------
+ */
+void energy_diagnostics(int N, int DIM, double *mass, double complex *pos, double complex *vel)
+{
+  kinetic_energy(N, DIM, mass, vel);
+  
+  potential_energy(N, DIM, mass, pos);
+  
+  e_total = e_kinetic + e_potential;
+  
+  printEnergyDiagnostics(e_kinetic, e_potential, e_total); /* provided by output.h */
+}
+
+/*
+ * Function:  kinetic_energy 
+ * ====================
+ *  Calculates kinetic energy of the cluster.
+ *
+ *  N: amout of particles
+ *  DIM: dimensions of space
+ *  mass: masses of all particles
+ *  vel: velocities of all particles
+ *
+ *  returns: zero
+ * --------------------
+ */
 void kinetic_energy(int N, int DIM, double *mass, double complex *vel)
 {
   for(int i = 0, mi = 0; i < (N * DIM); i += DIM, ++mi)
@@ -35,7 +78,19 @@ void kinetic_energy(int N, int DIM, double *mass, double complex *vel)
   }
 }
 
-/* calculates potential energy of the cluster */
+/*
+ * Function:  potential_energy 
+ * ====================
+ *  Calculates potential energy of the cluster.
+ *
+ *  N: amout of particles
+ *  DIM: dimensions of space
+ *  mass: masses of all particles
+ *  pos: positions of all particles
+ *
+ *  returns: zero
+ * --------------------
+ */
 void potential_energy(int N, int DIM, double *mass, double complex *pos)
 {
   for (int i = 0, mi = 0; i < (N * DIM) ; i += DIM, ++mi)
@@ -52,16 +107,4 @@ void potential_energy(int N, int DIM, double *mass, double complex *pos)
       e_potential -= mass[mi] * mass[mj] / sqrt(rij2);
     }
   }
-}
-
-/* entry point for energy diagnostics, also calculates total energy of the cluster */
-void energy_diagnostics(int N, int DIM, double *mass, double complex *pos, double complex *vel)
-{
-  kinetic_energy(N, DIM, mass, vel);
-  
-  potential_energy(N, DIM, mass, pos);
-  
-  e_total = e_kinetic + e_potential;
-  
-  printEnergyDiagnostics(e_kinetic, e_potential, e_total);
 }
