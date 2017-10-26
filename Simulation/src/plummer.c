@@ -2,6 +2,7 @@
     The following source code is an implementation of the Plummer three-dimensional
     density profile for generating the inital conditions of a globular cluster,
     also known as an initial conditions generator for N-body simulations.
+    
     Copyright (C) 2017  Nicholas Lee Hickson-Brown, Michael Eidus
 
     This program is free software: you can redistribute it and/or modify
@@ -26,13 +27,71 @@
 /* factor for scaling to standard units (Heggie units) */
 static const double scale = 16.0 / (3.0 * 3.14159265359);
 
-/* returns pseudo-random number within specified range */
+/*
+ * Function:  startPlummer 
+ * ====================
+ *  Entry point for Plummer model, controls routine and calls to functions.
+ *
+ *  seed: seed for Mersenne-Twister
+ *  N: amount of particles
+ *  DIM: dimensions of space
+ *  mass: masses of all particles
+ *  pos: positions of all particles
+ *  vel: velocity of all particles
+ *  M: total mass of cluster
+ *  R: radius of cluster
+ *
+ *  returns: void
+ * --------------------
+ */
+void startPlummer(unsigned long seed, int N, int DIM, double *mass, double complex *pos, double complex *vel, double M, double R)
+{
+  init_genrand(seed); /* provided by mersenne.h */
+
+  /* generate mass, positions and velocities for specified amount of particles */
+  for(int i = 0, mi = 0; i < (N * DIM); i += 3, ++mi)
+  {
+    plummer(N, mass, pos, vel, i, mi, M, R);
+  }
+  
+  center_of_mass_adjustment(N, DIM, mass, pos, vel);
+}
+
+/*
+ * Function:  rrand 
+ * ====================
+ *  Adjusts pseudo-random number obtained from Mersenne-Twister to a specified range.
+ *
+ *  low: lower bound for range, inclusive
+ *  high: upper bound for range, inclusive
+ *
+ *  returns: pseudo-random double within specified range
+ * --------------------
+ */
 double rrand(double low, double high)
 {
   return low + genrand_real1() * (high - low);
 }
 
-/* implementation of the Plummer density profile (Plummer Model) */
+/*
+ * Function:  plummer 
+ * ====================
+ *  Implementation of the Plummer 3d-density profile (Plummer Model)
+ *  generates randomized initial conditions (positions and velocities)
+ *  for a globular cluster within given parameters.
+ *
+ *  N: amount of particles
+ *  mass: masses of all particles
+ *  pos: positions of all particles
+ *  vel: velocity of all particles
+ *  i: current index for position and velocity arrays
+ *  mi: current index for mass array
+ *  M: total mass of cluster
+ *  R: radius of cluster
+ *
+ *  returns: void
+ * --------------------
+ */
 void plummer(int N, double *mass, double complex *pos, double complex *vel, int i, int mi, double M, double R)
 {  
   mass[mi] = M / N; /* mass equilibrium */
@@ -67,7 +126,21 @@ void plummer(int N, double *mass, double complex *pos, double complex *vel, int 
   vel[i + 2] = (velocity * ccos(theta)) * csqrt(scale);
 }
 
-/* adjusting positions and velocities of all particles towards center of mass */
+/*
+ * Function:  center_of_mass_adjustment 
+ * ====================
+ *  Calculates center of mass for the whole cluster and adjusts
+ *  position and velocity of all particles towards it.
+ *
+ *  N: amount of particles
+ *  DIM: dimensions of space
+ *  mass: masses of all particles
+ *  pos: positions of all particles
+ *  vel: velocity of all particles
+ *
+ *  returns: void
+ * --------------------
+ */
 void center_of_mass_adjustment(int N, int DIM, double *mass, double complex *pos, double complex *vel)
 {
   double complex pos_center[3] = {0, 0, 0}; /* position of center of mass */
@@ -92,17 +165,4 @@ void center_of_mass_adjustment(int N, int DIM, double *mass, double complex *pos
       vel[k + l] -= vel_center[l];
     }
   }
-}
-
-/* starts the Plummer Model routine to generate initial conditions for our cluster */
-void startPlummer(unsigned long seed, int N, int DIM, double *mass, double complex *pos, double complex *vel, double M, double R)
-{
-  init_genrand(seed); /* seeding Mersenne Twister */
-
-  for(int i = 0, mi = 0; i < (N * DIM); i += 3, ++mi)
-  {
-    plummer(N, mass, pos, vel, i, mi, M, R); /* generate masses, positions and velocities for specified amount of particles */
-  }
-  
-  center_of_mass_adjustment(N, DIM, mass, pos, vel); /* adjust center of mass for all particles */
 }
