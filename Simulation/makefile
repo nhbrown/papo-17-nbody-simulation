@@ -1,6 +1,6 @@
 nbody: driver.c plummer.c mersenne.c hermite.c output.c ediag.c
-	gcc -g -o nbody driver.c plummer.c mersenne.c hermite.c output.c ediag.c -lm -m64 -pedantic -Wall -Wextra -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wmaybe-uninitialized
+	gcc -lm -o nbody driver.c plummer.c mersenne.c hermite.c output.c ediag.c -O3 -Wall -Wextra
 
 .PHONY : clean
 clean:
-	-rm nbody nbody.err nbody.out
+	-rm nbody
