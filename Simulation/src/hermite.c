@@ -26,7 +26,7 @@
 #include <string.h>
 
 /*
- * Function:  hermite 
+ * Function:  startHermite 
  * ====================
  *  Entry point for the Hermite scheme. Controls current computation
  *  and checks wether or not end of simulation has been reached.
