@@ -53,7 +53,7 @@ void startHermite(int N, int DIM, double dt, double end_time, double *mass, doub
   acc_jerk(N, DIM, mass, pos, vel, acc, jerk); /* calculate inital acceleration and jerk for all particles */
   energy_diagnostics(N, DIM, mass, pos, vel); /* calculate energy diagnostics for initial conditions */
   
-  /* continues unitl specified end of simulation is reached */
+  /* continues until specified end of simulation is reached */
   while(time < end_time)
   {
     ++iterations; /* increment iteration counter from last iteration to current iteration */
@@ -186,7 +186,7 @@ void hermite(int N, int DIM, double dt, double *mass, double complex *pos,
     vel[i] += acc[i] * dt + jerk[i] * ((dt * dt)/2);
   }
   
-  /* caluclate new acceleration and jerk for all particles*/
+  /* calculate new acceleration and jerk for all particles*/
   acc_jerk(N, DIM, mass, pos, vel, acc, jerk);
   
   /* correction in reversed order of computation, for allows the corrected velocities 
