@@ -2,15 +2,19 @@
     The following source-code is an implementation of the fourth order 
     iterated time-symmetric Hermite integrator as described by Kokubo, 
     Yoshinaga & Makino, 1998.
+    
     Copyright (C) 2017  Nicholas Lee Hickson-Brown, Michael Eidus
+    
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
+    
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
+    
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -24,9 +28,83 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* rank of process, amount of processes and elements per process */
 int world_rank, world_size, proc_elem;
 
-/* calculates acceleration and jerk for all particles */
+/*
+ * Function:  startHermite 
+ * ====================
+ *  Entry point for the Hermite scheme. Controls current computation
+ *  and checks wether or not end of simulation has been reached.
+ *
+ *  N: amount of particles
+ *  DIM: dimensions of space
+ *  dt: timestep
+ *  end_time: end of simulation
+ *  mass: masses of all particles
+ *  pos: positions of all particles
+ *  vel: velocity of all particles
+ *  acc: acceleration for all particles
+ *  jerk: jerk for all particles
+ *  rank: rank of process
+ *  size: amount of processes
+ *  elements: amount of elements per process
+ *
+ *  returns: void
+ * --------------------
+ */
+void startHermite(int N, int DIM, double dt, double end_time, double *mass, double complex *pos, double complex *vel, 
+                  double complex *acc, double complex *jerk, int rank, int size, int elements)
+{
+  double time = 0.0; /* default time */
+  int iterations = 0; /* iteration counter, iteration 0 is equal to initial conditions */
+  
+  world_rank = rank;
+  world_size = size;
+  proc_elem = elements;
+  
+  acc_jerk(N, DIM, mass, pos, vel, acc, jerk); /* get inital acceleration and jerk for all particles */
+  
+  if(world_rank == 0)
+  {
+    energy_diagnostics(N, DIM, mass, pos, vel); /* get energy diagnostics for initial conditions */
+  }
+  
+  /* continues until specified end of simulation is reached */
+  while(time < end_time)
+  {
+    ++iterations; /* increment iteration counter from last iteration to current iteration */ 
+    
+    hermite(N, DIM, dt, mass, pos, vel, acc, jerk); /* calculate movement for current iteration */
+    
+    if(world_rank == 0)
+    {
+      printIteration(N, DIM, iterations, mass, pos, vel); /* provided by output.h */
+      energy_diagnostics(N, DIM, mass, pos, vel); /* provided by ediag.h */
+    }
+    
+    time += dt; /* add timestep to current time to advance to next iteration */
+  }
+}
+
+/*
+ * Function:  acc_jerk 
+ * ====================
+ *  Calculates acceleration and jerk for all particles by
+ *  comparing them pairwise. Comparison is not optimized,
+ *  all pairwise comparisons are calculated twice.
+ *
+ *  N: amount of particles
+ *  DIM: dimensions of space
+ *  mass: masses of all particles
+ *  pos: positions of all particles
+ *  vel: velocity of all particles
+ *  acc: acceleration for all particles
+ *  jerk: jerk for all particles
+ *
+ *  returns: void
+ * --------------------
+ */
 void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex *vel, 
               double complex *acc, double complex *jerk)
 { 
@@ -111,7 +189,7 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
     }
   }
   
-  /* gather local particles back to global arrays */
+  /* gather local particles back to global arrays on root */
   MPI_Gather(local_pos, proc_elem, MPI_C_DOUBLE_COMPLEX, pos, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
   MPI_Gather(local_vel, proc_elem, MPI_C_DOUBLE_COMPLEX, vel, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
   
@@ -119,11 +197,25 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
   MPI_Gather(local_jerk, proc_elem, MPI_C_DOUBLE_COMPLEX, jerk, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
 }
 
-/* 
-Implementation of the Hermite scheme, calculates new positions and velocities for all particles. 
-For mathematical expressions used, see: http://www.ub.uni-heidelberg.de/archiv/6553 (Section 4.5) 
-Further information: Kokubo E., Yoshinaga K., Makino J., 1998, MNRAS 297, 1067
-*/
+/*
+ * Function:  hermite 
+ * ====================
+ *  Implementation of the Hermite scheme, calculates new positions 
+ *  and velocities for all particles. 
+ *  Based on Kokubo E., Yoshinaga K., Makino J., 1998, MNRAS 297, 1067
+ *
+ *  N: amount of particles
+ *  DIM: dimensions of space
+ *  dt: timestep
+ *  mass: masses of all particles
+ *  pos: positions of all particles
+ *  vel: velocity of all particles
+ *  acc: acceleration for all particles
+ *  jerk: jerk for all particles
+ *
+ *  returns: void
+ * --------------------
+ */
 void hermite(int N, int DIM, double dt, double *mass, double complex *pos, 
              double complex *vel, double complex *acc, double complex *jerk)
 {
@@ -140,7 +232,7 @@ void hermite(int N, int DIM, double dt, double *mass, double complex *pos,
   
   if(world_rank == 0)
   { 
-    /* prediction for all particles (for mathematical expression please see links provided above) */
+    /* prediction for all particles using old values*/
     for(int i = 0; i < (N * DIM); ++i)
     {
       pos[i] += vel[i] * dt + acc[i] * ((dt * dt)/2) + jerk[i] * ((dt * dt * dt)/6);
@@ -148,55 +240,17 @@ void hermite(int N, int DIM, double dt, double *mass, double complex *pos,
     }
   }
   
-  acc_jerk(N, DIM, mass, pos, vel, acc, jerk); /* get the new acceleration and jerk for all particles*/
+  /* calculate new acceleration and jerk for all particles*/
+  acc_jerk(N, DIM, mass, pos, vel, acc, jerk);
   
   if(world_rank == 0)
   {
-    /* correction in reversed order of computation (for mathematical expression please see links provided above) 
-       reversed order allows the corrected velocities to be used to correct the positions for better energy behaviour */
+    /* correction in reversed order of computation, for allows the corrected velocities 
+       to be used to correct the positions for better energy behaviour */
     for (int i = 0; i < (N * DIM); ++i)
     {
       vel[i] = old_vel[i] + (old_acc[i] + acc[i]) * (dt/2) + (old_jerk[i] - jerk[i]) * ((dt * dt)/12);       
       pos[i] = old_pos[i] + (old_vel[i] + vel[i]) * (dt/2) + (old_acc[i] - acc[i]) * ((dt * dt)/12);
     }
-  }
-}
-
-/* entry point for the Hermite integrator, starts computation and continues until end of simulation is reached */
-void startHermite(int N, int DIM, double dt, double end_time, double *mass, double complex *pos, double complex *vel, 
-                  double complex *acc, double complex *jerk, int rank, int size, int elements)
-{
-  double time = 0.0; /* default time */
-  int iterations = 0; /* iteration counter, iteration 0 is equal to initial conditions */
-  
-  world_rank = rank;
-  world_size = size;
-  proc_elem = elements;
-  
-  acc_jerk(N, DIM, mass, pos, vel, acc, jerk); /* get inital acceleration and jerk for all particles */
-  
-  if(world_rank == 0)
-  {
-    energy_diagnostics(N, DIM, mass, pos, vel); /* get energy diagnostics for initial conditions */
-  }
-  
-  MPI_Barrier(MPI_COMM_WORLD);
-  
-  while(time < end_time) /* until user specified end of simulation is reached */
-  {
-    ++iterations; /* increment iteration counter from last iteration to current iteration */  
-    hermite(N, DIM, dt, mass, pos, vel, acc, jerk); /* calculate movement for current iteration */
-    
-    MPI_Barrier(MPI_COMM_WORLD);
-    
-    if(world_rank == 0)
-    {
-      printIteration(N, DIM, iterations, mass, pos, vel); /* print current iteration */
-      energy_diagnostics(N, DIM, mass, pos, vel); /* get energy diagnostics for current iteration */
-    }
-    
-    MPI_Barrier(MPI_COMM_WORLD);
-    
-    time += dt; /* add timestep to current time to advance to next iteration */
   }
 }
