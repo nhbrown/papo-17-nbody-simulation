@@ -27,11 +27,13 @@
 #include <stdlib.h>
 #include <time.h>
 
-/* specifies the dimensions of space */
-#define DIM   3
+#define DIM   3 /* dimensions of space */
+#define M   1.0 /* total mass of cluster */
+#define R   1.0 /* radius of cluster */
+#define G   1.0 /* gravitational constant */
 
 /* declaring function prototypes */
-void callocArrays(int N, int DIM);
+void callocArrays(int N);
 void freeArrays(void);
 
 /* pointer to arrays holding mass, position, velocity, acceleration and jerk for all particles */
@@ -59,10 +61,6 @@ int main(int argc, const char *argv[])
 
   double dt = 0.0; /* timestep */
   double end_time = 0.0; /* time where simulation ends */
-
-  static const double M = 1.0; /* total mass cluster */
-  static const double R = 1.0; /* radius of cluster */
-  static const double G = 1.0; /* gravitational constant */
   
   /* computes command line arguments */
   switch(argc)
@@ -95,7 +93,7 @@ int main(int argc, const char *argv[])
   
   createNames(); /* provided by output.h */
   
-  callocArrays(N, DIM);
+  callocArrays(N);
   
   printLog(seed, N, M, R, G, dt, end_time); /* provided by output.h */
   
@@ -123,12 +121,11 @@ int main(int argc, const char *argv[])
  *  above and also initializes each index to zero.
  *
  *  N: amount of particles
- *  DIM: dimensions of space
  *
  *  returns: void
  * --------------------
  */
-void callocArrays(int N, int DIM)
+void callocArrays(int N)
 {
   mass = calloc(N, sizeof(double));
   pos = calloc((N * DIM), sizeof(double complex));
