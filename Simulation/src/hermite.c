@@ -59,8 +59,8 @@ void startHermite(int N, int DIM, double dt, double end_time, double *mass, doub
     ++iterations; /* increment iteration counter from last iteration to current iteration */
     
     hermite(N, DIM, dt, mass, pos, vel, acc, jerk); /* calculate movement for current iteration */
-    printIteration(N, DIM, iterations, mass, pos, vel); /* print current iteration */
-    energy_diagnostics(N, DIM, mass, pos, vel); /* calculate energy diagnostics for current iteration */
+    printIteration(N, DIM, iterations, mass, pos, vel); /* provided by output.h */
+    energy_diagnostics(N, DIM, mass, pos, vel); /* provided by ediag.h */
     
     time += dt; /* add timestep to current time to advance to next iteration */
   }
