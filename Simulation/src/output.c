@@ -27,7 +27,16 @@ char logname[80]; /* buffer for name of log file */
 char conditionsname[80]; /* buffer for name of intial conditions file */
 char ediagname[80]; /* buffer for name of energy diagnostics file */
 
-/* creates names and folder for files of the currently running simulation */
+/*
+ * Function:  createNames 
+ * ====================
+ *  Creates names for files and folder for current run, 
+ *  also creates the folder where the files are stored.
+ *  Name of folder is defined by current date and time.
+ *
+ *  returns: void
+ * --------------------
+ */
 void createNames()
 {
   struct tm *sTm;
@@ -48,7 +57,20 @@ void createNames()
   }
 }
 
-/* creates and writes to inital conditions file, which holds intial masses, positions and velocities of all particles */
+/*
+ * Function:  printInitialConditions 
+ * ====================
+ *  Creates a new file to hold the initial conditions and prints them to it.
+ *
+ *  N: amount of particles
+ *  DIM: dimensions of space
+ *  mass: masses of all particles
+ *  pos: positions of all particles
+ *  vel: velocity of all particles
+ *
+ *  returns: void
+ * --------------------
+ */
 void printInitialConditions(int N, int DIM, double *mass, double complex *pos, double complex *vel)
 { 
   FILE *conditions;
@@ -64,7 +86,23 @@ void printInitialConditions(int N, int DIM, double *mass, double complex *pos, d
   fclose(conditions);
 }
 
-/* creates and writes to log file, which holds important information about the current run */
+/*
+ * Function:  printLog 
+ * ====================
+ *  Creates a new file to hold the log-file, which holds important
+ *  information about the current run, and prints them to it.
+ *  
+ *  seed: seed for Mersenne-Twister
+ *  N: amount of particles
+ *  M: total mass of cluster
+ *  R: radius of cluster
+ *  G: gravitational constant
+ *  dt: timestep
+ *  end_time: end of simulation
+ *
+ *  returns: void
+ * --------------------
+ */
 void printLog(unsigned long seed, int N, double M, double R, double G, double timestep, double end_time)
 {
   FILE *log;
@@ -76,6 +114,19 @@ void printLog(unsigned long seed, int N, double M, double R, double G, double ti
   fclose(log);
 }
 
+/*
+ * Function:  printEnergyDiagnostics 
+ * ====================
+ *  Either creates a new file to hold the energy diagnostics and prints
+ *  them to it, or appends energy diagnostics to already existing file.
+ *
+ *  e_kinetic: kinetic energy of cluster
+ *  e_potential: potential energy of cluster
+ *  e_total: total energy of cluster
+ *
+ *  returns: void
+ * --------------------
+ */
 /* writes energy diagnostics to file */
 void printEnergyDiagnostics(double e_kinetic, double e_potential, double e_total)
 {
@@ -95,7 +146,21 @@ void printEnergyDiagnostics(double e_kinetic, double e_potential, double e_total
   fclose(ediag);
 }
 
-/* creates and writes to new file for specified iteration of the computation */
+/*
+ * Function:  printIteration 
+ * ====================
+ *  Creates a new file for current iteration and prints to it.
+ *
+ *  N: amount of particles
+ *  DIM: dimensions of space
+ *  iteration: current iteration
+ *  mass: masses of all particles
+ *  pos: positions of all particles
+ *  vel: velocity of all particles
+ *
+ *  returns: void
+ * --------------------
+ */
 void printIteration(int N, int DIM, int iteration, double *mass, double complex *pos, double complex *vel)
 {
   char buffer[80];
