@@ -83,7 +83,7 @@ void startHermite(int N, int DIM, double dt, double end_time, double *mass, doub
  *  acc: acceleration for all particles
  *  jerk: jerk for all particles
  *
- *  returns: zero
+ *  returns: void
  * --------------------
  */
 void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex *vel, 
