@@ -3,4 +3,4 @@ nbody: driver.c plummer.c mersenne.c hermite.c output.c ediag.c
 
 .PHONY : clean
 clean:
-	-rm nbody nbody.err nbody.out
+	-rm nbody
