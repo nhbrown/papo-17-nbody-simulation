@@ -23,6 +23,8 @@
 #include "ediag.h"
 #include "hermite.h"
 #include "output.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 /*
@@ -182,10 +184,10 @@ void hermite(int N, int DIM, double dt, double *mass, double complex *pos,
   }
   
   /* copy data from last iteration */
-  memcpy(old_pos, pos, (N * DIM));
-  memcpy(old_vel, vel, (N * DIM));
-  memcpy(old_acc, acc, (N * DIM));
-  memcpy(old_jerk, jerk, (N * DIM));
+  memcpy(old_pos, pos, ((N * DIM) * sizeof(double complex)));
+  memcpy(old_vel, vel, ((N * DIM) * sizeof(double complex)));
+  memcpy(old_acc, acc, ((N * DIM) * sizeof(double complex)));
+  memcpy(old_jerk, jerk, ((N * DIM) * sizeof(double complex)));
   
   /* prediction for all particles using old values*/
   for(int i = 0; i < (N * DIM); ++i)
@@ -197,7 +199,7 @@ void hermite(int N, int DIM, double dt, double *mass, double complex *pos,
   /* calculate new acceleration and jerk for all particles*/
   acc_jerk(N, DIM, mass, pos, vel, acc, jerk);
   
-  /* correction in reversed order of computation, for allows the corrected velocities 
+  /* correction in reversed order of computation, allows the corrected velocities 
      to be used to correct the positions for better energy behaviour */
   for (int i = 0; i < (N * DIM); ++i)
   {
