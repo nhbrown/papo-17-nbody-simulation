@@ -206,4 +206,9 @@ void hermite(int N, int DIM, double dt, double *mass, double complex *pos,
     vel[i] = old_vel[i] + (old_acc[i] + acc[i]) * (dt/2) + (old_jerk[i] - jerk[i]) * ((dt * dt)/12);       
     pos[i] = old_pos[i] + (old_vel[i] + vel[i]) * (dt/2) + (old_acc[i] - acc[i]) * ((dt * dt)/12);
   }
+  
+  free(old_pos);
+  free(old_vel);
+  free(old_acc);
+  free(old_jerk);
 }
