@@ -23,6 +23,8 @@
 #include "ediag.h"
 #include "hermite.h"
 #include "output.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 /*
@@ -169,15 +171,23 @@ void hermite(int N, int DIM, double dt, double *mass, double complex *pos,
              double complex *vel, double complex *acc, double complex *jerk)
 {
   /* storing positions, velocities, acceleration and jerk from last iteration */
-  double complex old_pos[N * DIM];
-  double complex old_vel[N * DIM];  
-  double complex old_acc[N * DIM];
-  double complex old_jerk[N * DIM];
+  double complex *old_pos = calloc((N * DIM), sizeof(double complex));
+  double complex *old_vel = calloc((N * DIM), sizeof(double complex));
+  double complex *old_acc = calloc((N * DIM), sizeof(double complex));
+  double complex *old_jerk = calloc((N * DIM), sizeof(double complex));
   
-  memcpy(old_pos, pos, sizeof(old_pos));
-  memcpy(old_vel, vel, sizeof(old_vel));
-  memcpy(old_acc, acc, sizeof(old_acc));
-  memcpy(old_jerk, jerk, sizeof(old_jerk));
+  /* allocation guard */
+  if(old_pos == NULL || old_vel == NULL || old_acc == NULL || old_jerk == NULL)
+  {
+    fprintf(stderr, "Out of memory!\n");
+    exit(0);
+  }
+  
+  /* copy data from last iteration */
+  memcpy(old_pos, pos, ((N * DIM) * sizeof(double complex)));
+  memcpy(old_vel, vel, ((N * DIM) * sizeof(double complex)));
+  memcpy(old_acc, acc, ((N * DIM) * sizeof(double complex)));
+  memcpy(old_jerk, jerk, ((N * DIM) * sizeof(double complex)));
   
   /* prediction for all particles using old values*/
   for(int i = 0; i < (N * DIM); ++i)
@@ -189,11 +199,16 @@ void hermite(int N, int DIM, double dt, double *mass, double complex *pos,
   /* calculate new acceleration and jerk for all particles*/
   acc_jerk(N, DIM, mass, pos, vel, acc, jerk);
   
-  /* correction in reversed order of computation, for allows the corrected velocities 
+  /* correction in reversed order of computation, allows the corrected velocities 
      to be used to correct the positions for better energy behaviour */
   for (int i = 0; i < (N * DIM); ++i)
   {
     vel[i] = old_vel[i] + (old_acc[i] + acc[i]) * (dt/2) + (old_jerk[i] - jerk[i]) * ((dt * dt)/12);       
     pos[i] = old_pos[i] + (old_vel[i] + vel[i]) * (dt/2) + (old_acc[i] - acc[i]) * ((dt * dt)/12);
   }
+  
+  free(old_pos);
+  free(old_vel);
+  free(old_acc);
+  free(old_jerk);
 }
