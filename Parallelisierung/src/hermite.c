@@ -195,6 +195,11 @@ void acc_jerk(int N, int DIM, double *mass, double complex *pos, double complex 
   
   MPI_Gather(local_acc, proc_elem, MPI_C_DOUBLE_COMPLEX, acc, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
   MPI_Gather(local_jerk, proc_elem, MPI_C_DOUBLE_COMPLEX, jerk, proc_elem, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+  
+  free(local_pos);
+  free(local_vel);
+  free(local_acc);
+  free(local_jerk);
 }
 
 /*
