@@ -16,7 +16,7 @@ uniform int sparklingStar;
 uniform float sinSparkling;
 uniform int NUM_PARTICLE;
 uniform int numberOfMarkedParticles;
-uniform int pointSize;
+uniform float pointSize;
 uniform int colorMode;
 
 float sparkling = 0;
