@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 #include <windows.h>
+#include <math.h>
 #include <io.h>      /* Count files(iterations) MS-DOS , #include <unistd.h> for UNIX/LINUX */
 
 // Glad
@@ -34,26 +35,29 @@
 // Display settings
 GLuint WIDTH = 800, HEIGHT = 600;
 GLuint windowedWIDTH = WIDTH, windowedHEIGHT = HEIGHT; // Save width and height before entering fullscreen
-int antiAliasing = 2;
+const int antiAliasing = 2;
 glm::vec3 textColor = glm::vec3(0.9, 0.9, 0.9); // Text color for data presentation
 glm::vec3 scaleDistanceToCenterColor = glm::vec3(0, 1, 0);
 glm::vec3 scaleDistanceOutsideColor = glm::vec3(1, 0, 0);
 
 // Data settings
 char dataFolder[128] = "run"; // Default folder for data
-unsigned int NUM_PARTICLE = countParticle(); // Set number of particles 
-unsigned const int numOfIterations = countIterations(); // Set number of iterations
+const int NUM_PARTICLE = countParticle(); // Set number of particles 
+const int numOfIterations = countIterations(); // Set number of iterations
 int particlesWithscaleDistanceToCenter = 0;
 int particlesWithscaleDistanceOutside = 0;
-unsigned int iterationCounter = 1; // Current iteration
+int iterationCounter = 1; // Current iteration
 int indexStar = 0; // Every iteration a new star
-float sparklingTime = 0.5;
+const float sparklingTime = 0.5;
 int sparklingStar = 0;
 float sinSparkling = 0;
 double currentTime = 0;
 double currentTimeForSparkling = 0;
 double deltaTime = 0;
+int waitOneFrame = 0;
 int error = 0;
+int simpleStars = 1;
+
 int numberOfPoints = 93; // Number of points for star shape (number of vertices)
 glm::vec3 *energy = (glm::vec3 *)malloc((numOfIterations+1) * sizeof(glm::vec3)); // Generate a new list of numOfIterations particles for energy data
 
@@ -62,7 +66,7 @@ int fullScreen = 0;
 int active = 0;
 int showDistance = 0;
 int showData = 1; 
-int pointSize = 0;
+float pointSize = 0.3;
 int slowMotion = 0;
 int mouseLook = 0;
 int numberOfMarkedParticles = 0;
@@ -117,21 +121,45 @@ struct Character {
 std::map<GLchar, Character> Characters;
 GLuint VAO, VBO;
 
+// Set up vertex data of simple star
+float defaultSimpleStar[] = { 0.0f, 0.0f, 0.0f };
+
+// Set up vertex data of complex star
+const float complexStar[] = {
+
+	0.0000f,  0.0000f, 0.0000f,	0.0000f,  0.0001f, 0.0000f,	0.0000f,  -0.0001f, 0.0000f,	0.0001f,  0.0000f, 0.0000f,	-0.0001f,  0.0000f, 0.0000f,	0.0000f,  0.0000f, 0.0001f,
+	0.0000f,  0.0000f, -0.0001f,	0.0000f,  0.0002f, 0.0000f,	0.0000f,  -0.0002f, 0.0000f,	0.0002f,  0.0000f, 0.0000f,	-0.0002f,  0.0000f, 0.0000f,	0.0000f,  0.0000f, 0.0002f,
+	0.0000f,  0.0000f, -0.0002f,	0.0000f,  0.0003f, 0.0000f,	0.0000f,  -0.0003f, 0.0000f,	0.0003f,  0.0000f, 0.0000f,	-0.0003f,  0.0000f, 0.0000f,	0.0000f,  0.0000f, 0.0003f,
+	0.0000f,  0.0000f, -0.0003f,	0.000000f,  -0.001f, 0.000000f,	0.000000f,  0.001f, 0.000000f,	0.001f,  0.000000f, 0.000000f,	-0.001f,  0.000000f, 0.000000f,	0.000000f,  0.000000f, 0.001f,
+	0.000000f,  0.000000f, -0.001f,	0.000000f,  -0.0005f, 0.000000f,	0.000000f,  0.0005f, 0.000000f,	0.0005f,  0.000000f, 0.000000f,	-0.0005f,  0.000000f, 0.000000f,	0.000000f,  0.000000f, 0.0005f,
+	0.000000f,  0.000000f, -0.0005f,	0.000000f,  -0.0001f, -0.0001f,	0.000000f,  0.0001f, -0.0001f,	0.000000f,  -0.0001f, 0.0001f,	0.000000f,  0.0001f, 0.0001f,	0.0001f,  0.000000f, -0.0001f,
+	-0.0001f,  0.000000f, -0.0001f,	0.0001f,  0.000000f, 0.0001f,	-0.0001f,  0.000000f, 0.0001f,	0.0001f,  -0.0001f, 0.000000f,	-0.0001f,  -0.0001f, 0.000000f,	0.0001f,  0.0001f, 0.000000f,
+	-0.0001f,  0.0001f, 0.000000f,	-0.0001f,  -0.0001f, -0.0001f,	-0.0001f,  -0.0001f, +0.0001f,	-0.0001f,  +0.0001f, +0.0001f,	+0.0001f,  +0.0001f, +0.0001f,	+0.0001f,  +0.0001f, -0.0001f,
+	+0.0001f,  -0.0001f, -0.0001f,	-0.0001f,  +0.0001f, -0.0001f,	+0.0001f,  -0.0001f, +0.0001f,	0.000000f,  -0.0002f, -0.0002f,	0.000000f,  0.0002f, -0.0002f,	0.000000f,  -0.0002f, 0.0002f,
+	0.000000f,  0.0002f, 0.0002f,	0.0002f,  0.000000f, -0.0002f,	-0.0002f,  0.000000f, -0.0002f,	0.0002f,  0.000000f, 0.0002f,	-0.0002f,  0.000000f, 0.0002f,	0.0002f,  -0.0002f, 0.000000f,
+	-0.0002f,  -0.0002f, 0.000000f,	0.0002f,  0.0002f, 0.000000f,	-0.0002f,  0.0002f, 0.000000f,	-0.0002f,  -0.0002f, -0.0002f,	-0.0002f,  -0.0002f, +0.0002f,	-0.0002f,  +0.0002f, +0.0002f,
+	+0.0002f,  +0.0002f, +0.0002f,	+0.0002f,  +0.0002f, -0.0002f,	+0.0002f,  -0.0002f, -0.0002f,	-0.0002f,  +0.0002f, -0.0002f,	+0.0002f,  -0.0002f, +0.0002f,	0.000000f,  -0.0005f, -0.0005f,
+	0.000000f,  0.0005f, -0.0005f,	0.000000f,  -0.0005f, 0.0005f,	0.000000f,  0.0005f, 0.0005f,	0.0005f,  0.000000f, -0.0005f,	-0.0005f,  0.000000f, -0.0005f,	0.0005f,  0.000000f, 0.0005f,
+	-0.0005f,  0.000000f, 0.0005f,	0.0005f,  -0.0005f, 0.000000f,	-0.0005f,  -0.0005f, 0.000000f,	0.0005f,  0.0005f, 0.000000f,	-0.0005f,  0.0005f, 0.000000f,	-0.0005f,  -0.0005f, -0.0005f,
+	-0.0005f,  -0.0005f, +0.0005f,	-0.0005f,  +0.0005f, +0.0005f,	+0.0005f,  +0.0005f, +0.0005f,	+0.0005f,  +0.0005f, -0.0005f,	+0.0005f,  -0.0005f, -0.0005f,	-0.0005f,  +0.0005f, -0.0005f,
+	+0.0005f,  -0.0005f, +0.0005f
+};
+
 //---Main
 int main()
 {
-	// glfw initialize and configure
+	// Glfw initialize and configure
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_SAMPLES, antiAliasing); // Antialiasing
 
-	// glfw window creation
+	// Glfw window creation
 	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "NBody_Visualization_2.0", nullptr, nullptr); // Windowed
 	if (window == NULL)
 	{
-		std::cout << "Failed to create GLFW window" << std::endl;
+		printf("Failed to create GLFW window");
 		glfwTerminate();
 		return -1;
 	}
@@ -139,10 +167,10 @@ int main()
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); // Window resize
 	glfwSetCursorPosCallback(window, mouse_callback);
 
-	// glad load all OpenGL function pointers
+	// Glad load all OpenGL function pointers
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		std::cout << "Failed to initialize GLAD" << std::endl;
+		printf("Failed to initialize GLAD");
 		return -1;
 	}
 
@@ -156,6 +184,12 @@ int main()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_PROGRAM_POINT_SIZE);
 
+	// Build and compile shaders for circle
+	Shader shaderCircle("shaders/circle.vs", "shaders/circle.fs");
+	
+	// build and compile shaders for instancing
+	Shader shaderInstance("shaders/instancing.vs", "shaders/instancing.fs");
+
 	//---FreeType
 	// Compile and setup the text shader
 	Shader shaderText("shaders/text.vs", "shaders/text.fs");
@@ -166,12 +200,12 @@ int main()
 	FT_Library ft;
 	// All functions return a value different than 0 whenever an error occurred
 	if (FT_Init_FreeType(&ft))
-		std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+		printf("ERROR::FREETYPE: Could not init FreeType Library");
 
 	// Load font as face
 	FT_Face face;
 	if (FT_New_Face(ft, "fonts/calibri.ttf", 0, &face))
-		std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+		printf("ERROR::FREETYPE: Failed to load font");
 
 	// Set size to load glyphs as
 	FT_Set_Pixel_Sizes(face, 0, 48);
@@ -185,7 +219,7 @@ int main()
 		// Load character glyph 
 		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
 		{
-			std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+			printf("ERROR::FREETYTPE: Failed to load Glyph");
 			continue;
 		}
 		// Generate texture
@@ -233,12 +267,6 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	//---FreeType---END
-
-	// Build and compile shaders for circle
-	Shader shaderCircle("shaders/circle.vs", "shaders/circle.fs");
-	
-	// build and compile shaders for instancing
-	Shader shaderInstance("shaders/instancing.vs", "shaders/instancing.fs");
 	
 	//Read energy-data from energy_diagnostics.csv
 	readEnergyData(energy);
@@ -246,34 +274,45 @@ int main()
 	// Render loop
 	while (!glfwWindowShouldClose(window))
 	{
+		currentTime = glfwGetTime(); // For fps
+
 		if((glfwGetTime() - currentTimeForSparkling) > sparklingTime) // If more than sparklingTime since last time
 		{ 
 			currentTimeForSparkling = glfwGetTime(); // Reset timer
-			sparklingStar++; // Mark next star for sparkling
+			if (sparklingStar < NUM_PARTICLE)
+			{
+				sparklingStar++; // Mark next star for sparkling
+			}
+			else
+			{
+				sparklingStar = 0;
+			}
+			
 		}
 		else
 		{
 			sinSparkling = 1 / sparklingTime * (glfwGetTime() - currentTimeForSparkling) * 3.14; // SinSparkling goes from 0 - 3,14 => one star is smoothly sparkling 
 		}
-
-		currentTime = glfwGetTime(); // For fps
-
+			
 		// Hotkey input
 		processInput(window);
 
-		// Reset particle counter 
-		particlesWithscaleDistanceToCenter = 0; 
-		particlesWithscaleDistanceOutside = 0;
-		
 		// render
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-		if (funPaintMode == 0)
+		if (funPaintMode == 0 || waitOneFrame < 1)
 		{
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
+		if (funPaintMode == 1) // Otherwise data is still drawn
+		{
+			if (waitOneFrame == 0)
+			{
+				waitOneFrame = 1; 
+			}	
+		}
 
-		if(showData == 1)
+		if(showData == 1 && funPaintMode == 0)
 		{ 
 			RenderText(shaderText, "FPS: " + std::to_string((int)(1 / deltaTime)), 5.0f, 600 - 10.0f, 0.2f, textColor);
 
@@ -289,9 +328,9 @@ int main()
 			}		
 
 			RenderText(shaderText, "==>", 5.0f, 35.0f, 0.2f, scaleDistanceToCenterColor);
-			RenderText(shaderText, "Distance < " + std::to_string((int)(scaleDistanceToCenter)) + "." + std::to_string((int)(scaleDistanceToCenter * 100)-(int)(scaleDistanceToCenter)*100) + ": " + std::to_string(particlesWithscaleDistanceToCenter), 20.0f, 35.0f, 0.2f, textColor);
+			RenderText(shaderText, "Distance < " + std::to_string(scaleDistanceToCenter).substr(0, 4) + ": " + std::to_string(particlesWithscaleDistanceToCenter), 20.0f, 35.0f, 0.2f, textColor);
 			RenderText(shaderText, "==>", 5.0f, 25.0f, 0.2f, scaleDistanceOutsideColor);
-			RenderText(shaderText, "Distance > " + std::to_string((int)(scaleDistanceOutside)) + "." + std::to_string((int)(scaleDistanceOutside * 100) - (int)(scaleDistanceOutside) * 100) + ": " + std::to_string(particlesWithscaleDistanceOutside), 20.0f, 25.0f, 0.2f, textColor);
+			RenderText(shaderText, "Distance > " + std::to_string(scaleDistanceOutside).substr(0, 4) + ": " + std::to_string(particlesWithscaleDistanceOutside), 20.0f, 25.0f, 0.2f, textColor);
 			RenderText(shaderText, "Energy: " + std::to_string((double)energy[iterationCounter].x) + " , " + std::to_string((double)energy[iterationCounter].y) + " , " + std::to_string((double)energy[iterationCounter].z), 5.0f, 15.0f, 0.2f, textColor);
 			RenderText(shaderText, "Iteration: " + std::to_string(iterationCounter), 5.0f, 5.0f, 0.2f, textColor);
 		}
@@ -304,14 +343,17 @@ int main()
 		{
 			RenderText(shaderText, "Slowmotion", 5.0f, 600 - 20, 0.2f, glm::vec3(0.9, 0.0f, 1.0f));
 		}
+
+		// Reset particle counter 
+		particlesWithscaleDistanceToCenter = 0;
+		particlesWithscaleDistanceOutside = 0;
 			
-		//---Distance
+		// Show and draw distance
 		if (showDistance == 1)
 		{
 			drawCircle(shaderCircle, scaleDistanceToCenter, scaleDistanceToCenterColor);
 			drawCircle(shaderCircle, scaleDistanceOutside, scaleDistanceOutsideColor);
 		}
-		//---Distance---END
 
 		// Draw instanced particles
 		drawParticles(shaderInstance);
@@ -371,125 +413,6 @@ int main()
 
 void drawParticles(Shader &shader)
 {
-	// Set up vertex data of default star
-	float verticesStar[] =
-	{
-		// Center
-		0.0000f,  0.0000f, 0.0000f,
-
-		0.0000f,  0.0001f, 0.0000f,
-		0.0000f,  -0.0001f, 0.0000f,
-		0.0001f,  0.0000f, 0.0000f,
-		-0.0001f,  0.0000f, 0.0000f,
-		0.0000f,  0.0000f, 0.0001f,
-		0.0000f,  0.0000f, -0.0001f,
-
-		0.0000f,  0.0002f, 0.0000f,
-		0.0000f,  -0.0002f, 0.0000f,
-		0.0002f,  0.0000f, 0.0000f,
-		-0.0002f,  0.0000f, 0.0000f,
-		0.0000f,  0.0000f, 0.0002f,
-		0.0000f,  0.0000f, -0.0002f,
-
-		0.0000f,  0.0003f, 0.0000f,
-		0.0000f,  -0.0003f, 0.0000f,
-		0.0003f,  0.0000f, 0.0000f,
-		-0.0003f,  0.0000f, 0.0000f,
-		0.0000f,  0.0000f, 0.0003f,
-		0.0000f,  0.0000f, -0.0003f,
-
-		// Cross
-		0.000000f,  -0.001f, 0.000000f,
-		0.000000f,  0.001f, 0.000000f,
-		0.001f,  0.000000f, 0.000000f,
-		-0.001f,  0.000000f, 0.000000f,
-		0.000000f,  0.000000f, 0.001f,
-		0.000000f,  0.000000f, -0.001f,
-
-		// Inner cross
-		0.000000f,  -0.0005f, 0.000000f,
-		0.000000f,  0.0005f, 0.000000f,
-		0.0005f,  0.000000f, 0.000000f,
-		-0.0005f,  0.000000f, 0.000000f,
-		0.000000f,  0.000000f, 0.0005f,
-		0.000000f,  0.000000f, -0.0005f,
-
-		// Fillment center
-		0.000000f,  -0.0001f, -0.0001f,
-		0.000000f,  0.0001f, -0.0001f,
-		0.000000f,  -0.0001f, 0.0001f,
-		0.000000f,  0.0001f, 0.0001f,
-
-		0.0001f,  0.000000f, -0.0001f,
-		-0.0001f,  0.000000f, -0.0001f,
-		0.0001f,  0.000000f, 0.0001f,
-		-0.0001f,  0.000000f, 0.0001f,
-
-		0.0001f,  -0.0001f, 0.000000f,
-		-0.0001f,  -0.0001f, 0.000000f,
-		0.0001f,  0.0001f, 0.000000f,
-		-0.0001f,  0.0001f, 0.000000f,
-
-		-0.0001f,  -0.0001f, -0.0001f,
-		-0.0001f,  -0.0001f, +0.0001f,
-		-0.0001f,  +0.0001f, +0.0001f,
-		+0.0001f,  +0.0001f, +0.0001f,
-		+0.0001f,  +0.0001f, -0.0001f,
-		+0.0001f,  -0.0001f, -0.0001f,
-		-0.0001f,  +0.0001f, -0.0001f,
-		+0.0001f,  -0.0001f, +0.0001f,
-
-		// Fillment center 2
-		0.000000f,  -0.0002f, -0.0002f,
-		0.000000f,  0.0002f, -0.0002f,
-		0.000000f,  -0.0002f, 0.0002f,
-		0.000000f,  0.0002f, 0.0002f,
-
-		0.0002f,  0.000000f, -0.0002f,
-		-0.0002f,  0.000000f, -0.0002f,
-		0.0002f,  0.000000f, 0.0002f,
-		-0.0002f,  0.000000f, 0.0002f,
-
-		0.0002f,  -0.0002f, 0.000000f,
-		-0.0002f,  -0.0002f, 0.000000f,
-		0.0002f,  0.0002f, 0.000000f,
-		-0.0002f,  0.0002f, 0.000000f,
-
-		-0.0002f,  -0.0002f, -0.0002f,
-		-0.0002f,  -0.0002f, +0.0002f,
-		-0.0002f,  +0.0002f, +0.0002f,
-		+0.0002f,  +0.0002f, +0.0002f,
-		+0.0002f,  +0.0002f, -0.0002f,
-		+0.0002f,  -0.0002f, -0.0002f,
-		-0.0002f,  +0.0002f, -0.0002f,
-		+0.0002f,  -0.0002f, +0.0002f,
-
-		// Fillment
-		0.000000f,  -0.0005f, -0.0005f,
-		0.000000f,  0.0005f, -0.0005f,
-		0.000000f,  -0.0005f, 0.0005f,
-		0.000000f,  0.0005f, 0.0005f,
-
-		0.0005f,  0.000000f, -0.0005f,
-		-0.0005f,  0.000000f, -0.0005f,
-		0.0005f,  0.000000f, 0.0005f,
-		-0.0005f,  0.000000f, 0.0005f,
-
-		0.0005f,  -0.0005f, 0.000000f,
-		-0.0005f,  -0.0005f, 0.000000f,
-		0.0005f,  0.0005f, 0.000000f,
-		-0.0005f,  0.0005f, 0.000000f,
-
-		-0.0005f,  -0.0005f, -0.0005f,
-		-0.0005f,  -0.0005f, +0.0005f,
-		-0.0005f,  +0.0005f, +0.0005f,
-		+0.0005f,  +0.0005f, +0.0005f,
-		+0.0005f,  +0.0005f, -0.0005f,
-		+0.0005f,  -0.0005f, -0.0005f,
-		-0.0005f,  +0.0005f, -0.0005f,
-		+0.0005f,  -0.0005f, +0.0005f,
-	};
-
 	//---READ DATA
 	// Generate a new list of NUM_PARTICLE particles
 	glm::vec3 *translations = (glm::vec3 *)malloc(NUM_PARTICLE * sizeof(glm::vec3));
@@ -507,7 +430,7 @@ void drawParticles(Shader &shader)
 		snprintf(file, sizeof(char) * 128, "%s\\iteration_%i.csv", dataFolder, iterationCounter);
 	}
 	FILE *CSV;
-	unsigned int index = 0; // Curent particle
+	int index = 0; // Curent particle
 	float x, y, z, m, vx, vy, vz;
 
 	CSV = fopen(file, "r");
@@ -562,7 +485,15 @@ void drawParticles(Shader &shader)
 	glGenBuffers(1, &quadVBO);
 	glBindVertexArray(quadVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verticesStar), verticesStar, GL_STATIC_DRAW);
+
+	if (simpleStars > 0)
+	{
+		glBufferData(GL_ARRAY_BUFFER, sizeof(defaultSimpleStar), defaultSimpleStar, GL_STATIC_DRAW);
+	}
+	else
+	{
+		glBufferData(GL_ARRAY_BUFFER, sizeof(complexStar), complexStar, GL_STATIC_DRAW);
+	}
 
 	// Set default vertice 
 	glEnableVertexAttribArray(0);
@@ -612,7 +543,7 @@ void drawParticles(Shader &shader)
 	shader.setInt("numberOfMarkedParticles", numberOfMarkedParticles);
 
 	// Send point size to shader
-	shader.setInt("pointSize", pointSize);
+	shader.setFloat("pointSize", pointSize);
 
 	// Send color mode to shader
 	shader.setInt("colorMode", colorMode);
@@ -671,7 +602,7 @@ void RenderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat 
 
 void drawCircle(Shader &shader, float radius, glm::vec3 scaleColor)
 {
-	float numberOfCircleSectors = 2 * 3.141592 / 0.05;
+	const float numberOfCircleSectors = 2 * 3.141592 / 0.05;
 
 	shader.use();
 
@@ -744,7 +675,7 @@ void readEnergyData(glm::vec3 *energy)
 	snprintf(file, sizeof(char) * 128, "%s\\energy_diagnostics.csv", dataFolder);
 
 	FILE *CSV1;
-	unsigned int index1 = 0;
+	int index1 = 0;
 	float x1, y1, z1;
 
 	CSV1 = fopen(file, "r");
@@ -989,19 +920,28 @@ void processInput(GLFWwindow *window)
 		}
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) // Point size
+	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) // Point size and simple star shape
+	{
+		pointSize = 0.3;
+		simpleStars = 1;
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) // Point size and complex star shape
 	{
 		pointSize = 0;
+		simpleStars = 0;
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) // Point size
+	if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) // Point size and complex star shape
 	{
 		pointSize = 1;
+		simpleStars = 0;		
 	}
-
-	if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) // Point size
+	
+	if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) // Point size and complex star shape
 	{
 		pointSize = 2;
+		simpleStars = 0;
 	}
 
 	int newStateSpace = glfwGetKey(window, GLFW_KEY_SPACE); 
@@ -1099,9 +1039,17 @@ void processInput(GLFWwindow *window)
 	int newStateKP_1 = glfwGetKey(window, GLFW_KEY_KP_1);
 	if (newStateKP_1 == GLFW_RELEASE && oldStateKP_1 == GLFW_PRESS) // Decrease inner scale
 	{
-		if (scaleDistanceToCenter > 0)
+		if (scaleDistanceToCenter >= 5.00f)
 		{
-			scaleDistanceToCenter -= 0.25;
+			scaleDistanceToCenter -= 1.00f;
+		}
+		else if (scaleDistanceToCenter > 1.00f)
+		{
+			scaleDistanceToCenter -= 0.50f;
+		}
+		else if (scaleDistanceToCenter >= 0.10f)
+		{
+			scaleDistanceToCenter -= 0.05f;
 		}
 	}
 	oldStateKP_1 = newStateKP_1;
@@ -1109,16 +1057,36 @@ void processInput(GLFWwindow *window)
 	int newStateKP_4 = glfwGetKey(window, GLFW_KEY_KP_4);
 	if (newStateKP_4 == GLFW_RELEASE && oldStateKP_4 == GLFW_PRESS) // Enlarge inner scale
 	{
-			scaleDistanceToCenter += 0.25;
+
+		if (scaleDistanceToCenter >= 5.00f)
+		{
+			scaleDistanceToCenter += 1.00f;
+		}
+		else if (scaleDistanceToCenter >= 1.00f)
+		{
+			scaleDistanceToCenter += 0.50f;
+		}
+		else if (scaleDistanceToCenter >= 0.00f)
+		{
+			scaleDistanceToCenter += 0.05f;
+		}
 	}
 	oldStateKP_4 = newStateKP_4;
 
 	int newStateKP_2 = glfwGetKey(window, GLFW_KEY_KP_2);
 	if (newStateKP_2 == GLFW_RELEASE && oldStateKP_2 == GLFW_PRESS) // Decrease outer scale
 	{
-		if (scaleDistanceOutside > 0)
+		if (scaleDistanceOutside > 5.00f)
 		{
-			scaleDistanceOutside -= 0.25;
+			scaleDistanceOutside -= 1.00f;
+		}
+		else if (scaleDistanceOutside > 1.00f)
+		{
+			scaleDistanceOutside -= 0.50f;
+		}
+		else if (scaleDistanceOutside > 0.10)
+		{
+			scaleDistanceOutside -= 0.05f;
 		}
 	}
 	oldStateKP_2 = newStateKP_2;
@@ -1126,8 +1094,20 @@ void processInput(GLFWwindow *window)
 	int newStateKP_5 = glfwGetKey(window, GLFW_KEY_KP_5);
 	if (newStateKP_5 == GLFW_RELEASE && oldStateKP_5 == GLFW_PRESS) // Enlarge outer scale
 	{
-		scaleDistanceOutside += 0.25;
+		if (scaleDistanceOutside >= 5.00f)
+		{
+			scaleDistanceOutside += 1.00f;
+		}
+		else if (scaleDistanceOutside >= 1.00f)
+		{
+			scaleDistanceOutside += 0.50f;
+		}
+		else if (scaleDistanceOutside >= 0.00f)
+		{
+			scaleDistanceOutside += 0.05f;
+		}
 	}
+
 	oldStateKP_5 = newStateKP_5;
 
 	int newStateC = glfwGetKey(window, GLFW_KEY_C);
@@ -1145,7 +1125,7 @@ void processInput(GLFWwindow *window)
 	oldStateC = newStateC;
 
 	int newStateP = glfwGetKey(window, GLFW_KEY_P);
-	if (newStateP == GLFW_RELEASE && oldStateP == GLFW_PRESS) // Color mode
+	if (newStateP == GLFW_RELEASE && oldStateP == GLFW_PRESS) // Experimental painting mode
 	{
 		if (funPaintMode == 0)
 		{
@@ -1156,6 +1136,7 @@ void processInput(GLFWwindow *window)
 		{
 			funPaintMode = 0;
 			colorMode = 0;
+			waitOneFrame = 0;
 		}
 	}
 	oldStateP = newStateP;
