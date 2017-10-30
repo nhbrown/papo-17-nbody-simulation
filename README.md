@@ -8,7 +8,7 @@ To compile the source code for the computation make sure that the files containe
 
 Alternatively you can use the provided __makefile__.
 
-The source code for the visualization does not need to be individually compiled as the folder __Visualization__ contains the executable __NBodyVisualization_1.0.exe__ for ease of use.
+The source code for the visualization does not need to be individually compiled as the folder __Visualization__ contains a zip-File containing the __N Body Visualization 2.0.exe__ for ease of use.
 
 ## Running the simulation ##
 To run the simulation you need to execute the file __nbody__ after compiling the source code and specify the desired parameters. Available options are:
@@ -32,14 +32,30 @@ The order of the particle information within initial_conditions.csv and the iter
 __x-Axis-Position, y-Axis-Position, z-Axis-Position, Mass, x-Axis-Velocity, y-Axis-Velocity, z-Axis-Velocity__
 
 ## Visualizing the generated output ##
-To visualize the generated data from the simulation make sure that the executable __NBodyVisualization_1.0.exe__, the folder __shader__ and the folder containing the generated data are all in the same place. 
+To visualize the generated data from the simulation make sure that the executable __N Body Visualization 2.0.exe__, the dll's __freetype6.dll__ and __zlib1.dll__, the folder __shaders__, __fonts__ and the folder containing the generated data are all in the same place. 
 
 Rename the folder __"run_YEAR_MONTH_DAY_HOURS:MINUTES:SECONDS"__ to just __"run"__ and start the executable. Two windows should appear, one containing information and another containing the visualization.
 
-The visualization can be started by pressing __W__, stopped by pressing __S__ and reset by pressing __X__.
+By pressing __alt + enter__ the fullscreen mode can be activated and deactivated.
+
+The visualization can be started and stopped by pressing __space__ and reset by pressing __R__.
 
 By pressing the __arrow keys__ zoom and rotation can be controlled.
 
-The point size of the particles can be modified by pressing __1__, __2__ and __3__.
+By pressing __M__ mouselook can be activated and deactivated.
 
-Visual effects and colour of particles can be adapted with the __E__, __R__ and __F__ keys.
+The point size of the particles can be modified by pressing __1__, __2__, __3__.
+
+By pressing __D__ data can be displayed and hidden.
+
+By pressing __F__ circles for distance measuring can be displayed and hidden.
+
+By pressing __NUM_1__, __NUM_4__, __NUM_2__ and __NUM_5__ the aforementioned circles can be changed in size.
+
+By pressing __S__ slowmotion can be activated and deactivated.
+
+By pressing __C__ colored mode can be activated and deactivated.
+
+By pressing __P__ the experimental painting mode can be activated and deactivated.
+
+Press __escape__ to exit the visualization.
